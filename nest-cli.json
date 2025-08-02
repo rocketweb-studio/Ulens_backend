@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "apps/snaptica_backend/src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "webpack": true,
+    "tsConfigPath": "apps/snaptica_backend/tsconfig.app.json"
+  },
+  "monorepo": true,
+  "root": "apps/snaptica_backend",
+  "projects": {
+    "auth": {
+      "type": "application",
+      "root": "apps/auth",
+      "entryFile": "main",
+      "sourceRoot": "apps/auth/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/auth/tsconfig.app.json"
+      }
+    },
+    "snaptica_backend": {
+      "type": "application",
+      "root": "apps/snaptica_backend",
+      "entryFile": "main",
+      "sourceRoot": "apps/snaptica_backend/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/snaptica_backend/tsconfig.app.json"
+      }
+    }
+  }
+}

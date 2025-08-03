@@ -1,5 +1,5 @@
 {
-  "name": "snaptica_backend",
+  "name": "ulens_backend",
   "version": "0.0.1",
   "description": "",
   "author": "Rocketweb",
@@ -12,6 +12,7 @@
     "start:dev": "nest start --watch",
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/apps/snaptica_backend/main",
+    "start:auth": "node dist/apps/auth/main",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",

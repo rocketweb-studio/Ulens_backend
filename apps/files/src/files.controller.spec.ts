@@ -1,6 +1,6 @@
-describe('AppController', () => {
+describe('FilesController', () => {
   describe('root', () => {
-    it('init e2e test', () => {
+    it('init unit test', () => {
       expect(true).toBe(true);
     });
   });

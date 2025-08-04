@@ -1,8 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { AuthController } from './auth.controller';
-import { AuthService } from './auth.service';
-import { CoreEnvConfig } from './core/core-env.config';
-import { CoreModule } from './core/core.module';
+import { AuthController } from '@/auth.controller';
+import { AuthService } from '@/auth.service';
+import { CoreEnvConfig } from '@/core/core-env.config';
+import { CoreModule } from '@/core/core.module';
 
 @Module({
   imports: [CoreModule],

@@ -17,6 +17,17 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "paths": {}
-  }
+    "composite": true
+  },
+  "references": [
+    {
+      "path": "./apps/auth/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/main/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/files/tsconfig.app.json"
+    }
+  ]
 }

@@ -1,9 +1,5 @@
-/* eslint-disable @typescript-eslint/no-unsafe-call */
-/* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { validateSync } from 'class-validator';
 
-// просто утилита, даже не классом её сделали, чтобы не париться с DI и использовать её напрямую где надо нам.
 export const configValidationUtility = {
   validateConfig: (config: any) => {
     const errors = validateSync(config);

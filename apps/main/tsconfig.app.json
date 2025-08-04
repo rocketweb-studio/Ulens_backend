@@ -2,7 +2,7 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "outDir": "../../dist/apps/auth",
+    "outDir": "../../dist/apps/main",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]

@@ -21,3 +21,9 @@ spec:
            ports:
              - containerPort: PORT_CONTAINER
 
+           env:
+             - name: PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-auth-production-config-secret
+                   key: PORT

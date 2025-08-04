@@ -3,7 +3,7 @@ pipeline {
     agent any
     environment {
         ENV_TYPE = "production"
-        PORT = 3960
+        PORT = 3967
         NAMESPACE = "ulens-org"
         REGISTRY_HOSTNAME = "rocketwebstudio"
         PROJECT = "ulens-backend-auth"

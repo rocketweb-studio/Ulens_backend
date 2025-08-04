@@ -27,4 +27,3 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-auth-production-config-secret
                    key: PORT
-

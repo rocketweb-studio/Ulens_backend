@@ -2,12 +2,10 @@ import { ConfigModule } from '@nestjs/config';
 
 export const configModule = ConfigModule.forRoot({
   envFilePath: [
-    // lower priority
+    // local dev
     `apps/auth/.env.${process.env.NODE_ENV}.local`,
-    // lower priority
-    `apps/auth/.env.${process.env.NODE_ENV}`,
-    // lower priority
-    'apps/auth/.env.production'
+    `.env.${process.env.NODE_ENV}`,
+    '.env.production'
   ],
   isGlobal: true
 });

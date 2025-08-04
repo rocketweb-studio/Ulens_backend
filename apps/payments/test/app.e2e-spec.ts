@@ -1,6 +1,6 @@
 describe('PaymentsController', () => {
   describe('root', () => {
-    it('init unit test', () => {
+    it('init e2e test', () => {
       expect(true).toBe(true);
     });
   });

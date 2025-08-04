@@ -17,7 +17,8 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
-    "composite": true
+    "composite": true,
+    "paths": {}
   },
   "references": [
     {
@@ -28,6 +29,9 @@
     },
     {
       "path": "./apps/files/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/payments/tsconfig.app.json"
     }
   ]
 }

@@ -1,17 +1,18 @@
 import { DynamicModule, Module } from '@nestjs/common';
+import { PaymentsController } from '@/payments.controller';
+import { PaymentsService } from '@/payments.service';
 import { CoreEnvConfig } from '@/core/core-env.config';
-import { CoreModule } from '@/core/core.module';
-import { MockModule } from './modules/mock/mock.module';
+import { CoreModule } from './core/core.module';
 
 @Module({
-  imports: [CoreModule, MockModule],
-  controllers: [],
-  providers: []
+  imports: [CoreModule],
+  controllers: [PaymentsController],
+  providers: [PaymentsService]
 })
-export class MainModule {
+export class PaymentsModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {
     return {
-      module: MainModule,
+      module: PaymentsModule,
       providers: [
         {
           provide: CoreEnvConfig,

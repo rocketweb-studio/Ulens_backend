@@ -1,12 +1,12 @@
 import { NestFactory } from '@nestjs/core';
-import { MainModule } from '@/main.module';
+import { PaymentsModule } from '@/payments.module';
 import { CoreEnvConfig } from '@/core/core-env.config';
 import { DynamicModule } from '@nestjs/common';
 
 export const initAppModule = async (): Promise<DynamicModule> => {
-  const appContext = await NestFactory.createApplicationContext(MainModule);
+  const appContext = await NestFactory.createApplicationContext(PaymentsModule);
   const config = appContext.get<CoreEnvConfig>(CoreEnvConfig);
   await appContext.close();
 
-  return MainModule.forRoot(config);
+  return PaymentsModule.forRoot(config);
 };

@@ -1,7 +1,7 @@
 import { configValidationUtility } from '@/utils/env-validation.utility';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { IsNotEmpty } from 'class-validator';
 
 export enum Environments {
   DEVELOPMENT = 'development',
@@ -19,14 +19,8 @@ export class CoreEnvConfig {
   })
   applicationPort: number;
 
-  @IsEnum(Environments, {
-    message: 'Ser correct NODE_ENV value, available values: ' + configValidationUtility.getEnumValues(Environments).join(', ')
-  })
-  env: string;
-
   constructor(private configService: ConfigService<any, true>) {
     this.applicationPort = this.configService.get<number>('PORT');
-    this.env = this.configService.get('NODE_ENV');
 
     configValidationUtility.validateConfig(this);
   }

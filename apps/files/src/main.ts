@@ -8,7 +8,6 @@ async function bootstrap() {
   const app = await NestFactory.create(dynamicAppModule);
   const config = app.get<CoreEnvConfig>(CoreEnvConfig);
 
-  app.setGlobalPrefix('api/v1');
   await app.listen(config.applicationPort);
 }
 bootstrap();

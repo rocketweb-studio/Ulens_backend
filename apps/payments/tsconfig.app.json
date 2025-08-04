@@ -2,12 +2,12 @@
   "extends": "../../tsconfig.json",
   "compilerOptions": {
     "declaration": true,
-    "outDir": "../../dist/apps/main",
+    "outDir": "../../dist/apps/payments",
     "baseUrl": ".",
     "paths": {
       "@/*": ["src/*"]
     }
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

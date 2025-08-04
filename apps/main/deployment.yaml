@@ -22,6 +22,11 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
+             - name: MOCK_ENV
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-main-production-config-secret
+                   key: MOCK_ENV
              - name: PORT
                valueFrom:
                  secretKeyRef:

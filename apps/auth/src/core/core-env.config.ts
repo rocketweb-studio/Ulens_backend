@@ -18,12 +18,12 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
   @IsNotEmpty({
-    message: 'Set Env variable port, example: 3000'
+    message: 'Set Env variable PORT, example: 3000'
   })
   applicationPort: number;
 
   constructor(private configService: ConfigService<any, true>) {
-    this.applicationPort = this.configService.get<number>('port');
+    this.applicationPort = this.configService.get<number>('PORT');
 
     configValidationUtility.validateConfig(this);
   }

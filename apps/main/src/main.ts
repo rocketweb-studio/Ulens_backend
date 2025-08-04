@@ -1,8 +1,14 @@
 import { NestFactory } from '@nestjs/core';
-import { MainModule } from '@/main.module';
+import { initAppModule } from '@/init-app';
+import { CoreEnvConfig } from '@/core/core-env.config';
 
 async function bootstrap() {
-  const app = await NestFactory.create(MainModule);
-  await app.listen(process.env.port ?? 3000);
+  const dynamicAppModule = await initAppModule();
+
+  const app = await NestFactory.create(dynamicAppModule);
+  const config = app.get<CoreEnvConfig>(CoreEnvConfig);
+
+  app.setGlobalPrefix('api/v1');
+  await app.listen(config.applicationPort);
 }
 bootstrap();

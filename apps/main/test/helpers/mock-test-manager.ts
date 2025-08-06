@@ -1,7 +1,11 @@
 import { INestApplication } from '@nestjs/common';
 import * as request from 'supertest';
 
-// класс для тестирования MockController
+/**
+ * класс для тестирования MockController. 
+ * Помогает избежать дублирования кода в тестах, кгда нужно многократно вызывать один и тот же эндпоинт
+ * Пример использования можно увидеть в mock.e2e-spec.ts
+ */
 export class MockTestManager {
   constructor(private app: INestApplication) {}
 

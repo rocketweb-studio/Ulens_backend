@@ -3,7 +3,11 @@ import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IsNotEmpty } from 'class-validator';
 
-//  конфигурация окружения для модуля mock
+/**
+ * конфигурация окружения для модуля mock
+ * Этот файл просто дял примера. В модулях с простой бизнес логикой не будет этого файла.
+ * Такие файлы будут использоваться только для сторонних библиотек Prisma, GraphQL и тд
+ */
 @Injectable()
 export class MockEnvConfig {
   //  проверка на наличие переменной окружения MOCK_ENV

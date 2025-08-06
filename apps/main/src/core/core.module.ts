@@ -1,7 +1,7 @@
-import { configModule } from '@/core/modules/env-config/env-config.module';
+import { configModule } from './env-config/env-config.module';
 import { Module } from '@nestjs/common';
 
-import { CoreEnvConfig } from './core-env.config';
+import { CoreEnvConfig } from './core.config';
 
 @Module({
   imports: [configModule],

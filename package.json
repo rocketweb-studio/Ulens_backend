@@ -30,12 +30,19 @@
     "test:e2e:main": "cross-env NODE_ENV=testing jest --config ./apps/main/test/jest-e2e.json",
     "test:e2e:auth": "cross-env NODE_ENV=testing jest --config ./apps/auth/test/jest-e2e.json",
     "test:e2e:files": "cross-env NODE_ENV=testing jest --config ./apps/files/test/jest-e2e.json",
-    "test:e2e:payments": "cross-env NODE_ENV=testing jest --config ./apps/payments/test/jest-e2e.json"
+    "test:e2e:payments": "cross-env NODE_ENV=testing jest --config ./apps/payments/test/jest-e2e.json",
+    "prisma:studio:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma studio --schema=./apps/auth/src/core/prisma/schema.prisma",
+    "prisma:push:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma db push --schema=./apps/auth/src/core/prisma/schema.prisma",
+    "prisma:generate:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma generate --schema=./apps/auth/src/core/prisma/schema.prisma",
+    "prisma:migrateDev:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate dev  --schema=apps/auth/src/core/prisma/schema.prisma",
+    "prisma:migrateReset:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate reset  --schema=apps/auth/src/core/prisma/schema.prisma",
+    "prisma:migrateDeploy:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate deploy --schema=apps/auth/src/core/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
+    "@prisma/client": "6.13.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -56,12 +63,14 @@
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",
     "cross-env": "^10.0.0",
+    "dotenv-cli": "^10.0.0",
     "eslint": "^9.18.0",
     "eslint-config-prettier": "^10.0.1",
     "eslint-plugin-prettier": "^5.2.2",
     "globals": "^16.0.0",
     "jest": "^29.7.0",
     "prettier": "^3.4.2",
+    "prisma": "^6.13.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.4",
     "ts-jest": "^29.2.5",
@@ -88,7 +97,12 @@
     "coverageDirectory": "./coverage",
     "testEnvironment": "node",
     "roots": [
-      "<rootDir>/apps/"
-    ]
+      "<rootDir>/apps/",
+      "<rootDir>/libs/"
+    ],
+    "moduleNameMapper": {
+      "^prisma/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
+      "^prisma/prisma-client(|/.*)$": "<rootDir>/libs/prisma-client/src/$1"
+    }
   }
 }

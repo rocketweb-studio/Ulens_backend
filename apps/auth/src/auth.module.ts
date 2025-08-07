@@ -1,13 +1,12 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { AuthController } from '@/auth.controller';
-import { AuthService } from '@/auth.service';
-import { CoreEnvConfig } from '@/core/core-env.config';
+import { CoreEnvConfig } from '@/core/core.config';
 import { CoreModule } from '@/core/core.module';
+import { UserModule } from './modules/user/user.module';
 
 @Module({
-  imports: [CoreModule],
-  controllers: [AuthController],
-  providers: [AuthService]
+  imports: [CoreModule, UserModule],
+  controllers: [],
+  providers: []
 })
 export class AuthModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { AuthModule } from '@/auth.module';
-import { CoreEnvConfig } from '@/core/core-env.config';
+import { CoreEnvConfig } from '@/core/core.config';
 import { DynamicModule } from '@nestjs/common';
 
 export const initAppModule = async (): Promise<DynamicModule> => {

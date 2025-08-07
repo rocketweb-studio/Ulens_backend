@@ -1,3 +1,19 @@
+/**
+ *Alias setup in each microservices
+  {
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "@/*": ["src/*"]
+      }
+    }
+  }
+  *This means import { initMainModule } from '@/init-main' actually points to: apps/main/src/init-main.ts
+  *This file extends the root tsconfig.json:
+    "extends": "../../tsconfig.json"
+  *This aliases are still local(not global) because root tsconfig.json has: 
+    "paths": {}
+ */
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {

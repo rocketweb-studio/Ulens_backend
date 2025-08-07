@@ -32,6 +32,9 @@
     },
     {
       "path": "./apps/payments/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/gateway/tsconfig.app.json"
     }
   ]
 }

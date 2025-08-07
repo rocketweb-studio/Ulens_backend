@@ -28,6 +28,15 @@
         "tsConfigPath": "apps/files/tsconfig.app.json"
       }
     },
+    "gateway": {
+      "type": "application",
+      "root": "apps/gateway",
+      "entryFile": "main",
+      "sourceRoot": "apps/gateway/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/gateway/tsconfig.app.json"
+      }
+    },
     "main": {
       "type": "application",
       "root": "apps/main",

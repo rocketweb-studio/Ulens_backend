@@ -12,7 +12,7 @@ async function bootstrap() {
     transport:Transport.TCP,
     options:{
       host:"127.0.0.1", // в кубере здесь должно быть имя микросервиса
-      port: 8877
+      port: 3001
     }
   })
 

@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { GatewayService } from './gateway.service';
 
 @Controller()
@@ -8,5 +8,15 @@ export class GatewayController {
   @Get()
   getHello(): string {
     return this.gatewayService.getHello();
+  }
+
+  @Get('users')
+  async getUsers() {
+    return this.gatewayService.getUsers();
+  }
+
+  @Post('users')
+  async createUser(@Body() createUserDto: any) {
+    return this.gatewayService.createUser(createUserDto);
   }
 }

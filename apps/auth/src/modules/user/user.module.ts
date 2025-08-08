@@ -7,7 +7,8 @@ import { UserService } from './user.service';
 @Module({
   imports: [CoreModule],
   controllers: [UserController],
-  providers: [UserService]
+  providers: [UserService],
+  exports: [UserService]
 })
 export class UserModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {

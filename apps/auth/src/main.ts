@@ -1,21 +1,17 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
 import { initAppModule } from './init-app';
-import { CoreEnvConfig } from './core/core.config';
-import { configApp } from './app.setup';
 
 async function bootstrap() {
-  const dynamicAppModule = await initAppModule();
+  const { dynamicModule, config } = await initAppModule();
 
-  const app = await NestFactory.createMicroservice(dynamicAppModule, {
+  const app = await NestFactory.createMicroservice(dynamicModule, {
     transport: Transport.TCP,
     options: {
-      host: '0.0.0.0',
-      port: 3001 // TCP port for auth service
+      host: config.tcpHost,
+      port: config.tcpPort
     }
   });
-
-  // const config = app.get<CoreEnvConfig>(CoreEnvConfig);
 
   // configApp(app, config);
 

@@ -3,13 +3,15 @@ import { CoreModule } from '@/core/core.module';
 import { MockModule } from './modules/mock/mock.module';
 import { CoreEnvConfig } from './core/core.config';
 
-@Module({   // 1
-  imports: [CoreModule, MockModule],  // 2
+@Module({
+  // 1
+  imports: [CoreModule, MockModule], // 2
   controllers: [],
   providers: []
 })
 export class MainModule {
-  static forRoot(config: CoreEnvConfig): DynamicModule {  // 3
+  static forRoot(config: CoreEnvConfig): DynamicModule {
+    // 3
     return {
       module: MainModule,
       providers: [

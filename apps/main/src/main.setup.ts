@@ -12,5 +12,4 @@ export function configApp(app: INestApplication, coreConfig: CoreEnvConfig) {
    *   swaggerSetup(app);
    * }
    */
-  app.setGlobalPrefix('api/v1');
 }

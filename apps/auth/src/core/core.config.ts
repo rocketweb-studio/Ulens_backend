@@ -1,7 +1,7 @@
 import { configValidationUtility } from '@/utils/env-validation.utility';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsString } from 'class-validator';
 
 export enum Environments {
   DEVELOPMENT = 'development',
@@ -13,18 +13,25 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
   @IsNotEmpty({
-    message: 'Set Env variable PORT, example: 3000'
-  })
-  applicationPort: number;
-
-  @IsNotEmpty({
     message: 'Set Env variable DATABASE_URL, example: postgresql://user:password@host:port/database'
   })
   databaseUrl: string;
 
+  @IsString()
+  @IsNotEmpty({
+    message: 'Set Env variable TCP_HOST, example: 0.0.0.0'
+  })
+  tcpHost: string;
+
+  @IsNotEmpty({
+    message: 'Set Env variable TCP_PORT, example: 3001'
+  })
+  tcpPort: number;
+
   constructor(private configService: ConfigService<any, true>) {
-    this.applicationPort = this.configService.get<number>('PORT');
     this.databaseUrl = this.configService.get<string>('POSTGRES_URL');
+    this.tcpHost = this.configService.get<string>('TCP_HOST');
+    this.tcpPort = this.configService.get<number>('TCP_PORT');
 
     configValidationUtility.validateConfig(this);
   }

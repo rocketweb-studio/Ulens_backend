@@ -1,7 +1,9 @@
 import { ConfigModule } from '@nestjs/config';
 
-export const configModule = ConfigModule.forRoot({  // 1 
-  envFilePath: [  // 2
+// 1
+export const configModule = ConfigModule.forRoot({
+  // 2
+  envFilePath: [
     // local dev
     `apps/main/.env.${process.env.NODE_ENV}.local`,
     `.env.${process.env.NODE_ENV}`,
@@ -22,4 +24,3 @@ export const configModule = ConfigModule.forRoot({  // 1
  *        2. .env.testing
  *        3. .env.production
  */
-

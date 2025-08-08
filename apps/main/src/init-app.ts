@@ -4,12 +4,15 @@ import { DynamicModule } from '@nestjs/common';
 import { CoreEnvConfig } from './core/core.config';
 
 //  Динамический модуль, для того чтобы можно было использовать разные модули в зависимости от окружения
-export const initAppModule = async (): Promise<DynamicModule> => {
+export const initAppModule = async (): Promise<{ dynamicModule: DynamicModule; config: CoreEnvConfig }> => {
   const appContext = await NestFactory.createApplicationContext(MainModule); // 1
   const config = appContext.get<CoreEnvConfig>(CoreEnvConfig); // 2
   await appContext.close(); // 3
 
-  return MainModule.forRoot(config); // 4
+  return {
+    dynamicModule: MainModule.forRoot(config),
+    config
+  }; // 4 / 5
 };
 
 /**
@@ -26,4 +29,5 @@ export const initAppModule = async (): Promise<DynamicModule> => {
  *  - отдавать applicationPort, dbUrl и др.
  * 3.Контекст приложения больше не нужен — его закрывают, чтобы не висел в памяти.
  * 4.Вызывается фабричный метод forRoot(config), который возвращает полноценный DynamicModule.
+ * 5.Возвращается объект с динамическим модулем и конфигурацией.
  */

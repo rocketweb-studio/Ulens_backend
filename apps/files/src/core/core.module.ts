@@ -1,4 +1,4 @@
-import { configModule } from '@/core/modules/env-config/env-config.module';
+import { configModule } from 'apps/files/src/core/env-config/env-config.module';
 import { Module } from '@nestjs/common';
 
 import { CoreEnvConfig } from './core-env.config';

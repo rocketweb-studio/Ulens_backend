@@ -11,5 +11,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   await app.listen(config.applicationPort);
+  console.log(`Gateway service is running port:${config.applicationPort}`)
 }
 bootstrap();

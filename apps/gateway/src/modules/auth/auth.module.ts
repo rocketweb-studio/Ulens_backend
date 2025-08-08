@@ -2,13 +2,14 @@ import { CoreEnvConfig } from '../../core/core.config';
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthService } from './auth.service';
 
 
 @Module({
   imports: [ClientsModule.register([
     {
       name: "AUTH-SERVICE",
-      transport: Transport.TCP,
+      transport: Transport.TCP,  // в будующем подключим gRPC
       options: {
         host: '127.0.0.1', // в кубере здесь должно быть имя сервиса
         port: 3001,
@@ -28,6 +29,6 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
   ]),
   ],
   controllers: [AuthController],
-  providers: []
+  providers: [AuthService]
 })
 export class AuthModule { }

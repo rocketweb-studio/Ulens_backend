@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
-import { initAppModule } from './init-app';
+import { initAppModule } from '@/init-app';
 
 async function bootstrap() {
   const { dynamicModule, config } = await initAppModule();
@@ -12,8 +12,6 @@ async function bootstrap() {
       port: config.tcpPort
     }
   });
-
-  // configApp(app, config);
 
   await app.listen();
   console.log('Auth microservice is listening on port 3001');

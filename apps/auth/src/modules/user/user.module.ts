@@ -1,8 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { CoreEnvConfig } from '@/core/core.config';
 import { CoreModule } from '@/core/core.module';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
+import { UserController } from '@/modules/user/user.controller';
+import { UserService } from '@/modules/user/user.service';
 
 @Module({
   imports: [CoreModule],

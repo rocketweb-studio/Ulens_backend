@@ -1,6 +1,5 @@
 import { configModule } from './env-config/env-config.module';
 import { Module } from '@nestjs/common';
-
 import { CoreEnvConfig } from '@/core/core.config';
 
 @Module({

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthClientEnvConfig } from './auth-client.config';
-import { AuthClientController } from './auth-client.controller';
-import { AuthClientService } from './auth-client.service';
+import { AuthClientEnvConfig } from '@/microservices/auth/auth-client.config';
+import { AuthClientController } from '@/microservices/auth/auth-client.controller';
+import { AuthClientService } from '@/microservices/auth/auth-client.service';
 
 @Module({
   imports: [

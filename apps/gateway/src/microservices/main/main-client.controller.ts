@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MainClientService } from './main-client.service';
+import { MainClientService } from '@/microservices/main/main-client.service';
 
 @Controller('users')
 export class MainClientController {

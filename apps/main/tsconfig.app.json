@@ -14,16 +14,19 @@
   *This aliases are still local(not global) because root tsconfig.json has: 
     "paths": {}
  */
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "declaration": true,
-    "outDir": "../../dist/apps/main",
-    "baseUrl": ".",
-    "paths": {
-      "@/*": ["src/*"]
-    }
-  },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
-}
+ {
+   "extends": "../../tsconfig.json",
+   "compilerOptions": {
+     "declaration": true,
+     "outDir": "../../dist/apps/main",
+     "baseUrl": ".",
+     "paths": {
+       "@/*": ["src/*"],
+       "@libs/constants/*": ["../../libs/constants/src/*"],
+       "@libs/utils/*": ["../../libs/utils/src/*"]
+     }
+   },
+   "references": [{ "path": "../../libs/constants/tsconfig.lib.json" }, { "path": "../../libs/utils/tsconfig.lib.json" }],
+   "include": ["src/**/*"],
+   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
+ }

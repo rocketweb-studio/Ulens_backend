@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { MainClientEnvConfig } from './main-client.config';
-import { MainClientController } from './main-client.controller';
-import { MainClientService } from './main-client.service';
+import { MainClientEnvConfig } from '@/microservices/main/main-client.config';
+import { MainClientController } from '@/microservices/main/main-client.controller';
+import { MainClientService } from '@/microservices/main/main-client.service';
 
 @Module({
   imports: [

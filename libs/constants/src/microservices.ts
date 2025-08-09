@@ -1,0 +1,5 @@
+export enum Microservice {
+  AUTH = 'AUTH_SERVICE',
+  ORDERS = 'ORDERS_SERVICE',
+  PAYMENTS = 'PAYMENTS_SERVICE'
+}

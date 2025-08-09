@@ -9,6 +9,7 @@
     "build": "nest build",
     "format": "prettier --write \"apps/**/*.ts\" \"libs/**/*.ts\"",
     "start": "nest start",
+    "build:libs": "npx tsc -b libs/tsconfig.libs.json",
     "build:gateway": "nest build gateway",
     "start:gateway": "cross-env NODE_ENV=production node dist/apps/gateway/main",
     "start:dev:gateway": "cross-env NODE_ENV=development nest start gateway --watch",
@@ -104,6 +105,8 @@
       "<rootDir>/libs/"
     ],
     "moduleNameMapper": {
+      "^@app/constants(|/.*)$": "<rootDir>/libs/constants/src/$1",
+      "^@app/utils(|/.*)$": "<rootDir>/libs/utils/src/$1",
       "^prisma/prisma(|/.*)$": "<rootDir>/libs/prisma/src/$1",
       "^prisma/prisma-client(|/.*)$": "<rootDir>/libs/prisma-client/src/$1"
     }

@@ -1,4 +1,4 @@
-import { configValidationUtility } from '@/utils/env-validation.utility';
+import { configValidationUtility } from '@libs/utils/env-validation.utility';
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { IsEnum, IsNotEmpty } from 'class-validator';

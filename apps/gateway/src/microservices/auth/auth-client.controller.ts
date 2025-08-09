@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body } from '@nestjs/common';
-import { AuthClientService } from './auth-client.service';
-import { CreateUserDto, UserViewDto } from './auth-client.interface';
+import { AuthClientService } from '@/microservices/auth/auth-client.service';
+import { CreateUserDto, UserViewDto } from '@/microservices/auth/auth-client.interface';
 
 @Controller('users')
 export class AuthClientController {

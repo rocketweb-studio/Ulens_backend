@@ -26,7 +26,7 @@ RUN yarn install
 # Bundle app source code
 COPY --chown=node . .
 
-RUN npx prisma generate --schema=./src/core/prisma/schema.prisma
+RUN npx prisma generate --schema=../../apps/${SERVICE}/src/core/prisma/schema.prisma
 
 RUN yarn build:libs
 

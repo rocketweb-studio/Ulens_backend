@@ -1,11 +1,10 @@
 import { ConfigModule } from '@nestjs/config';
 
-export const configModule = ConfigModule.forRoot({  // 1 
-  envFilePath: [  // 2
+// MICROSERVICE_NAME NODE_ENV переменные добавляем в package.json в скриптах так как они не доступны до инициализации ConfigModule
+export const configModule = ConfigModule.forRoot({
+  envFilePath: [
     // local dev
-    `apps/main/.env.${process.env.NODE_ENV}.local`,
-    `.env.${process.env.NODE_ENV}`,
-    '.env.production'
+    `apps/${process.env.MICROSERVICE_NAME}/.env.${process.env.NODE_ENV}.local`
   ],
   isGlobal: true
 });
@@ -22,4 +21,3 @@ export const configModule = ConfigModule.forRoot({  // 1
  *        2. .env.testing
  *        3. .env.production
  */
-

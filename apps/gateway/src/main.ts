@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { CoreEnvConfig } from './core/core.config';
-import { initGatewayModule } from './init-app';
+import { CoreEnvConfig } from '@/core/core.config';
+import { initGatewayModule } from '@/init-app';
 
 async function bootstrap() {
   const dynamicAppModule = await initGatewayModule();
@@ -11,5 +11,6 @@ async function bootstrap() {
   app.setGlobalPrefix('api/v1');
 
   await app.listen(config.applicationPort);
+  console.log(`Gateway is running on port ${config.applicationPort}`);
 }
 bootstrap();

@@ -5,9 +5,12 @@
     "outDir": "../../dist/apps/gateway",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "@libs/constants/*": ["../../libs/constants/src/*"],
+      "@libs/utils/*": ["../../libs/utils/src/*"]
     }
   },
+  "references": [{ "path": "../../libs/constants/tsconfig.lib.json" }, { "path": "../../libs/utils/tsconfig.lib.json" }],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
 }

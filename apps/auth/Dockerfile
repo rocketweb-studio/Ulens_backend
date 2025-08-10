@@ -27,7 +27,7 @@ RUN yarn install
 COPY --chown=node . .
 
 # Fix: Use correct path for Prisma schema
-RUN npx prisma generate --schema=./src/core/prisma/schema.prisma
+RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/src/core/prisma/schema.prisma
 
 RUN yarn build:libs
 

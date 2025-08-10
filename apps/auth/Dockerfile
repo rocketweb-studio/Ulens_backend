@@ -26,6 +26,8 @@ RUN yarn install
 # Bundle app source code
 COPY --chown=node . .
 
+RUN npx prisma generate
+
 RUN yarn build:libs
 
 RUN yarn build:${SERVICE}

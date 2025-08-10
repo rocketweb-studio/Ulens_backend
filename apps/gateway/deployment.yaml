@@ -22,6 +22,16 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
+             - name: AUTH_CLIENT_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: AUTH_CLIENT_HOST
+             - name: AUTH_CLIENT_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: AUTH_CLIENT_PORT
              - name: PORT
                valueFrom:
                  secretKeyRef:

@@ -2,7 +2,7 @@ import { Test, TestingModuleBuilder } from '@nestjs/testing';
 import { UserTestManager } from './user-test-manager';
 import { CoreEnvConfig } from '../../src/core/core.config';
 import { configApp } from '../../src/app.setup';
-import { AuthModule } from '../../src/auth.module';
+import { AppModule } from '../../src/app.module';
 
 /**
  * initSettings служит для создания отдельного инстэнса нашего приложения и выполнения в нем тестов
@@ -15,7 +15,7 @@ export const initSettings = async (
 ) => {
   // создаем тестовый модуль и можем конфигурировать его
   const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-    imports: [AuthModule]
+    imports: [AppModule]
   });
 
   if (addSettingsToModuleBuilder) {

@@ -9,10 +9,10 @@ import { UserController } from '@/modules/user/user.controller';
   controllers: [UserController],
   providers: []
 })
-export class AuthModule {
+export class AppModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {
     return {
-      module: AuthModule,
+      module: AppModule,
       providers: [
         {
           provide: CoreEnvConfig,

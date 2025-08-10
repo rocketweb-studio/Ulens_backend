@@ -3,12 +3,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthClientEnvConfig } from '@/microservices/auth/auth-client.config';
 import { AuthClientController } from '@/microservices/auth/auth-client.controller';
 import { AuthClientService } from '@/microservices/auth/auth-client.service';
+import { Microservice } from '@libs/constants/microservices';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
-        name: 'AUTH_SERVICE',
+        name: Microservice.AUTH,
         useFactory: (config: AuthClientEnvConfig) => ({
           transport: Transport.TCP,
           options: {

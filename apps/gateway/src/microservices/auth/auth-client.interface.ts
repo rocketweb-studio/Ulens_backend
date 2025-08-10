@@ -1,15 +1,15 @@
 // Data Transfer Objects
-export interface CreateUserDto {
+export type CreateUserDto = {
   readonly name: string;
   readonly email: string;
-}
+};
 
-export interface UserViewDto {
+export type UserViewDto = {
   id: number;
   email: string;
   name: string;
   createdAt: Date;
-}
+};
 
 // Service Interface
 export interface IAuthClientService {

@@ -1,19 +1,18 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { CoreModule } from '@/core/core.module';
-import { MockModule } from './modules/mock/mock.module';
 import { CoreEnvConfig } from './core/core.config';
 
 @Module({
   // 1
-  imports: [CoreModule, MockModule], // 2
+  imports: [CoreModule], // 2
   controllers: [],
   providers: []
 })
-export class MainModule {
+export class AppModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {
     // 3
     return {
-      module: MainModule,
+      module: AppModule,
       providers: [
         {
           provide: CoreEnvConfig,

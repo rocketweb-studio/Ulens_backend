@@ -1,18 +1,19 @@
 import { DynamicModule, Module } from '@nestjs/common';
 import { CoreEnvConfig } from '@/core/core.config';
 import { CoreModule } from '@/core/core.module';
-import { AuthClientModule } from '@/microservices/auth/auth-client.module';
-import { MainClientModule } from './microservices/main/main-client.module';
+import { SubscriptionController } from './subscription.controller';
+import { SubscriptionService } from './subscription.service';
 
 @Module({
-  imports: [CoreModule, AuthClientModule, MainClientModule],
-  controllers: [],
-  providers: []
+  imports: [CoreModule],
+  controllers: [SubscriptionController],
+  providers: [SubscriptionService],
+  exports: [SubscriptionService]
 })
-export class GatewayModule {
+export class SubscriptionModule {
   static forRoot(config: CoreEnvConfig): DynamicModule {
     return {
-      module: GatewayModule,
+      module: SubscriptionModule,
       providers: [
         {
           provide: CoreEnvConfig,

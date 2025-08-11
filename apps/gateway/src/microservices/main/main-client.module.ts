@@ -3,12 +3,13 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
 import { MainClientEnvConfig } from '@/microservices/main/main-client.config';
 import { MainClientController } from '@/microservices/main/main-client.controller';
 import { MainClientService } from '@/microservices/main/main-client.service';
+import { Microservice } from '@libs/constants/microservices';
 
 @Module({
   imports: [
     ClientsModule.registerAsync([
       {
-        name: 'MAIN_SERVICE',
+        name: Microservice.MAIN,
         useFactory: (config: MainClientEnvConfig) => ({
           transport: Transport.TCP,
           options: {

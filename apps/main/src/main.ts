@@ -15,6 +15,7 @@ async function bootstrap() {
 
   //configApp(app, config); // 4
   await app.listen(); // 5
+  console.log(`Main service is listening on port ${config.tcpPort}`)
 }
 bootstrap();
 

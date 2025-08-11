@@ -2,6 +2,7 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { CoreEnvConfig } from '@/core/core.config';
 import { CoreModule } from '@/core/core.module';
 import { AuthClientModule } from '@/microservices/auth/auth-client.module';
+import { SwaggerModule } from '@nestjs/swagger';
 // import { MainClientModule } from '@/microservices/main/main-client.module';
 
 @Module({

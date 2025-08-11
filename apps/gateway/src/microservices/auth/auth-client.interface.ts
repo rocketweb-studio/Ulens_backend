@@ -1,15 +1,41 @@
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsString, Length, Matches } from "class-validator";
+
 // Data Transfer Objects
-export type CreateUserDto = {
-  readonly name: string;
-  readonly email: string;
+export class CreateUserDto {
+  @ApiProperty({
+    example: 'john_doe',
+    description: 'User name',
+    minLength: 6,
+    maxLength: 30,
+    pattern: '^[a-zA-Z0-9_-]*$',
+  })
+  @IsString()
+  @Length(6, 30)
+  @Matches(/^[a-zA-Z0-9_-]*$/, {
+    message: 'userName allows only letters, numbers, _ and -',
+  })
+  userName: string;
+
+  @ApiProperty({
+    example: 'user.email@gmail.com',
+    format: 'email',
+    description: 'Unique email',
+  })
+  @IsEmail()
+  email: string;
 };
 
-export type UserViewDto = {
-  id: number;
-  email: string;
-  name: string;
-  createdAt: Date;
+export class UserViewDto {
+  @ApiProperty({ example: 1 }) id: number;
+  @ApiProperty({ example: 'user.email@gmail.com' }) email: string;
+  @ApiProperty({ example: 'John Doe' }) name: string;
+  @ApiProperty({ example: '2025-08-10T00:00:00.000Z' }) createdAt: Date;
 };
+
+export class UsersModel {
+  @ApiProperty({ type: [UserViewDto] }) items: UserViewDto[];
+}
 
 // Service Interface
 export interface IAuthClientService {

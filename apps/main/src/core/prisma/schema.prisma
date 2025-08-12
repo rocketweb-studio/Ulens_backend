@@ -17,10 +17,11 @@ datasource db {
 
 // Модель подписки - таблица в БД
 model Subscription {
-  id            Int       @default(autoincrement()) @id
-  paymentType   String
-  amount        Int
-  baseUrl       String
+  id                Int       @default(autoincrement()) @id
+  typeSubscription  String
+  paymentType       String
+  amount            Int
+  baseUrl           String
 
   @@map("subscriptions")
 }

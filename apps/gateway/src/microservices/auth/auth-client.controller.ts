@@ -2,9 +2,10 @@ import { Controller, Get, Post, Body } from '@nestjs/common';
 import { AuthClientService } from '@/microservices/auth/auth-client.service';
 import { CreateUserDto, UsersModel, UserViewDto } from '@/microservices/auth/auth-client.interface';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { RouterPaths } from '@libs/constants/index';
 
-@ApiTags('Auth')
-@Controller('users')
+@ApiTags(RouterPaths.AUTH)
+@Controller(RouterPaths.USERS)
 export class AuthClientController {
   constructor(private readonly authClientService: AuthClientService) {}
 

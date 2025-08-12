@@ -22,14 +22,3 @@ export interface IMainClientService {
   createSubscription(createSubscriptionDto: CreateSubscriptionDto): Promise<SubscriptionViewDto>
 }
 
-// Message patterns for microservice communication
-export interface MainClientMessagePatterns {
-  get_subscriptions: { cmd: 'get_subscriptions' };
-  create_subscription: { cmd: 'create_subscription' };
-}
-
-// Response types for microservice communication
-export interface MainServiceResponses {
-  get_subscriptions: SubscriptionViewDto[];
-  create_subscription: SubscriptionViewDto;
-}

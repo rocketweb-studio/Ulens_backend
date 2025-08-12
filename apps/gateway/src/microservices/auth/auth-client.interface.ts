@@ -13,9 +13,9 @@ export class CreateUserDto {
   @IsString()
   @Length(6, 30)
   @Matches(/^[a-zA-Z0-9_-]*$/, {
-    message: 'userName allows only letters, numbers, _ and -',
+    message: 'name allows only letters, numbers, _ and -',
   })
-  userName: string;
+  name: string;
 
   @ApiProperty({
     example: 'user.email@gmail.com',
@@ -53,16 +53,3 @@ export interface IAuthClientService {
   createUser(createUserDto: CreateUserDto): Promise<UserViewDto>;
 }
 
-// Message patterns for microservice communication
-export interface AuthMessagePatterns {
-  get_users: { cmd: 'get_users' };
-  create_user: { cmd: 'create_user' };
-  get_user_by_id: { cmd: 'get_user_by_id' };
-}
-
-// Response types for microservice communication
-export interface AuthServiceResponses {
-  get_users: UserViewDto[];
-  create_user: UserViewDto;
-  get_user_by_id: UserViewDto | null;
-}

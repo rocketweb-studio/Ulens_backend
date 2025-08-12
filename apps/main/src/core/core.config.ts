@@ -29,10 +29,17 @@ export class CoreEnvConfig {
   })
   tcpPort: number;
 
+  @IsNotEmpty({
+    message: 'Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database'
+  })
+  databaseUrl: string;
+
   constructor(private configService: ConfigService<any, true>) {
     this.env = this.configService.get('NODE_ENV'); // 1
     this.tcpHost = this.configService.get<string>('TCP_HOST');
     this.tcpPort = this.configService.get<number>('TCP_PORT');
+    this.databaseUrl = this.configService.get<string>('POSTGRES_URL');
+
 
     configValidationUtility.validateConfig(this); // 2
   }

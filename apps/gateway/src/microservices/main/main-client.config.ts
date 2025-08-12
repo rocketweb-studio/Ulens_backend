@@ -13,7 +13,7 @@ export class MainClientEnvConfig {
 
   @IsString()
   @IsNotEmpty({
-    message: 'Set Env variable MAIN_CLIENT_PORT, example: 3001'
+    message: 'Set Env variable MAIN_CLIENT_PORT, example: 3002'
   })
   mainClientPort: number;
 

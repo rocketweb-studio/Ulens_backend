@@ -40,7 +40,13 @@
     "prisma:generate:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma generate --schema=./apps/auth/src/core/prisma/schema.prisma",
     "prisma:migrateDev:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate dev  --schema=apps/auth/src/core/prisma/schema.prisma",
     "prisma:migrateReset:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate reset  --schema=apps/auth/src/core/prisma/schema.prisma",
-    "prisma:migrateDeploy:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate deploy --schema=apps/auth/src/core/prisma/schema.prisma"
+    "prisma:migrateDeploy:auth": "dotenv -e ./apps/auth/.env.development.local -- npx prisma migrate deploy --schema=apps/auth/src/core/prisma/schema.prisma",
+    "prisma:studio:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma studio --schema=./apps/main/src/core/prisma/schema.prisma",
+    "prisma:push:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma db push --schema=./apps/main/src/core/prisma/schema.prisma",
+    "prisma:generate:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma generate --schema=./apps/main/src/core/prisma/schema.prisma",
+    "prisma:migrateDev:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma migrate dev  --schema=apps/main/src/core/prisma/schema.prisma",
+    "prisma:migrateReset:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma migrate reset  --schema=apps/main/src/core/prisma/schema.prisma",
+    "prisma:migrateDeploy:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma migrate deploy --schema=apps/main/src/core/prisma/schema.prisma"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

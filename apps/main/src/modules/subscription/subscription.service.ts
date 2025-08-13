@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { CreateSubscriptionDto } from './dto/create-subscription-.dto';
-import { BaseSubscriptionViewDto } from './dto/view-subscription.dto';
+import { CreateSubscriptionDto, BaseSubscriptionViewDto } from '@libs/contracts/index';
 import { PrismaService } from '../../core/prisma/prisma.service';
 
 @Injectable()

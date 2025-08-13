@@ -2,7 +2,9 @@ import { NestFactory } from '@nestjs/core';
 import { CoreEnvConfig } from '@/core/core.config';
 import { initGatewayModule } from '@/init-app';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
-import { ValidationPipe } from '@nestjs/common';
+import { BadRequestException, ValidationPipe } from '@nestjs/common';
+import { ErrorType } from './common/types/types';
+import { HttpExceptionFilter } from './common/filters/exception.filter';
 
 async function bootstrap() {
   const dynamicAppModule = await initGatewayModule();
@@ -20,11 +22,24 @@ async function bootstrap() {
   SwaggerModule.setup('api/v1/swagger', app, document);
 
   //Setting Validation
-  // app.useGlobalPipes(new ValidationPipe({
-  //   whitelist: true,            // отбрасывать лишние поля
-  //   forbidNonWhitelisted: true, // ругаться на лишние поля
-  //   transform: true,            // приводить типы (query/body) к DTO
-  // }));
+  app.useGlobalPipes(new ValidationPipe({
+    // transform: true,   /*used to transform uri params into number where it's nessesary without using ParseIntPipe*/
+    stopAtFirstError: true,   // used to stop at first error
+    exceptionFactory: (errors) => {   // this logic written for returnin name of the field where our mistake occurs
+      const errorsForResponse: ErrorType[] = [];
+      errors.forEach((e) => {
+        const constraintKeys = Object.keys(e.constraints!);
+        constraintKeys.forEach((ckey) => {
+          errorsForResponse.push({
+            message: e.constraints![ckey],
+            field: e.property
+          })
+        })
+      })
+      throw new BadRequestException(errorsForResponse)
+    }
+  }));
+  app.useGlobalFilters(new HttpExceptionFilter());
 
   app.setGlobalPrefix('api/v1');
 

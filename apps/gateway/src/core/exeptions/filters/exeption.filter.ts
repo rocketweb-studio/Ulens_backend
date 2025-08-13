@@ -3,6 +3,7 @@ import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/co
 import { CoreEnvConfig } from '@/core/core.config';
 import { HttpStatuses } from '@libs/constants/http-statuses';
 import { DefaultErrorResponse } from '@libs/constants/errors';
+import { RpcException } from '@nestjs/microservices';
 
 type ValidationErrorResponse = {
   errorsMessages: Array<{ field: string; message: string }>;
@@ -45,8 +46,8 @@ export class GatewayExceptionFilter implements ExceptionFilter {
       } as DefaultErrorResponse);
     }
 
-    // Обработка rpc ошибок которые приходят из микросервисов
-    if (this.isRpcException(exception)) {
+    // Обработка rpc ошибок которые приходят из микросервисов или возникают в гейтвей
+    if (this.isRpcException(exception) || exception instanceof RpcException) {
       const status = (exception as any).statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
       return response.status(status).json({
         statusCode: status,

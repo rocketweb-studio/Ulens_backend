@@ -3,8 +3,8 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user-.dto';
 import { AuthMessages } from '@libs/constants/auth-messages';
+import { CreateUserDto } from '@libs/contracts/index';
 
 @Controller()
 export class UserController {

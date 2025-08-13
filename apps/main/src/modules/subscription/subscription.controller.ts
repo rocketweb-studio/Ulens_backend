@@ -3,7 +3,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { SubscriptionService } from './subscription.service';
-import { CreateSubscriptionDto} from './dto/create-subscription-.dto';
+import { CreateSubscriptionDto} from '@libs/contracts/index';
 import { MainMessages } from '@libs/constants/main-messages';
 
 @Controller()

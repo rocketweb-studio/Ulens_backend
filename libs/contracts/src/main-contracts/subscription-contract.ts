@@ -1,3 +1,21 @@
+import { IsNumber, IsString } from "class-validator";
+
+export class CreateSubscriptionDto {
+  // for swagger --    @ApiProperty({ example: 'login' })
+  @IsString()
+  readonly typeSubscription: string;
+
+  @IsString()
+  readonly paymentType: string;
+
+  @IsNumber()
+  readonly amount: number;
+
+  // for swagger --    @ApiProperty({ example: 'example@example.com' })
+  @IsString()
+  readonly baseUrl: string;
+}
+
 export class BaseSubscriptionViewDto {
   //   @ApiProperty({ example: 'email' })
   typeSubscription: string;
@@ -24,5 +42,10 @@ export class BaseSubscriptionViewDto {
   static mapToViewList(subscriptions: any[]): BaseSubscriptionViewDto[] {
     return subscriptions.map(subscriptions => BaseSubscriptionViewDto.mapToView(subscriptions));
   }
+}
+
+export interface IMainClientService {
+  getSubscriptions(): Promise<BaseSubscriptionViewDto[]>;
+  createSubscription(createSubscriptionDto: CreateSubscriptionDto): Promise<BaseSubscriptionViewDto>
 }
 

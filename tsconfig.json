@@ -20,7 +20,8 @@
     "composite": true,
     "paths": {
       "@libs/utils/*": ["libs/utils/src/*"],
-      "@libs/constants/*": ["libs/constants/src/*"]
+      "@libs/constants/*": ["libs/constants/src/*"],
+      "@libs/contracts/*": ["libs/contracts/src/*"],
     }
   },
   "references": [
@@ -44,6 +45,9 @@
     },
     {
       "path": "./libs/utils/tsconfig.lib.json"
-    }
+    },
+    {
+       "path": "./libs/contracts/tsconfig.lib.json"
+    },
   ]
 } 

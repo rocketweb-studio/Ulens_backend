@@ -24,7 +24,10 @@
     "start:dev:files": "cross-env NODE_ENV=development nest start files --watch",
     "build:payments": "nest build payments",
     "start:payments": "cross-env NODE_ENV=production node dist/apps/payments/main",
-    "start:dev:payments": "cross-env NODE_ENV=development nest start payments --watch",
+    "start:dev:payments": "cross-env NODE_ENV=development MICROSERVICE_NAME=payments nest start payments --watch",
+    "build:notifications": "nest build notifications",
+    "start:notifications": "cross-env NODE_ENV=production node dist/apps/notifications/main",
+    "start:dev:notifications": "cross-env NODE_ENV=development MICROSERVICE_NAME=notifications nest start notifications --watch",
     "lint": "eslint \"{src,apps,libs,test}/**/*.ts\" --fix",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -49,11 +52,13 @@
     "prisma:migrateDeploy:main": "dotenv -e ./apps/main/.env.development.local -- npx prisma migrate deploy --schema=apps/main/src/core/prisma/schema.prisma"
   },
   "dependencies": {
+    "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "6.13.0",
+    "nodemailer": "^7.0.5",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1"
   },
@@ -70,6 +75,7 @@
     "@types/express": "^5.0.0",
     "@types/jest": "^29.5.14",
     "@types/node": "^22.10.7",
+    "@types/nodemailer": "^6.4.17",
     "@types/supertest": "^6.0.3",
     "class-transformer": "^0.5.1",
     "class-validator": "^0.14.2",

@@ -19,6 +19,15 @@
         "tsConfigPath": "apps/auth/tsconfig.app.json"
       }
     },
+    "constants": {
+      "type": "library",
+      "root": "libs/constants",
+      "entryFile": "index",
+      "sourceRoot": "libs/constants/src",
+      "compilerOptions": {
+        "tsConfigPath": "libs/constants/tsconfig.lib.json"
+      }
+    },
     "files": {
       "type": "application",
       "root": "apps/files",
@@ -46,6 +55,21 @@
         "tsConfigPath": "apps/main/tsconfig.app.json"
       }
     },
+    "notifications": {
+      "type": "application",
+      "root": "apps/notifications",
+      "entryFile": "main",
+      "sourceRoot": "apps/notifications/src",
+      "compilerOptions": {
+        "tsConfigPath": "apps/notifications/tsconfig.app.json",
+        "assets": [
+          {
+            "include": "src/modules/mail/templates/**/*",
+            "outDir": "dist/apps/notifications"
+          }
+        ]
+      }
+    },
     "payments": {
       "type": "application",
       "root": "apps/payments",
@@ -62,15 +86,6 @@
       "sourceRoot": "libs/utils/src",
       "compilerOptions": {
         "tsConfigPath": "libs/utils/tsconfig.lib.json"
-      }
-    },
-    "constants": {
-      "type": "library",
-      "root": "libs/constants",
-      "entryFile": "index",
-      "sourceRoot": "libs/constants/src",
-      "compilerOptions": {
-        "tsConfigPath": "libs/constants/tsconfig.lib.json"
       }
     }
   }

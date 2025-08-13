@@ -22,6 +22,7 @@
       "@libs/utils/*": ["libs/utils/src/*"],
       "@libs/constants/*": ["libs/constants/src/*"],
       "@libs/contracts/*": ["libs/contracts/src/*"],
+      "@libs/exeption/*": ["libs/exeption/src/*"]
     }
   },
   "references": [
@@ -47,7 +48,10 @@
       "path": "./libs/utils/tsconfig.lib.json"
     },
     {
-       "path": "./libs/contracts/tsconfig.lib.json"
+      "path": "./libs/contracts/tsconfig.lib.json"
     },
+    {
+      "path": "./libs/exeption/tsconfig.lib.json"
+    }
   ]
 } 

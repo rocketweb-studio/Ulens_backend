@@ -7,11 +7,15 @@ import { CoreEnvConfig } from '@/core/core.config';
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function configApp(app: INestApplication, coreConfig: CoreEnvConfig) {
-  /**
-   * используем coreConfig при необходимости, например:
-   * if (coreConfig.isSwaggerEnabled) {
-   *   swaggerSetup(app);
-   * }
-   */
-  // app.setGlobalPrefix('api/v1');
+  // app.useGlobalPipes(
+  //   new ValidationPipe({
+  //     transform: true,
+  //     stopAtFirstError: true,
+  //     exceptionFactory: (errors) => {
+  //       const formattedErrors = formatValidationErrors(errors);
+  //       throw new BadRequestException(formattedErrors);
+  //     }
+  //   })
+  // );
+  // app.useGlobalFilters(new RpcExceptionFilter(coreConfig));
 }

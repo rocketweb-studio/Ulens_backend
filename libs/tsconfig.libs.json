@@ -1,7 +1,9 @@
 {
   "files": [],
   "references": [
-    { "path": "./constants/tsconfig.lib.json" }, { "path": "./utils/tsconfig.lib.json" },
+    { "path": "./constants/tsconfig.lib.json" },
+    { "path": "./utils/tsconfig.lib.json" },
     { "path": "./contracts/tsconfig.lib.json" },
+    { "path": "./exeption/tsconfig.lib.json" }
   ]
 }

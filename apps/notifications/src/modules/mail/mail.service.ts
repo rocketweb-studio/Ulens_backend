@@ -1,12 +1,12 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
 import { MailConfig } from './mail.config';
-import { buildActivationTemplate } from './templates/activation.template';
+import { buildRegistrationTemplate } from './templates/registration.template';
 import { buildPasswordRecoveryTemplate } from './templates/recovery.template';
 
 export enum MailPurpose {
-  ACTIVATION = 'activationAccount',
-  PASSWORD_RECOVERY = 'passwordRecovery'
+  REGISTRATION = 'REGISTRATION',
+  PASSWORD_RECOVERY = 'PASSWORD_RECOVERY'
 }
 
 @Injectable()
@@ -17,15 +17,14 @@ export class EmailService {
   ) {}
 
   async sendEmail(email: string, code: string, purpose: MailPurpose): Promise<void> {
-    console.log('sendEmail', email, code, purpose);
     const template = {
       html: '',
       subject: ''
     };
     switch (purpose) {
-      case MailPurpose.ACTIVATION:
-        template.html = buildActivationTemplate(code, this.mailConfig.frontendUrl);
-        template.subject = 'Account activation!';
+      case MailPurpose.REGISTRATION:
+        template.html = buildRegistrationTemplate(code, this.mailConfig.frontendUrl);
+        template.subject = 'Registration Confirmation!';
         break;
       case MailPurpose.PASSWORD_RECOVERY:
         template.html = buildPasswordRecoveryTemplate(code, this.mailConfig.frontendUrl);

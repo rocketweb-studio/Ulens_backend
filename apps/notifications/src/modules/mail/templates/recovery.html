@@ -1,6 +1,4 @@
-export const buildPasswordRecoveryTemplate = (token: string, clientUrl: string) => {
-  return `
-    <!doctype html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -89,7 +87,7 @@ export const buildPasswordRecoveryTemplate = (token: string, clientUrl: string) 
           <h3 style="margin: 0 0 15px 0; color: #856404; font-size: 18px">🔑 Reset Your Password</h3>
           <p style="margin: 0 0 20px 0; color: #333; font-size: 16px">We received a request to reset your password. Click the button below to create a new password:</p>
           <a
-            href="${clientUrl}/account/reset-password?token=${token}"
+            href="#"
             style="
               display: inline-block;
               background-color: #ffc107;
@@ -118,6 +116,3 @@ export const buildPasswordRecoveryTemplate = (token: string, clientUrl: string) 
     </div>
   </body>
 </html>
-
-  `;
-};

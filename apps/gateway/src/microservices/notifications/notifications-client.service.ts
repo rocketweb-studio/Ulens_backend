@@ -14,8 +14,8 @@ class SendEmailDto {
 export class NotificationsClientService {
   constructor(@Inject(Microservice.NOTIFICATIONS) private readonly client: ClientProxy) {}
 
-  async sendActivationEmail(sendEmailDto: SendEmailDto): Promise<void> {
-    await firstValueFrom(this.client.send({ cmd: NotificationMessages.SEND_ACTIVATION_EMAIL }, sendEmailDto));
+  async sendRegistrationEmail(sendEmailDto: SendEmailDto): Promise<void> {
+    await firstValueFrom(this.client.send({ cmd: NotificationMessages.SEND_REGISTRATION_EMAIL }, sendEmailDto));
   }
 
   async sendPasswordRecoveryEmail(sendEmailDto: SendEmailDto): Promise<void> {

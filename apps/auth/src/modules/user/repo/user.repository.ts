@@ -1,17 +1,12 @@
-import { BadRequestException, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { CreateUserDto, BaseUserViewDto } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';
-import { PrismaClientKnownRequestError } from '@prisma/client/runtime/library';
+import { isPrismaKnownRequestError } from '@libs/utils/index';
 import { BaseRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
 
-
-
-function isPrismaKnownRequestError(e: unknown): e is { code: string; meta?: any } {
-  return !!e && typeof e === 'object' && 'code' in e!;
-}
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
@@ -33,10 +28,10 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
         } catch (error) {
             if(isPrismaKnownRequestError(error) && error.code === 'P2002'){
                 console.log(`Error of uniqueness Email or userName: ${error}`);
-                throw new BaseRpcException(400, 'Email or userName already exists');
+                throw new BaseRpcException(400, 'User with such email or userName already exists');
             }
             console.log(`During the registration occured error: ${error}`);
-            throw new BaseRpcException(400, 'During the registration occured error');;
+            throw new UnexpectedErrorRpcException('During the registration occured unexpected error');
         }
     }
 }

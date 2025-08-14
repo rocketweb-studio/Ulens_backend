@@ -17,23 +17,31 @@ datasource db {
 // Модель пользователя - таблица в БД
 model User {
   id    Int     @default(autoincrement()) @id
+  userName String @unique
   email String  @unique
-  name  String? 
-  posts Post[]
   createdAt DateTime @default(now())
+  passwordHash String?
+  confirmationCode String? @unique
+  confCodeConfirmed Boolean
+  recoveryCode String? @unique
+  recCodeConfirmed Boolean?
+  confCodeExpDate DateTime?
+  recCodeExpDate DateTime?
+  googleUserId String? @unique
+  gitHubUserId String? @unique
 
-  @@map("users")
+  sessions Session[]  // обратная сторона связи
+  @@map("users")  
 }
 
-// Модель поста - таблица в БД
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int? @map("author_id")
+model Session {
+  deviceId String @id @unique
+  userId Int 
+  deviceName String
+  iat DateTime
+  exp DateTime
+  ip String
 
-  @@map("posts")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("sessions")
 }

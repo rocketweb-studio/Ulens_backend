@@ -10,7 +10,6 @@ async function bootstrap() {
   const config = app.get<CoreEnvConfig>(CoreEnvConfig);
 
   configApp(app, config);
-
   await app.listen(config.applicationPort);
   console.log(`Gateway is running on port ${config.applicationPort}`);
 }

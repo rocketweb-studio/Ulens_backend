@@ -1,5 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Length, Matches } from 'class-validator';
+import { ApiProperty } from "@nestjs/swagger";
+import { IsEmail, IsString, Length, Matches } from "class-validator";
+// ? import { Trim } from "@libs/utils/index" так и не получилось импортировать этот pipe из либы
 
 // Data Transfer Objects
 export class CreateUserDto {
@@ -10,21 +11,39 @@ export class CreateUserDto {
     maxLength: 30,
     pattern: '^[a-zA-Z0-9_-]*$'
   })
+  // @Trim()
   @IsString()
   @Length(6, 30)
   @Matches(/^[a-zA-Z0-9_-]*$/, {
     message: 'name allows only letters, numbers, _ and -'
   })
-  name: string;
+  userName: string;
 
   @ApiProperty({
     example: 'user.email@gmail.com',
     format: 'email',
     description: 'Unique email'
   })
+  // @Trim()
   @IsEmail()
   email: string;
-}
+
+  @ApiProperty({
+    example:'MyP@ssw0rd!2025#',
+    description: 'User password',
+    minLength:6,
+    maxLength:20,
+    pattern: '^[0-9A-Za-z!"#$%&\'()*+,\\-./:;<=>?@[\\]\\\\^_{|}~]+$',
+  })
+  // @Trim()
+  @IsString()
+  @Length(6, 20)
+  @Matches(/^[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\]\\^_{|}~]+$/, {
+  message:
+    'Allowed characters: 0-9, A-Z, a-z and special symbols ! " # $ % & \' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~',
+  })
+  password : string;
+};
 
 export class BaseUserViewDto {
   @ApiProperty({ example: 1 })
@@ -32,13 +51,12 @@ export class BaseUserViewDto {
   @ApiProperty({ example: 'user.email@gmail.com' })
   email: string;
   @ApiProperty({ example: 'John Doe' })
-  name: string;
+  userName: string;
   @ApiProperty({ example: '2025-08-10T00:00:00.000Z' })
   createdAt: Date;
 
   constructor(model: any) {
-    this.id = model.id;
-    this.name = model.name;
+    this.userName = model.userName;
     this.email = model.email;
     this.createdAt = model.createdAt;
   }

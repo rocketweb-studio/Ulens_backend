@@ -23,4 +23,8 @@ export class AuthClientService implements IAuthClientService {
       throw new UnexpectedErrorRpcException(e.message);
     }
   }
+
+  async registration(createUserDto: CreateUserDto): Promise<BaseUserViewDto> {
+    return firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
+  }
 }

@@ -1,6 +1,7 @@
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, BaseUserViewDto } from '@libs/contracts/index';
+import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
 
 @Injectable()
 export class UserService {
@@ -12,9 +13,13 @@ export class UserService {
   }
 
   async createUser(createUserDto: CreateUserDto) {
-    const user = await this.prisma.user.create({
-      data: createUserDto
-    });
-    return BaseUserViewDto.mapToView(user);
+    try {
+      const user = await this.prisma.user.create({
+        data: createUserDto
+      });
+      return BaseUserViewDto.mapToView(user);
+    } catch (error) {
+      throw new UnexpectedErrorRpcException(error.message);
+    }
   }
 }

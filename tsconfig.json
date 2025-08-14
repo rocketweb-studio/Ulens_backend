@@ -19,9 +19,18 @@
     "noFallthroughCasesInSwitch": false,
     "composite": true,
     "paths": {
-      "@libs/utils/*": ["libs/utils/src/*"],
-      "@libs/constants/*": ["libs/constants/src/*"],
-      "@libs/contracts/*": ["libs/contracts/src/*"],
+      "@libs/constants/*": [
+        "libs/constants/src/*"
+      ],
+      "@libs/contracts/*": [
+        "libs/contracts/src/*"
+      ],
+      "@libs/exeption/*": [
+        "libs/exeption/src/*"
+      ],
+      "@libs/utils/*": [
+        "libs/utils/src/*"
+      ]
     }
   },
   "references": [
@@ -41,13 +50,19 @@
       "path": "./apps/gateway/tsconfig.app.json"
     },
     {
+      "path": "./apps/notifications/tsconfig.app.json"
+    },
+    {
       "path": "./libs/constants/tsconfig.lib.json"
     },
     {
       "path": "./libs/utils/tsconfig.lib.json"
     },
     {
-       "path": "./libs/contracts/tsconfig.lib.json"
+      "path": "./libs/contracts/tsconfig.lib.json"
     },
+    {
+      "path": "./libs/exeption/tsconfig.lib.json"
+    }
   ]
-} 
+}

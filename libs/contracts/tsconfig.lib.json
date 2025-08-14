@@ -4,6 +4,7 @@
     "declaration": true,
     "outDir": "../../dist/libs/contracts"
   },
+  "composite": true,
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts"]
 }

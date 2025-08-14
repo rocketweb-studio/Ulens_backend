@@ -8,5 +8,7 @@ export const initGatewayModule = async (): Promise<DynamicModule> => {
   const config = appContext.get<CoreEnvConfig>(CoreEnvConfig);
   await appContext.close();
 
+  // useContainer(appContext.select(GatewayModule), { fallbackOnErrors: true });
+
   return GatewayModule.forRoot(config);
 };

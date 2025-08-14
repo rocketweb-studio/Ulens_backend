@@ -9,10 +9,11 @@
       "@libs/constants/*": ["../../libs/constants/src/*"],
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],
+      "@libs/exeption/*": ["../../libs/exeption/src/*"]
     }
   },
   "references": [{ "path": "../../libs/constants/tsconfig.lib.json" }, { "path": "../../libs/utils/tsconfig.lib.json" },
-                 { "path": "../../libs/contracts/tsconfig.lib.json" },],
+                 { "path": "../../libs/contracts/tsconfig.lib.json" }, { "path": "../../libs/exeption/tsconfig.lib.json" }],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
 }

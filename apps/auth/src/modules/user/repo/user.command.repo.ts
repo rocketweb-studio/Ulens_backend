@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
 import { PrismaService } from '@/core/prisma/prisma.service';
-import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView } from "@libs/contracts/index";
+import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';
 import { isPrismaKnownRequestError } from '@libs/utils/index';
@@ -98,5 +98,24 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
         if (result.count === 1) return { code: recoveryCode };
 
         throw new NotFoundRpcException('User with such email was not found')
+    }
+
+    async setNewPassword(dto: NewPasswordDto): Promise<Boolean> {
+        const { newPassword, recoveryCode } = dto;
+        
+        const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+        const result = await this.prisma.user.updateMany({
+            where: {
+                recoveryCode: recoveryCode,
+            },
+            data: {
+                passwordHash: newPasswordHash,
+            },
+        });
+        
+        if(result.count === 1) return true;
+
+        throw new BaseRpcException(400, 'Invalid or expired password recovery code');
     }
 }

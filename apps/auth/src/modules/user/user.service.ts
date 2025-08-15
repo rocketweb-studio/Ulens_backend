@@ -1,6 +1,6 @@
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView } from '@libs/contracts/index';
+import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto } from '@libs/contracts/index';
 import { IUserCommandRepository, IUserQueryRepository } from './user.interfaces';
 
 @Injectable()
@@ -39,5 +39,9 @@ export class UserService {
 
   async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
     return this.userCommandRepository.passwordRecovery(dto);
+  }
+
+  async setNewPassword(dto: NewPasswordDto): Promise<Boolean>{
+    return this.userCommandRepository.setNewPassword(dto);
   }
 }

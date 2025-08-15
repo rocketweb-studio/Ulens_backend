@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto } from '@libs/contracts/index';
+import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto } from '@libs/contracts/index';
 import { Microservice } from '@libs/constants/microservices';
 import { AuthMessages } from '@libs/constants/auth-messages';
 import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
@@ -74,4 +74,8 @@ export class AuthClientService implements IAuthClientService {
 
     return true;
   } 
+
+   async setNewPassword(newPasswordDto: NewPasswordDto): Promise<Boolean>{
+    return firstValueFrom(this.client.send({ cmd: AuthMessages.NEW_PASSWORD }, newPasswordDto));
+  }
 }

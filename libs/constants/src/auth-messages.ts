@@ -5,4 +5,5 @@ export enum AuthMessages {
   EMAIL_CONFIRMATION = 'email_confirmation',
   RESEND_EMAIL = 'resend_email',
   PASSWORD_RECOVERY= 'password_recovery',
+  NEW_PASSWORD= 'new_password',
 }

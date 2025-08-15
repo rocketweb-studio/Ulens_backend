@@ -1,6 +1,6 @@
 import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
 import { AuthClientService } from '@/microservices/auth/auth-client.service';
-import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto, ResendEmailDto } from '@libs/contracts/index';
+import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto } from '@libs/contracts/index';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HttpStatuses, RouterPaths } from '@libs/constants/index';
 import { IncorrectInputDataResponse } from '../../common/swagger-examples/incorrect-input-data-response';
@@ -61,6 +61,15 @@ export class AuthClientController {
   @ApiResponse(IncorrectInputDataResponse)
   async passwordRecovery(@Body() passwordRecoveryDto: ResendEmailDto): Promise<Boolean>{
     return this.authClientService.passwordRecovery(passwordRecoveryDto);
+  }
+
+  @Post(RouterPaths.NEW_PASSWORD)
+  @HttpCode(HttpStatuses.NO_CONTENT_204)
+  @ApiOperation({ summary: "Confirm Password recovery" })
+  @ApiResponse({ status: 204, description: "New password was successfully set" })
+  @ApiResponse(IncorrectInputDataResponse)
+  async newPassword(@Body() newPasswordDto: NewPasswordDto): Promise<Boolean>{
+    return this.authClientService.setNewPassword(newPasswordDto);
   }
 
 }

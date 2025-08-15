@@ -4,7 +4,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { AuthMessages } from '@libs/constants/auth-messages';
-import { ConfirmCodeDto, CreateUserDto, ResendEmailDto } from '@libs/contracts/index';
+import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from '@libs/contracts/index';
 
 @Controller()
 export class UserController {
@@ -38,5 +38,10 @@ export class UserController {
   @MessagePattern({ cmd: AuthMessages.PASSWORD_RECOVERY })
   async passwordRecovery(@Payload() passwordRecoveryDto: ResendEmailDto) {
     return this.userService.passwordRecovery(passwordRecoveryDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.NEW_PASSWORD })
+  async newPassword(@Payload() newPasswordDto: NewPasswordDto){
+    return this.userService.setNewPassword(newPasswordDto);
   }
 }

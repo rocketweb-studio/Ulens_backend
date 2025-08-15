@@ -1,18 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
 import { PrismaService } from '@/core/prisma/prisma.service';
-import { CreateUserDto, BaseUserView, RegistrationResultDto, ConfirmCodeDto } from "@libs/contracts/index";
+import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';
 import { isPrismaKnownRequestError } from '@libs/utils/index';
-import { BaseRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
+import { BaseRpcException, NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
+import { add } from "date-fns";
+import { v4 as uuidv4 } from 'uuid';
 
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async createUser(dto: CreateUserDto): Promise<RegistrationResultDto> {
+    async createUser(dto: CreateUserDto): Promise<RegistrationResultView> {
         const { email, password, userName } = dto;
 
         const passwordHash = await bcrypt.hash(password, 10);
@@ -56,5 +58,25 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
         if (result.count === 1) return true;
 
         throw new BaseRpcException(400, 'Invalid or expired confirmation code');
+    }
+
+    async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
+        const confirmationCode = uuidv4();
+        const result = await this.prisma.user.updateMany({
+            where: {
+                email: dto.email,
+            },
+            data: {
+                confirmationCode: confirmationCode,
+                confCodeConfirmed: false,
+                confCodeExpDate: add(new Date(), {
+                    hours: 1,
+                    minutes: 3
+                }).toISOString(),
+            },
+        });
+        if (result.count === 1) return { code: confirmationCode };
+
+        throw new NotFoundRpcException('User with such email was not found')
     }
 }

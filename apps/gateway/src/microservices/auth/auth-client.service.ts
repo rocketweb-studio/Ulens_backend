@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto } from '@libs/contracts/index';
+import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto } from '@libs/contracts/index';
 import { Microservice } from '@libs/constants/microservices';
 import { AuthMessages } from '@libs/constants/auth-messages';
 import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
@@ -44,4 +44,19 @@ export class AuthClientService implements IAuthClientService {
   async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<Boolean>{
     return firstValueFrom(this.client.send({ cmd: AuthMessages.EMAIL_CONFIRMATION }, confirmCodeDto));
   }
+
+  async resendEmail(resendEmailDto: ResendEmailDto): Promise<Boolean> {
+    const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.RESEND_EMAIL  }, resendEmailDto));
+
+    if(code){
+      this.notificationsClientService.sendRegistrationEmail({
+      email: resendEmailDto.email,
+      code: code
+    });
+    }else{
+      console.log('Email confirmation code was updated but email data is missing')
+    }
+
+    return true;
+  } 
 }

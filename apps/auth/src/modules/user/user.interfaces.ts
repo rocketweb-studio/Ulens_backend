@@ -1,4 +1,4 @@
-import { CreateUserDto, RegistrationResultDto, ConfirmCodeDto, BaseUserView } from "@libs/contracts/index";
+import { CreateUserDto, RegistrationResultView, ConfirmCodeDto, BaseUserView, ResendEmailDto } from "@libs/contracts/index";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token, 
@@ -10,6 +10,7 @@ export abstract class IUserQueryRepository {
 }
 
 export abstract class IUserCommandRepository {
-    abstract createUser(dto: CreateUserDto): Promise<RegistrationResultDto>;
+    abstract createUser(dto: CreateUserDto): Promise<RegistrationResultView>;
     abstract confirmEmail(dto: ConfirmCodeDto): Promise<Boolean>;
+    abstract resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto>;
 }

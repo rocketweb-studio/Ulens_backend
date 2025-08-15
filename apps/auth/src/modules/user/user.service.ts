@@ -1,6 +1,6 @@
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, BaseUserView, RegistrationResultDto, ConfirmCodeDto } from '@libs/contracts/index';
+import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView } from '@libs/contracts/index';
 import { IUserCommandRepository, IUserQueryRepository } from './user.interfaces';
 
 @Injectable()
@@ -25,11 +25,15 @@ export class UserService {
     return BaseUserView.mapToView(user);
   }
 
-  async createUser(dto: CreateUserDto): Promise<RegistrationResultDto>{ 
+  async createUser(dto: CreateUserDto): Promise<RegistrationResultView>{ 
     return this.userCommandRepository.createUser(dto);
   }
 
   async confirmEmail(dto: ConfirmCodeDto): Promise<Boolean>{
     return this.userCommandRepository.confirmEmail(dto);
+  }
+
+  async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
+    return this.userCommandRepository.resendEmail(dto);
   }
 }

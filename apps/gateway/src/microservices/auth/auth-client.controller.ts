@@ -1,9 +1,8 @@
 import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
 import { AuthClientService } from '@/microservices/auth/auth-client.service';
-import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto } from '@libs/contracts/index';
+import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto, ResendEmailDto } from '@libs/contracts/index';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HttpStatuses, RouterPaths } from '@libs/constants/index';
-import { RpcException } from '@nestjs/microservices';
 import { IncorrectInputDataResponse } from '../../common/swagger-examples/incorrect-input-data-response';
 
 @ApiTags(RouterPaths.AUTH)
@@ -44,5 +43,14 @@ export class AuthClientController {
   @ApiResponse(IncorrectInputDataResponse)
   async registrationConfirmation(@Body() confirmCodeDto: ConfirmCodeDto): Promise<Boolean> {
      return this.authClientService.emailConfirmation(confirmCodeDto);
+  }
+
+  @Post(RouterPaths.REGISTRATION_EMAIL_RESENDING)
+  @HttpCode(HttpStatuses.NO_CONTENT_204)
+  @ApiOperation({ summary: "Resend confirmation registration Email if user exists"})
+  @ApiResponse({ status: 204, description: "An email with a verification code has been sent to the specified email address" })
+  @ApiResponse(IncorrectInputDataResponse)
+  async registrationEmailResending(@Body() resendEmailDto: ResendEmailDto): Promise<Boolean> {
+    return this.authClientService.resendEmail(resendEmailDto);
   }
 }

@@ -3,4 +3,5 @@ export enum AuthMessages {
   CREATE_USER = 'create_user',
   REGISTRATION = 'registration',
   EMAIL_CONFIRMATION = 'email_confirmation',
+  RESEND_EMAIL = 'resend_email',
 }

@@ -4,4 +4,5 @@ export enum RouterPaths {
   SUBSCRIPTIONS = 'subscriptions',
   REGISTRATION = 'registration',
   REGISTRATION_CONFIRMATION = 'registration-confirmation',
+  REGISTRATION_EMAIL_RESENDING = 'registration-email-resending',
 }

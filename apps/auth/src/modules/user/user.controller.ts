@@ -4,7 +4,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { AuthMessages } from '@libs/constants/auth-messages';
-import { ConfirmCodeDto, CreateUserDto } from '@libs/contracts/index';
+import { ConfirmCodeDto, CreateUserDto, ResendEmailDto } from '@libs/contracts/index';
 
 @Controller()
 export class UserController {
@@ -28,5 +28,10 @@ export class UserController {
   @MessagePattern({ cmd: AuthMessages.EMAIL_CONFIRMATION })
   async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto) {
     return this.userService.confirmEmail(confirmCodeDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.RESEND_EMAIL })
+  async registrationEmailResending(@Payload() resendEmailDto: ResendEmailDto) {
+    return this.userService.resendEmail(resendEmailDto);
   }
 }

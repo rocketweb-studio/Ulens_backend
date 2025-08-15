@@ -34,4 +34,9 @@ export class UserController {
   async registrationEmailResending(@Payload() resendEmailDto: ResendEmailDto) {
     return this.userService.resendEmail(resendEmailDto);
   }
+
+  @MessagePattern({ cmd: AuthMessages.PASSWORD_RECOVERY })
+  async passwordRecovery(@Payload() passwordRecoveryDto: ResendEmailDto) {
+    return this.userService.passwordRecovery(passwordRecoveryDto);
+  }
 }

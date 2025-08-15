@@ -59,4 +59,19 @@ export class AuthClientService implements IAuthClientService {
 
     return true;
   } 
+
+  async passwordRecovery(passwordRecoveryDto: ResendEmailDto): Promise<Boolean> {
+    const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.PASSWORD_RECOVERY }, passwordRecoveryDto));
+
+    if(code){
+      this.notificationsClientService.sendPasswordRecoveryEmail({
+      email: passwordRecoveryDto.email,
+      code: code
+    });
+    }else{
+      console.log('Password recovery code was updated but email data is missing')
+    }
+
+    return true;
+  } 
 }

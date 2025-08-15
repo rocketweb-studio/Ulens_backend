@@ -79,4 +79,24 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
         throw new NotFoundRpcException('User with such email was not found')
     }
+
+    async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
+        const recoveryCode = uuidv4();
+        const result = await this.prisma.user.updateMany({
+            where: {
+                email: dto.email,
+            },
+            data: {
+                recoveryCode: recoveryCode,
+                recCodeConfirmed: false,
+                recCodeExpDate: add(new Date(), {
+                    hours: 1,
+                    minutes: 3
+                }).toISOString(),
+            },
+        });
+        if (result.count === 1) return { code: recoveryCode };
+
+        throw new NotFoundRpcException('User with such email was not found')
+    }
 }

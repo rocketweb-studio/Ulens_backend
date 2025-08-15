@@ -13,4 +13,5 @@ export abstract class IUserCommandRepository {
     abstract createUser(dto: CreateUserDto): Promise<RegistrationResultView>;
     abstract confirmEmail(dto: ConfirmCodeDto): Promise<Boolean>;
     abstract resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto>;
+    abstract passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto>;
 }

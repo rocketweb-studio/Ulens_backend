@@ -36,4 +36,8 @@ export class UserService {
   async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
     return this.userCommandRepository.resendEmail(dto);
   }
+
+  async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
+    return this.userCommandRepository.passwordRecovery(dto);
+  }
 }

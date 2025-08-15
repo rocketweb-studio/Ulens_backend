@@ -53,4 +53,14 @@ export class AuthClientController {
   async registrationEmailResending(@Body() resendEmailDto: ResendEmailDto): Promise<Boolean> {
     return this.authClientService.resendEmail(resendEmailDto);
   }
+
+  @Post(RouterPaths.PASSWORD_RECOVERY)
+  @HttpCode(HttpStatuses.NO_CONTENT_204)
+  @ApiOperation({ summary: "Password recovery via Email confirmation. Email should be sent with RecoveryCode inside" })
+  @ApiResponse({ status: 204, description: "An email with a recovery code has been sent to the specified email address" })
+  @ApiResponse(IncorrectInputDataResponse)
+  async passwordRecovery(@Body() passwordRecoveryDto: ResendEmailDto): Promise<Boolean>{
+    return this.authClientService.passwordRecovery(passwordRecoveryDto);
+  }
+
 }

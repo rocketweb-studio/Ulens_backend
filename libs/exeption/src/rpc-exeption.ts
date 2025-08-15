@@ -5,7 +5,8 @@ export enum RpcExceptionDefaultMessages {
   UNAUTHORIZED = 'Unauthorized',
   FORBIDDEN = 'Forbidden',
   INTERNAL_SERVER_ERROR = 'Internal server error',
-  TOO_MANY_REQUESTS = 'Too many requests'
+  TOO_MANY_REQUESTS = 'Too many requests',
+  
 }
 
 export class BaseRpcException extends RpcException {

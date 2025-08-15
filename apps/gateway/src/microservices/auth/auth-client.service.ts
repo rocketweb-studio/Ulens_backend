@@ -1,7 +1,7 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IAuthClientService, CreateUserDto, BaseUserViewDto } from '@libs/contracts/index';
+import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto } from '@libs/contracts/index';
 import { Microservice } from '@libs/constants/microservices';
 import { AuthMessages } from '@libs/constants/auth-messages';
 import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
@@ -12,11 +12,11 @@ export class AuthClientService implements IAuthClientService {
   constructor(@Inject(Microservice.AUTH) private readonly client: ClientProxy,
               private readonly notificationsClientService: NotificationsClientService) {}
 
-  async getUsers(): Promise<BaseUserViewDto[]> {
+  async getUsers(): Promise<BaseUserView[]> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
   }
 
-  async createUser(createUserDto: CreateUserDto): Promise<BaseUserViewDto> {
+  async createUser(createUserDto: CreateUserDto): Promise<BaseUserView> {
     try {
       const response = await firstValueFrom(this.client.send({ cmd: AuthMessages.CREATE_USER }, createUserDto));
       return response;
@@ -26,7 +26,7 @@ export class AuthClientService implements IAuthClientService {
     }
   }
 
-  async registration(createUserDto: CreateUserDto): Promise<BaseUserViewDto> {
+  async registration(createUserDto: CreateUserDto): Promise<BaseUserView> {
     const { user, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
     
     if(user?.email && confirmationCode){
@@ -39,5 +39,9 @@ export class AuthClientService implements IAuthClientService {
     }
     
     return user;
+  }
+
+  async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<Boolean>{
+    return firstValueFrom(this.client.send({ cmd: AuthMessages.EMAIL_CONFIRMATION }, confirmCodeDto));
   }
 }

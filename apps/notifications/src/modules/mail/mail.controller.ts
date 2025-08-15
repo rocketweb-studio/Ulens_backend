@@ -1,5 +1,5 @@
 import { Controller } from '@nestjs/common';
-import { MessagePattern, Payload } from '@nestjs/microservices';
+import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
 import { EmailService, MailPurpose } from './mail.service';
 import { NotificationMessages } from '@libs/constants/notification-messages';
 
@@ -13,7 +13,11 @@ class SendEmailDto {
 export class MailController {
   constructor(private readonly emailService: EmailService) {}
 
-  @MessagePattern({ cmd: NotificationMessages.SEND_REGISTRATION_EMAIL })
+  /**
+   * Заменили MessagePattern на EventPattern потому что в предыдущей реализации письмо отправлялось но пользователю 
+   *    возвращалась 500 ошибка
+   */
+  @EventPattern(NotificationMessages.SEND_REGISTRATION_EMAIL)
   async sendRegistrationEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
     await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.REGISTRATION);
   }

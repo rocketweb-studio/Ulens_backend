@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
 import { PrismaService } from '@/core/prisma/prisma.service';
-import { CreateUserDto, BaseUserViewDto } from "@libs/contracts/index";
+import { CreateUserDto, BaseUserViewDto, RegistrationResultDto } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';
 import { isPrismaKnownRequestError } from '@libs/utils/index';
@@ -12,7 +12,7 @@ import { BaseRpcException, UnexpectedErrorRpcException } from "@libs/exeption/in
 export class PrismaUserCommandRepository implements IUserCommandRepository {
     constructor(private readonly prisma: PrismaService){}
 
-    async createUser(dto: CreateUserDto): Promise<BaseUserViewDto> {
+    async createUser(dto: CreateUserDto): Promise<RegistrationResultDto> {
         const { email, password, userName } = dto;
 
         const passwordHash = await bcrypt.hash(password, 10);
@@ -24,7 +24,11 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
                 //@ts-ignore
                 data: userEntity
             });
-            return BaseUserViewDto.mapToView(user);
+            return {
+                user: BaseUserViewDto.mapToView(user),
+                confirmationCode: userEntity.confirmationCode!
+
+            };
         } catch (error) {
             if(isPrismaKnownRequestError(error) && error.code === 'P2002'){
                 console.log(`Error of uniqueness Email or userName: ${error}`);

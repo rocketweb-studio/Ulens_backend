@@ -70,6 +70,11 @@ export class BaseUserViewDto {
   }
 }
 
+export class RegistrationResultDto {
+  user: BaseUserViewDto;
+  confirmationCode: string;
+}
+
 export class UsersModel {
   @ApiProperty({ type: [BaseUserViewDto] }) items: BaseUserViewDto[];
 }

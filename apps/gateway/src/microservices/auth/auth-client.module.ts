@@ -4,6 +4,7 @@ import { AuthClientEnvConfig } from '@/microservices/auth/auth-client.config';
 import { AuthClientController } from '@/microservices/auth/auth-client.controller';
 import { AuthClientService } from '@/microservices/auth/auth-client.service';
 import { Microservice } from '@libs/constants/microservices';
+import { NotificationsClientModule } from '../notifications/notifications-client.module';
 
 @Module({
   imports: [
@@ -20,7 +21,7 @@ import { Microservice } from '@libs/constants/microservices';
         inject: [AuthClientEnvConfig],
         extraProviders: [AuthClientEnvConfig]
       }
-    ])
+    ]), NotificationsClientModule,
   ],
   controllers: [AuthClientController],
   providers: [AuthClientService, AuthClientEnvConfig]

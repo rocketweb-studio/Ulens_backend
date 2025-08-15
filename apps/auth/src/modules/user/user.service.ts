@@ -1,6 +1,6 @@
 import { PrismaService } from '@/core/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto, BaseUserViewDto } from '@libs/contracts/index';
+import { CreateUserDto, BaseUserViewDto, RegistrationResultDto } from '@libs/contracts/index';
 import { IUserCommandRepository } from './user.interfaces';
 
 @Injectable()
@@ -24,7 +24,7 @@ export class UserService {
     return BaseUserViewDto.mapToView(user);
   }
 
-  async createUser(dto: CreateUserDto): Promise<BaseUserViewDto>{ 
+  async createUser(dto: CreateUserDto): Promise<RegistrationResultDto>{ 
     return this.userCommandRepository.createUser(dto);
   }
 }

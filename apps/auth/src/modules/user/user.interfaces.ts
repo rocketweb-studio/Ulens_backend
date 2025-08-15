@@ -1,0 +1,14 @@
+import { CreateUserDto, RegistrationResultDto } from "@libs/contracts/index";
+
+/**
+ *Using abstract classes lets Nest use the class itself as the DI token, 
+ *   so your service can inject by type without @Inject()
+ */
+
+export abstract class IUserQueryRepository {
+
+}
+
+export abstract class IUserCommandRepository {
+    abstract createUser(dto: CreateUserDto): Promise<RegistrationResultDto>;
+}

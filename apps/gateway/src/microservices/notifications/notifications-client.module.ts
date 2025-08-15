@@ -23,6 +23,7 @@ import { NotificationsClientController } from './notifications-client.controller
     ])
   ],
   controllers: [NotificationsClientController],
-  providers: [NotificationsClientService, NotificationsClientEnvConfig]
+  providers: [NotificationsClientService, NotificationsClientEnvConfig],
+  exports:[NotificationsClientService]
 })
 export class NotificationsClientModule {}

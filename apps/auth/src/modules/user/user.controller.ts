@@ -17,6 +17,11 @@ export class UserController {
 
   @MessagePattern({ cmd: AuthMessages.CREATE_USER })
   async createUser(@Payload() createUserDto: CreateUserDto) {
+    return this.userService.createUserExample(createUserDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.REGISTRATION })
+  async registration(@Payload() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
   }
 }

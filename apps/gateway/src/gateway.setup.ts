@@ -6,13 +6,16 @@ import { CoreEnvConfig } from '@/core/core.config';
 import { GatewayExceptionFilter } from './core/exeptions/filters/exeption.filter';
 
 export function configApp(app: INestApplication, config: CoreEnvConfig) {
-  // Setting Swagger
-  const swaggerConfig = new DocumentBuilder().setTitle('RocketwebApp')
-      .setDescription('The best API documentation ever!')
-      .setVersion('1.0.0')
-      .build();
+  app.setGlobalPrefix('api/v1');
 
-  const document = SwaggerModule.createDocument(app, swaggerConfig);
+  // Setting Swagger
+  const swaggerConfig = new DocumentBuilder()
+    .setTitle('RocketwebApp')
+    .setDescription('The best API documentation ever!')
+    .setVersion('1.0.0')
+    .addServer('https://ulens.org - Production Server')
+    .build();
+  const document = SwaggerModule.createDocument(app, swaggerConfig, {ignoreGlobalPrefix: false});
   SwaggerModule.setup('api/v1/swagger', app, document);
 
   app.useGlobalPipes(
@@ -33,8 +36,6 @@ export function configApp(app: INestApplication, config: CoreEnvConfig) {
   );
 
   app.useGlobalFilters(new GatewayExceptionFilter(config));
-
-  app.setGlobalPrefix('api/v1');
 
   // app.enableCors({
   //   origin: '*',

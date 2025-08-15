@@ -5,10 +5,12 @@ import { IAuthClientService, CreateUserDto, BaseUserViewDto } from '@libs/contra
 import { Microservice } from '@libs/constants/microservices';
 import { AuthMessages } from '@libs/constants/auth-messages';
 import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
+import { NotificationsClientService } from '../notifications/notifications-client.service';
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
-  constructor(@Inject(Microservice.AUTH) private readonly client: ClientProxy) {}
+  constructor(@Inject(Microservice.AUTH) private readonly client: ClientProxy,
+              private readonly notificationsClientService: NotificationsClientService) {}
 
   async getUsers(): Promise<BaseUserViewDto[]> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
@@ -22,5 +24,20 @@ export class AuthClientService implements IAuthClientService {
       // можно использовать InternalServerErrorException и тогда будет использоваться фильтр для http ошибок
       throw new UnexpectedErrorRpcException(e.message);
     }
+  }
+
+  async registration(createUserDto: CreateUserDto): Promise<BaseUserViewDto> {
+    const { user, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
+    
+    if(user?.email && confirmationCode){
+      this.notificationsClientService.sendRegistrationEmail({
+      email:user.email,
+      code: confirmationCode
+    });
+    }else{
+      console.log('Registration succeeded but email data is missing')
+    }
+    
+    return user;
   }
 }

@@ -3,8 +3,9 @@ import { CoreEnvConfig } from '@/core/core.config';
 import { CoreModule } from '@/core/core.module';
 import { UserController } from '@/modules/user/user.controller';
 import { UserService } from '@/modules/user/user.service';
-import { IUserCommandRepository } from './user.interfaces';
-import { PrismaUserCommandRepository } from './repo/user.repository';
+import { IUserCommandRepository, IUserQueryRepository } from './user.interfaces';
+import { PrismaUserCommandRepository } from './repo/user.command.repo';
+import { PrismaUserQueryRepository } from './repo/user.query.repository';
 
 
 /**
@@ -20,6 +21,7 @@ import { PrismaUserCommandRepository } from './repo/user.repository';
   providers: [
     UserService,
     { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository},
+    { provide: IUserQueryRepository, useClass: PrismaUserQueryRepository},
   ],
   exports: [UserService]
 })

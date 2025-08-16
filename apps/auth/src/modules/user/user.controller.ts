@@ -4,7 +4,7 @@ import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { UserService } from './user.service';
 import { AuthMessages } from '@libs/constants/auth-messages';
-import { CreateUserDto } from '@libs/contracts/index';
+import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from '@libs/contracts/index';
 
 @Controller()
 export class UserController {
@@ -23,5 +23,25 @@ export class UserController {
   @MessagePattern({ cmd: AuthMessages.REGISTRATION })
   async registration(@Payload() createUserDto: CreateUserDto) {
     return this.userService.createUser(createUserDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.EMAIL_CONFIRMATION })
+  async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto) {
+    return this.userService.confirmEmail(confirmCodeDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.RESEND_EMAIL })
+  async registrationEmailResending(@Payload() resendEmailDto: ResendEmailDto) {
+    return this.userService.resendEmail(resendEmailDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.PASSWORD_RECOVERY })
+  async passwordRecovery(@Payload() passwordRecoveryDto: ResendEmailDto) {
+    return this.userService.passwordRecovery(passwordRecoveryDto);
+  }
+
+  @MessagePattern({ cmd: AuthMessages.NEW_PASSWORD })
+  async newPassword(@Payload() newPasswordDto: NewPasswordDto){
+    return this.userService.setNewPassword(newPasswordDto);
   }
 }

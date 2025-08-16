@@ -19,6 +19,6 @@ export class NotificationsClientService {
   }
 
   async sendPasswordRecoveryEmail(sendEmailDto: SendEmailDto): Promise<void> {
-    await firstValueFrom(this.client.send({ cmd: NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL }, sendEmailDto));
+    this.client.emit(NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL, sendEmailDto);
   }
 }

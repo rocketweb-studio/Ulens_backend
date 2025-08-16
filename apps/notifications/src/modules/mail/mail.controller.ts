@@ -22,7 +22,7 @@ export class MailController {
     await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.REGISTRATION);
   }
 
-  @MessagePattern({ cmd: NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL })
+  @EventPattern(NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL)
   async sendPasswordRecoveryEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
     await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.PASSWORD_RECOVERY);
   }

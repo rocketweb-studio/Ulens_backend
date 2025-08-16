@@ -2,6 +2,11 @@ import { PrismaService } from '@/core/prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto } from '@libs/contracts/index';
 import { IUserCommandRepository, IUserQueryRepository } from './user.interfaces';
+import { User } from './user.entity';
+import * as bcrypt from 'bcrypt';
+import { v4 as uuidv4 } from 'uuid';
+
+
 
 @Injectable()
 export class UserService {
@@ -25,8 +30,14 @@ export class UserService {
     return BaseUserView.mapToView(user);
   }
 
-  async createUser(dto: CreateUserDto): Promise<RegistrationResultView>{ 
-    return this.userCommandRepository.createUser(dto);
+  async createUser(dto: CreateUserDto): Promise<RegistrationResultView>{
+    const { email, password, userName } = dto;
+    
+    const passwordHash = await bcrypt.hash(password, 10);
+    
+    const userEntity = new User(userName, email, passwordHash);
+    
+    return this.userCommandRepository.createUser(userEntity);
   }
 
   async confirmEmail(dto: ConfirmCodeDto): Promise<Boolean>{
@@ -34,14 +45,22 @@ export class UserService {
   }
 
   async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
-    return this.userCommandRepository.resendEmail(dto);
+    const confirmationCode = uuidv4();
+
+    return this.userCommandRepository.resendEmail({...dto, confirmationCode});
   }
 
   async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto>{
-    return this.userCommandRepository.passwordRecovery(dto);
+    const recoveryCode = uuidv4();
+
+    return this.userCommandRepository.passwordRecovery({...dto, recoveryCode});
   }
 
   async setNewPassword(dto: NewPasswordDto): Promise<Boolean>{
-    return this.userCommandRepository.setNewPassword(dto);
+    const { newPassword, recoveryCode } = dto;
+            
+    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+    return this.userCommandRepository.setNewPassword({recoveryCode, newPasswordHash});
   }
 }

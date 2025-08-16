@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
 import { PrismaService } from '@/core/prisma/prisma.service';
-import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto } from "@libs/contracts/index";
+import { BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto, ResendEmailConfCodeDto, RecoveryPasswordDto, NewPasswordRepoDto } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';
 import { isPrismaKnownRequestError } from '@libs/utils/index';
@@ -14,21 +14,15 @@ import { v4 as uuidv4 } from 'uuid';
 export class PrismaUserCommandRepository implements IUserCommandRepository {
     constructor(private readonly prisma: PrismaService) { }
 
-    async createUser(dto: CreateUserDto): Promise<RegistrationResultView> {
-        const { email, password, userName } = dto;
-
-        const passwordHash = await bcrypt.hash(password, 10);
-
-        const userEntity = new User(userName, email, passwordHash);
-
+    async createUser(userDto: User): Promise<RegistrationResultView> {
         try {
             const user = await this.prisma.user.create({
                 //@ts-ignore
-                data: userEntity
+                data: userDto
             });
             return {
                 user: BaseUserView.mapToView(user),
-                confirmationCode: userEntity.confirmationCode!
+                confirmationCode: userDto.confirmationCode!
 
             };
         } catch (error) {
@@ -60,14 +54,13 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
         throw new BaseRpcException(400, 'Invalid or expired confirmation code');
     }
 
-    async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
-        const confirmationCode = uuidv4();
+    async resendEmail(dto: ResendEmailConfCodeDto): Promise<ConfirmCodeDto> {
         const result = await this.prisma.user.updateMany({
             where: {
                 email: dto.email,
             },
             data: {
-                confirmationCode: confirmationCode,
+                confirmationCode: dto.confirmationCode,
                 confCodeConfirmed: false,
                 confCodeExpDate: add(new Date(), {
                     hours: 1,
@@ -75,19 +68,18 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
                 }).toISOString(),
             },
         });
-        if (result.count === 1) return { code: confirmationCode };
+        if (result.count === 1) return { code: dto.confirmationCode };
 
         throw new NotFoundRpcException('User with such email was not found')
     }
 
-    async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
-        const recoveryCode = uuidv4();
+    async passwordRecovery(dto: RecoveryPasswordDto): Promise<ConfirmCodeDto> {
         const result = await this.prisma.user.updateMany({
             where: {
                 email: dto.email,
             },
             data: {
-                recoveryCode: recoveryCode,
+                recoveryCode: dto.recoveryCode,
                 recCodeConfirmed: false,
                 recCodeExpDate: add(new Date(), {
                     hours: 1,
@@ -95,22 +87,18 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
                 }).toISOString(),
             },
         });
-        if (result.count === 1) return { code: recoveryCode };
+        if (result.count === 1) return { code: dto.recoveryCode };
 
         throw new NotFoundRpcException('User with such email was not found')
     }
 
-    async setNewPassword(dto: NewPasswordDto): Promise<Boolean> {
-        const { newPassword, recoveryCode } = dto;
-        
-        const newPasswordHash = await bcrypt.hash(newPassword, 10);
-
+    async setNewPassword(dto: NewPasswordRepoDto): Promise<Boolean> {
         const result = await this.prisma.user.updateMany({
             where: {
-                recoveryCode: recoveryCode,
+                recoveryCode: dto.recoveryCode,
             },
             data: {
-                passwordHash: newPasswordHash,
+                passwordHash: dto.newPasswordHash,
             },
         });
         

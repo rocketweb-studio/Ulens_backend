@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "../user.interfaces";
-import { PrismaService } from '@/core/prisma/prisma.service';
+import { PrismaService } from '@auth/core/prisma/prisma.service';
 import { BaseUserView, ConfirmCodeDto } from "@libs/contracts/index";
 
 

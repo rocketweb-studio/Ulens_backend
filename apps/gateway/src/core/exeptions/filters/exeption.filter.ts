@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
 import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from '@nestjs/common';
-import { CoreEnvConfig } from '@/core/core.config';
+import { CoreEnvConfig } from '@gateway/core/core.config';
 import { HttpStatuses } from '@libs/constants/http-statuses';
 import { DefaultErrorResponse } from '@libs/constants/errors';
 import { RpcException } from '@nestjs/microservices';
@@ -49,6 +49,12 @@ export class GatewayExceptionFilter implements ExceptionFilter {
     // Обработка rpc ошибок которые приходят из микросервисов или возникают в гейтвей
     if (this.isRpcException(exception) || exception instanceof RpcException) {
       const status = (exception as any).statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
+      if (status === HttpStatuses.BAD_REQUEST_400) {
+        const responseBody: any = {
+          errorsMessages: [{ field: (exception as any)?.field, message: (exception as any).message }]
+        };
+        return response.status(status).json(responseBody);
+      }
       return response.status(status).json({
         statusCode: status,
         message: (exception as any).message ?? 'Internal server error',

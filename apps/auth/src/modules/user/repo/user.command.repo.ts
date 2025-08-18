@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "../user.interfaces";
-import { PrismaService } from '@/core/prisma/prisma.service';
+import { PrismaService } from '@auth/core/prisma/prisma.service';
 import { BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto, ResendEmailConfCodeDto, RecoveryPasswordDto, NewPasswordRepoDto } from "@libs/contracts/index";
 import { User } from "../user.entity";
 import * as bcrypt from 'bcrypt';

@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
-import { AuthClientEnvConfig } from '@/microservices/auth/auth-client.config';
-import { AuthClientController } from '@/microservices/auth/auth-client.controller';
-import { AuthClientService } from '@/microservices/auth/auth-client.service';
+import { AuthClientEnvConfig } from '@gateway/microservices/auth/auth-client.config';
+import { AuthClientController } from '@gateway/microservices/auth/auth-client.controller';
+import { AuthClientService } from '@gateway/microservices/auth/auth-client.service';
 import { Microservice } from '@libs/constants/microservices';
 import { NotificationsClientModule } from '../notifications/notifications-client.module';
 
@@ -21,7 +21,8 @@ import { NotificationsClientModule } from '../notifications/notifications-client
         inject: [AuthClientEnvConfig],
         extraProviders: [AuthClientEnvConfig]
       }
-    ]), NotificationsClientModule,
+    ]),
+    NotificationsClientModule
   ],
   controllers: [AuthClientController],
   providers: [AuthClientService, AuthClientEnvConfig]

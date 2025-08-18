@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
-import { CoreEnvConfig } from '@/core/core.config';
-import { initGatewayModule } from '@/init-app';
+import { CoreEnvConfig } from '@gateway/core/core.config';
+import { initGatewayModule } from '@gateway/init-app';
 import { configApp } from './gateway.setup';
 
 async function bootstrap() {

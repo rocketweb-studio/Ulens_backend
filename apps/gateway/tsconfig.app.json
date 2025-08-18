@@ -5,7 +5,10 @@
     "outDir": "../../dist/apps/gateway",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@gateway/*": ["src/*"],
+      "@auth/*": ["../auth/src/*"],
+      "@main/*": ["../main/src/*"],
+      "@notifications/*": ["../notifications/src/*"],
       "@libs/constants/*": ["../../libs/constants/src/*"],
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],

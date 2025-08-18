@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { DynamicModule } from '@nestjs/common';
-import { AppModule } from './app.module';
-import { CoreEnvConfig } from './core/core.config';
+import { AppModule } from '@notifications/app.module';
+import { CoreEnvConfig } from '@notifications/core/core.config';
 
 export const initAppModule = async (): Promise<{ dynamicModule: DynamicModule; config: CoreEnvConfig }> => {
   // Создаем временный контекст приложения для получения конфигурации

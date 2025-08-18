@@ -28,7 +28,14 @@ export class CoreEnvConfig {
   })
   tcpPort: number;
 
+  @IsString()
+  @IsNotEmpty({
+    message: 'Set Env variable NODE_ENV, example: development'
+  })
+  env: string;
+
   constructor(private configService: ConfigService<any, true>) {
+    this.env = this.configService.get<string>('NODE_ENV');
     this.databaseUrl = this.configService.get<string>('POSTGRES_URL');
     this.tcpHost = this.configService.get<string>('TCP_HOST');
     this.tcpPort = this.configService.get<number>('TCP_PORT');

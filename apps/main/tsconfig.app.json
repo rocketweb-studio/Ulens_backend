@@ -21,7 +21,7 @@
     "outDir": "../../dist/apps/main",
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
+      "@main/*": ["src/*"],
       "@libs/constants/*": ["../../libs/constants/src/*"],
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],

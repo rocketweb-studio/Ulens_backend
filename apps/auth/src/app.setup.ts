@@ -1,5 +1,5 @@
 import { INestApplication } from '@nestjs/common';
-import { CoreEnvConfig } from '@/core/core.config';
+import { CoreEnvConfig } from '@auth/core/core.config';
 
 /**
  * настройка приложения, например: глобальный префикс, pipes, CORS, Swagger, etc.

@@ -9,8 +9,10 @@ import { NotificationsClientService } from '../notifications/notifications-clien
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
-  constructor(@Inject(Microservice.AUTH) private readonly client: ClientProxy,
-              private readonly notificationsClientService: NotificationsClientService) {}
+  constructor(
+    @Inject(Microservice.AUTH) private readonly client: ClientProxy,
+    private readonly notificationsClientService: NotificationsClientService
+  ) {}
 
   async getUsers(): Promise<BaseUserView[]> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
@@ -28,54 +30,54 @@ export class AuthClientService implements IAuthClientService {
 
   async registration(createUserDto: CreateUserDto): Promise<BaseUserView> {
     const { user, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
-    
-    if(user?.email && confirmationCode){
+
+    if (user?.email && confirmationCode) {
       this.notificationsClientService.sendRegistrationEmail({
-      email:user.email,
-      code: confirmationCode
-    });
-    }else{
-      console.log('Registration succeeded but email data is missing')
+        email: user.email,
+        code: confirmationCode
+      });
+    } else {
+      console.log('Registration succeeded but email data is missing');
     }
-    
+
     return user;
   }
 
-  async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<Boolean>{
+  async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<boolean> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.EMAIL_CONFIRMATION }, confirmCodeDto));
   }
 
-  async resendEmail(resendEmailDto: ResendEmailDto): Promise<Boolean> {
-    const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.RESEND_EMAIL  }, resendEmailDto));
+  async resendEmail(resendEmailDto: ResendEmailDto): Promise<boolean> {
+    const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.RESEND_EMAIL }, resendEmailDto));
 
-    if(code){
+    if (code) {
       this.notificationsClientService.sendRegistrationEmail({
-      email: resendEmailDto.email,
-      code: code
-    });
-    }else{
-      console.log('Email confirmation code was updated but email data is missing')
+        email: resendEmailDto.email,
+        code: code
+      });
+    } else {
+      console.log('Email confirmation code was updated but email data is missing');
     }
 
     return true;
-  } 
+  }
 
-  async passwordRecovery(passwordRecoveryDto: ResendEmailDto): Promise<Boolean> {
+  async passwordRecovery(passwordRecoveryDto: ResendEmailDto): Promise<boolean> {
     const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.PASSWORD_RECOVERY }, passwordRecoveryDto));
 
-    if(code){
+    if (code) {
       this.notificationsClientService.sendPasswordRecoveryEmail({
-      email: passwordRecoveryDto.email,
-      code: code
-    });
-    }else{
-      console.log('Password recovery code was updated but email data is missing')
+        email: passwordRecoveryDto.email,
+        code: code
+      });
+    } else {
+      console.log('Password recovery code was updated but email data is missing');
     }
 
     return true;
-  } 
+  }
 
-   async setNewPassword(newPasswordDto: NewPasswordDto): Promise<Boolean>{
+  async setNewPassword(newPasswordDto: NewPasswordDto): Promise<boolean> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.NEW_PASSWORD }, newPasswordDto));
   }
 }

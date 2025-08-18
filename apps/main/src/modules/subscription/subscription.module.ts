@@ -1,6 +1,6 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { CoreEnvConfig } from '@/core/core.config';
-import { CoreModule } from '@/core/core.module';
+import { CoreEnvConfig } from '@main/core/core.config';
+import { CoreModule } from '@main/core/core.module';
 import { SubscriptionController } from './subscription.controller';
 import { SubscriptionService } from './subscription.service';
 

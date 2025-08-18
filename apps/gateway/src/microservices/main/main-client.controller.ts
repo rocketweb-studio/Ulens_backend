@@ -1,5 +1,5 @@
 import { Body, Controller, Get, Post } from '@nestjs/common';
-import { MainClientService } from '@/microservices/main/main-client.service';
+import { MainClientService } from '@gateway/microservices/main/main-client.service';
 import { CreateSubscriptionDto, BaseSubscriptionViewDto } from '@libs/contracts/index';
 import { RouterPaths } from '@libs/constants/index';
 

@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
-import { EventPattern, MessagePattern, Payload } from '@nestjs/microservices';
-import { EmailService, MailPurpose } from './mail.service';
+import { EventPattern, Payload } from '@nestjs/microservices';
+import { EmailService, MailPurpose } from '@notifications/modules/mail/mail.service';
 import { NotificationMessages } from '@libs/constants/notification-messages';
 
 //вынести класс в библиотеку
@@ -14,7 +14,7 @@ export class MailController {
   constructor(private readonly emailService: EmailService) {}
 
   /**
-   * Заменили MessagePattern на EventPattern потому что в предыдущей реализации письмо отправлялось но пользователю 
+   * Заменили MessagePattern на EventPattern потому что в предыдущей реализации письмо отправлялось но пользователю
    *    возвращалась 500 ошибка
    */
   @EventPattern(NotificationMessages.SEND_REGISTRATION_EMAIL)

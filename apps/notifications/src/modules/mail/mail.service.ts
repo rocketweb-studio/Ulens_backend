@@ -1,8 +1,8 @@
 import { MailerService } from '@nestjs-modules/mailer';
 import { Injectable } from '@nestjs/common';
-import { MailConfig } from './mail.config';
-import { buildRegistrationTemplate } from './templates/registration.template';
-import { buildPasswordRecoveryTemplate } from './templates/recovery.template';
+import { MailConfig } from '@notifications/modules/mail/mail.config';
+import { buildRegistrationTemplate } from '@notifications/modules/mail/templates/registration.template';
+import { buildPasswordRecoveryTemplate } from '@notifications/modules/mail/templates/recovery.template';
 
 export enum MailPurpose {
   REGISTRATION = 'REGISTRATION',

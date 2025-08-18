@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { CoreEnvConfig } from './core/core.config';
-import { CoreModule } from './core/core.module';
-import { EmailModule } from './modules/mail/mail.module';
+import { CoreEnvConfig } from '@notifications/core/core.config';
+import { CoreModule } from '@notifications/core/core.module';
+import { EmailModule } from '@notifications/modules/mail/mail.module';
 
 @Module({
   imports: [CoreModule, EmailModule],

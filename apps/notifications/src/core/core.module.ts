@@ -1,6 +1,6 @@
-import { configModule } from '@/core/env-config/env-config.module';
+import { configModule } from '@notifications/core/env-config/env-config.module';
 import { Module } from '@nestjs/common';
-import { CoreEnvConfig } from './core.config';
+import { CoreEnvConfig } from '@notifications/core/core.config';
 
 @Module({
   imports: [configModule],

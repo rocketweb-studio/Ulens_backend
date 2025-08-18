@@ -1,5 +1,5 @@
 import { Controller, Get, Post, Body, HttpCode } from '@nestjs/common';
-import { AuthClientService } from '@/microservices/auth/auth-client.service';
+import { AuthClientService } from '@gateway/microservices/auth/auth-client.service';
 import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto } from '@libs/contracts/index';
 import { ApiOkResponse, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { HttpStatuses, RouterPaths } from '@libs/constants/index';

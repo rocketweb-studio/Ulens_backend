@@ -1,8 +1,8 @@
 import { DynamicModule, Module } from '@nestjs/common';
-import { CoreModule } from '@/core/core.module';
-import { CoreEnvConfig } from './core/core.config';
-import { SubscriptionModule } from './modules/subscription/subscription.module';
-import { SubscriptionController } from './modules/subscription/subscription.controller';
+import { CoreModule } from '@main/core/core.module';
+import { CoreEnvConfig } from '@main/core/core.config';
+import { SubscriptionModule } from '@main/modules/subscription/subscription.module';
+import { SubscriptionController } from '@main/modules/subscription/subscription.controller';
 
 @Module({
   // 1

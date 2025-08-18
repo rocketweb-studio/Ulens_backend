@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
+    "resolveJsonModule": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -30,6 +31,18 @@
       ],
       "@libs/utils/*": [
         "libs/utils/src/*"
+      ],
+      "@gateway/*": [
+        "apps/gateway/src/*"
+      ],
+      "@auth/*": [
+        "apps/auth/src/*"
+      ],
+      "@main/*": [
+        "apps/main/src/*"
+      ],
+      "@notifications/*": [
+        "apps/notifications/src/*"
       ]
     }
   },
@@ -39,12 +52,6 @@
     },
     {
       "path": "./apps/main/tsconfig.app.json"
-    },
-    {
-      "path": "./apps/files/tsconfig.app.json"
-    },
-    {
-      "path": "./apps/payments/tsconfig.app.json"
     },
     {
       "path": "./apps/gateway/tsconfig.app.json"

@@ -1,7 +1,7 @@
-import { configModule } from '@/core/env-config/env-config.module';
+import { configModule } from '@auth/core/env-config/env-config.module';
 import { Module } from '@nestjs/common';
-import { CoreEnvConfig } from '@/core/core.config';
-import { PrismaModule } from '@/core/prisma/prisma.module';
+import { CoreEnvConfig } from '@auth/core/core.config';
+import { PrismaModule } from '@auth/core/prisma/prisma.module';
 
 @Module({
   imports: [configModule, PrismaModule],

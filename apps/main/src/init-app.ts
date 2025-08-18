@@ -1,7 +1,7 @@
 import { NestFactory } from '@nestjs/core';
-import { AppModule } from '@/app.module';
+import { AppModule } from '@main/app.module';
 import { DynamicModule } from '@nestjs/common';
-import { CoreEnvConfig } from './core/core.config';
+import { CoreEnvConfig } from '@main/core/core.config';
 
 //  Динамический модуль, для того чтобы можно было использовать разные модули в зависимости от окружения
 export const initAppModule = async (): Promise<{ dynamicModule: DynamicModule; config: CoreEnvConfig }> => {

@@ -1,6 +1,6 @@
 import { NestFactory } from '@nestjs/core';
 import { Transport } from '@nestjs/microservices';
-import { initAppModule } from '@/init-app';
+import { initAppModule } from '@notifications/init-app';
 
 async function bootstrap() {
   const { dynamicModule, config } = await initAppModule();

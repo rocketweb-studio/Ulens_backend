@@ -6,4 +6,5 @@ export enum AuthMessages {
   RESEND_EMAIL = 'resend_email',
   PASSWORD_RECOVERY= 'password_recovery',
   NEW_PASSWORD= 'new_password',
+  CLEAR_AUTH_DATABASE = 'clear_auth_database'
 }

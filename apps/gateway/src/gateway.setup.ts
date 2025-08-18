@@ -2,7 +2,7 @@ import { BadRequestException, INestApplication, ValidationPipe } from '@nestjs/c
 import { SwaggerModule } from '@nestjs/swagger';
 import { DocumentBuilder } from '@nestjs/swagger';
 import { formatValidationErrors } from '@libs/utils/index';
-import { CoreEnvConfig } from '@/core/core.config';
+import { CoreEnvConfig } from '@gateway/core/core.config';
 import { GatewayExceptionFilter } from './core/exeptions/filters/exeption.filter';
 
 export function configApp(app: INestApplication, config: CoreEnvConfig) {

@@ -1,11 +1,10 @@
-import { Controller, Get, Post, Body, HttpCode, Res, HttpStatus, UseGuards, Req } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req } from '@nestjs/common';
 import { AuthClientService } from '@gateway/microservices/auth/auth-client.service';
-import { CreateUserDto, UsersModel, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto } from '@libs/contracts/index';
-import { ApiBadRequestResponse, ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
+import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto } from '@libs/contracts/index';
+import { ApiBearerAuth, ApiNoContentResponse, ApiOkResponse, ApiOperation, ApiResponse, ApiTags, ApiUnauthorizedResponse } from '@nestjs/swagger';
 import { HttpStatuses, RouterPaths } from '@libs/constants/index';
 import { IncorrectInputDataResponse } from '../../common/swagger-examples/incorrect-input-data-response';
 import { Response, Request } from 'express';
-import { JwtAccessAuthGuard } from '@gateway/core/guards/jwt-access-auth.guard';
 import { getSessionMetadata } from '@gateway/utils/session-metadata.util';
 import { BadRequestResponse } from '@gateway/common/swagger-examples/BadRequestResponse';
 
@@ -14,21 +13,21 @@ import { BadRequestResponse } from '@gateway/common/swagger-examples/BadRequestR
 export class AuthClientController {
   constructor(private readonly authClientService: AuthClientService) {}
 
-  @Get(RouterPaths.USERS)
-  @UseGuards(JwtAccessAuthGuard)
-  @ApiOperation({ summary: 'Get a list of users' })
-  // @ApiResponse({ status:200, description: "Success" }) /*пример без Example Value | Schema*/
-  // @ApiOkResponse({ description: "Success" })  /*то же самое но более короткая форма*/
-  @ApiOkResponse({ type: UsersModel })
-  async getUsers(): Promise<BaseUserView[]> {
-    const response = await this.authClientService.getUsers();
-    return response;
-  }
+  // @Get(RouterPaths.USERS)
+  // @UseGuards(JwtAccessAuthGuard)
+  // @ApiOperation({ summary: 'Get a list of users' })
+  // // @ApiResponse({ status:200, description: "Success" }) /*пример без Example Value | Schema*/
+  // // @ApiOkResponse({ description: "Success" })  /*то же самое но более короткая форма*/
+  // @ApiOkResponse({ type: UsersModel })
+  // async getUsers(): Promise<BaseUserView[]> {
+  //   const response = await this.authClientService.getUsers();
+  //   return response;
+  // }
 
-  @Post(RouterPaths.USERS)
-  async createUser(@Body() createUserDto: CreateUserDto): Promise<BaseUserView> {
-    return this.authClientService.createUser(createUserDto);
-  }
+  // @Post(RouterPaths.USERS)
+  // async createUser(@Body() createUserDto: CreateUserDto): Promise<BaseUserView> {
+  //   return this.authClientService.createUser(createUserDto);
+  // }
 
   @Post(RouterPaths.REGISTRATION)
   @HttpCode(HttpStatuses.NO_CONTENT_204)

@@ -27,19 +27,19 @@ export class AuthClientService implements IAuthClientService {
     private readonly notificationsClientService: NotificationsClientService
   ) {}
 
-  async getUsers(): Promise<BaseUserView[]> {
-    return firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
-  }
+  // async getUsers(): Promise<BaseUserView[]> {
+  //   return firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
+  // }
 
-  async createUser(createUserDto: CreateUserDto): Promise<BaseUserView> {
-    try {
-      const response = await firstValueFrom(this.client.send({ cmd: AuthMessages.CREATE_USER }, createUserDto));
-      return response;
-    } catch (e) {
-      // можно использовать InternalServerErrorException и тогда будет использоваться фильтр для http ошибок
-      throw new UnexpectedErrorRpcException(e.message);
-    }
-  }
+  // async createUser(createUserDto: CreateUserDto): Promise<BaseUserView> {
+  //   try {
+  //     const response = await firstValueFrom(this.client.send({ cmd: AuthMessages.CREATE_USER }, createUserDto));
+  //     return response;
+  //   } catch (e) {
+  //     // можно использовать InternalServerErrorException и тогда будет использоваться фильтр для http ошибок
+  //     throw new UnexpectedErrorRpcException(e.message);
+  //   }
+  // }
 
   async registration(createUserDto: CreateUserDto): Promise<BaseUserView> {
     const { user, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));

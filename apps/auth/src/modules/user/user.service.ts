@@ -7,7 +7,7 @@ import * as bcrypt from 'bcrypt';
 import { v4 as uuidv4 } from 'uuid';
 import { JwtService } from '@nestjs/jwt';
 import { UserEnvConfig } from './user.config';
-import { UserWithPayloadFromJwt, UserWithRefreshToken } from '@auth/modules/user/dto/user.dto';
+import { UserWithPayloadFromJwt } from '@auth/modules/user/dto/user.dto';
 import { LoginInputDto } from './dto/login-input.dto';
 import { LoginOutputDto } from './dto/login-output.dto';
 import { randomUUID } from 'crypto';
@@ -17,26 +17,25 @@ import { SessionService } from '@auth/modules/session/session.service';
 export class UserService {
   constructor(
     @Inject() private readonly jwtService: JwtService,
-    private readonly prisma: PrismaService,
     private readonly userCommandRepository: IUserCommandRepository,
     private readonly userEnvConfig: UserEnvConfig,
     private readonly sessionService: SessionService
   ) {}
 
-  // !this method was added as example and must be removed later
-  async getUsers() {
-    const users = await this.prisma.user.findMany();
-    return users;
-  }
+  // // !this method was added as example and must be removed later
+  // async getUsers() {
+  //   const users = await this.prisma.user.findMany();
+  //   return users;
+  // }
 
-  // !this method was added as example and must be removed later
-  async createUserExample(createUserDto: CreateUserDto) {
-    const user = await this.prisma.user.create({
-      //@ts-ignore
-      data: createUserDto
-    });
-    return BaseUserView.mapToView(user);
-  }
+  // // !this method was added as example and must be removed later
+  // async createUserExample(createUserDto: CreateUserDto) {
+  //   const user = await this.prisma.user.create({
+  //     //@ts-ignore
+  //     data: createUserDto
+  //   });
+  //   return BaseUserView.mapToView(user);
+  // }
 
   async createUser(dto: CreateUserDto): Promise<RegistrationResultView> {
     const { email, password, userName } = dto;

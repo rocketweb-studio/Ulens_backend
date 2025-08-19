@@ -5,7 +5,7 @@ import { AuthMessages } from '@libs/constants/auth-messages';
 import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from '@libs/contracts/index';
 import { JwtRefreshAuthGuard } from '@auth/core/guards/jwt-refresh-auth.guard';
 import { CredentialsAuthGuard } from '@auth/core/guards/credentials-auth.guard';
-import { UserWithPayloadFromJwt, UserWithRefreshToken } from '@auth/modules/user/dto/user.dto';
+import { UserWithPayloadFromJwt } from '@auth/modules/user/dto/user.dto';
 import { LoginInputDto } from './dto/login-input.dto';
 import { LoginOutputDto } from './dto/login-output.dto';
 
@@ -13,15 +13,15 @@ import { LoginOutputDto } from './dto/login-output.dto';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @MessagePattern({ cmd: AuthMessages.GET_USERS })
-  async getUsers() {
-    return this.userService.getUsers();
-  }
+  // @MessagePattern({ cmd: AuthMessages.GET_USERS })
+  // async getUsers() {
+  //   return this.userService.getUsers();
+  // }
 
-  @MessagePattern({ cmd: AuthMessages.CREATE_USER })
-  async createUser(@Payload() createUserDto: CreateUserDto) {
-    return this.userService.createUserExample(createUserDto);
-  }
+  // @MessagePattern({ cmd: AuthMessages.CREATE_USER })
+  // async createUser(@Payload() createUserDto: CreateUserDto) {
+  //   return this.userService.createUserExample(createUserDto);
+  // }
 
   @MessagePattern({ cmd: AuthMessages.REGISTRATION })
   async registration(@Payload() createUserDto: CreateUserDto) {

@@ -1,9 +1,9 @@
-import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { AuthTestManager } from './auth-test-manager';
-import { GatewayModule } from '../../src/gateway.module';
-import { CoreEnvConfig } from '../../src/core/core.config';
-import { configApp } from '../../src/gateway.setup';
-import { startMicroserviceForTest } from './startMicroserviceForTest';
+import { Test, TestingModuleBuilder } from "@nestjs/testing";
+import { AuthTestManager } from "./auth-test-manager";
+import { GatewayModule } from "../../src/gateway.module";
+import { CoreEnvConfig } from "../../src/core/core.config";
+import { configApp } from "../../src/gateway.setup";
+import { startMicroserviceForTest } from "./startMicroserviceForTest";
 // import { Microservice } from '@libs/constants/index';
 
 /**
@@ -12,40 +12,40 @@ import { startMicroserviceForTest } from './startMicroserviceForTest';
  */
 
 export const initSettings = async (
-  //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
-  addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void
+	//передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
+	addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
-  // создаем тестовый модуль и можем конфигурировать его
-  const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-    imports: [GatewayModule]
-  });
+	// создаем тестовый модуль и можем конфигурировать его
+	const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
+		imports: [GatewayModule],
+	});
 
-  if (addSettingsToModuleBuilder) {
-    addSettingsToModuleBuilder(testingModuleBuilder);
-  }
+	if (addSettingsToModuleBuilder) {
+		addSettingsToModuleBuilder(testingModuleBuilder);
+	}
 
-  const testingAppModule = await testingModuleBuilder.compile();
+	const testingAppModule = await testingModuleBuilder.compile();
 
-  const app = testingAppModule.createNestApplication();
-  const coreConfig = app.get<CoreEnvConfig>(CoreEnvConfig);
+	const app = testingAppModule.createNestApplication();
+	const coreConfig = app.get<CoreEnvConfig>(CoreEnvConfig);
 
-  configApp(app, coreConfig);
+	configApp(app, coreConfig);
 
-  //  Запускаем микросервис auth
-  const authMicroservice = await startMicroserviceForTest('auth');
+	//  Запускаем микросервис auth
+	const authMicroservice = await startMicroserviceForTest("auth");
 
-  await app.init();
+	await app.init();
 
-  const httpServer = app.getHttpServer();
-  const authTestManger = new AuthTestManager(app);
+	const httpServer = app.getHttpServer();
+	const authTestManger = new AuthTestManager(app);
 
-  // TODO: delete all data from database for testing
-  // await deleteAllData(app);
+	// TODO: delete all data from database for testing
+	// await deleteAllData(app);
 
-  return {
-    app,
-    httpServer,
-    authTestManger,
-    authMicroservice
-  };
+	return {
+		app,
+		httpServer,
+		authTestManger,
+		authMicroservice,
+	};
 };

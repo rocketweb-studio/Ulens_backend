@@ -1,28 +1,30 @@
-import { validateSync } from 'class-validator';
+import { validateSync } from "class-validator";
 
 export const configValidationUtility = {
-  // валидирует конфигурацию
-  validateConfig: (config: any) => {
-    const errors = validateSync(config);
-    if (errors.length > 0) {
-      const sortedMessages = errors.map(error => Object.values(error.constraints || {}).join(', ')).join('; ');
-      throw new Error('Validation failed: ' + sortedMessages);
-    }
-  },
-  // преобразует строку в boolean
-  convertToBoolean(value: string) {
-    const trimmedValue = value?.trim();
-    if (trimmedValue === 'true') return true;
-    if (trimmedValue === '1') return true;
-    if (trimmedValue === 'enabled') return true;
-    if (trimmedValue === 'false') return false;
-    if (trimmedValue === '0') return false;
-    if (trimmedValue === 'disabled') return false;
+	// валидирует конфигурацию
+	validateConfig: (config: any) => {
+		const errors = validateSync(config);
+		if (errors.length > 0) {
+			const sortedMessages = errors
+				.map((error) => Object.values(error.constraints || {}).join(", "))
+				.join("; ");
+			throw new Error(`Validation failed: ${sortedMessages}`);
+		}
+	},
+	// преобразует строку в boolean
+	convertToBoolean(value: string) {
+		const trimmedValue = value?.trim();
+		if (trimmedValue === "true") return true;
+		if (trimmedValue === "1") return true;
+		if (trimmedValue === "enabled") return true;
+		if (trimmedValue === "false") return false;
+		if (trimmedValue === "0") return false;
+		if (trimmedValue === "disabled") return false;
 
-    return null;
-  },
-  // возвращает массив значений enum
-  getEnumValues<T extends Record<string, string>>(enumObj: T): string[] {
-    return Object.values(enumObj);
-  }
+		return null;
+	},
+	// возвращает массив значений enum
+	getEnumValues<T extends Record<string, string>>(enumObj: T): string[] {
+		return Object.values(enumObj);
+	},
 };

@@ -1,4 +1,4 @@
-export class NewPasswordRepoDto{
-    newPasswordHash: string;
-    recoveryCode: string;
+export class NewPasswordRepoDto {
+	newPasswordHash: string;
+	recoveryCode: string;
 }

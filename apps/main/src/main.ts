@@ -1,21 +1,21 @@
-import { NestFactory } from '@nestjs/core';
-import { initAppModule } from '@main/init-app';
-import { Transport } from '@nestjs/microservices';
+import { NestFactory } from "@nestjs/core";
+import { initAppModule } from "@main/init-app";
+import { Transport } from "@nestjs/microservices";
 
 async function bootstrap() {
-  const { dynamicModule, config } = await initAppModule(); // 1
+	const { dynamicModule, config } = await initAppModule(); // 1
 
-  const app = await NestFactory.createMicroservice(dynamicModule, {
-    transport: Transport.TCP,
-    options: {
-      host: config.tcpHost,
-      port: config.tcpPort
-    }
-  }); // 2
+	const app = await NestFactory.createMicroservice(dynamicModule, {
+		transport: Transport.TCP,
+		options: {
+			host: config.tcpHost,
+			port: config.tcpPort,
+		},
+	}); // 2
 
-  //configApp(app, config); // 4
-  await app.listen(); // 5
-  console.log(`Main service is listening on port ${config.tcpPort}`)
+	//configApp(app, config); // 4
+	await app.listen(); // 5
+	console.log(`Main service is listening on port ${config.tcpPort}`);
 }
 bootstrap();
 

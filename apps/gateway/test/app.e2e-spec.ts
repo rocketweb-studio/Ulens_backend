@@ -1,7 +1,7 @@
-describe('GatewayController', () => {
-  describe('root', () => {
-    it('init e2e test', () => {
-      expect(true).toBe(true);
-    });
-  });
+describe("GatewayController", () => {
+	describe("root", () => {
+		it("init e2e test", () => {
+			expect(true).toBe(true);
+		});
+	});
 });

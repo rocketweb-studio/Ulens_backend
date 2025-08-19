@@ -1,1 +1,1 @@
-export * from './rpc-exeption';
+export * from "./rpc-exeption";

@@ -1,11 +1,11 @@
-import { UUID } from 'crypto';
+import { UUID } from "crypto";
 
 export class PayloadForJwtDto {
-  userId: UUID;
-  deviceId: UUID;
+	userId: UUID;
+	deviceId: UUID;
 }
 
 export class LoginOutputDto {
-  refreshToken: string;
-  payloadForJwt: PayloadForJwtDto;
+	refreshToken: string;
+	payloadForJwt: PayloadForJwtDto;
 }

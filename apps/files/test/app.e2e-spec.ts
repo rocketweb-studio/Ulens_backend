@@ -1,7 +1,7 @@
-describe('FilesController', () => {
-  describe('root', () => {
-    it('init e2e test', () => {
-      expect(true).toBe(true);
-    });
-  });
+describe("FilesController", () => {
+	describe("root", () => {
+		it("init e2e test", () => {
+			expect(true).toBe(true);
+		});
+	});
 });

@@ -1,5 +1,5 @@
-import { INestApplication } from '@nestjs/common';
-import * as request from 'supertest';
+import { INestApplication } from "@nestjs/common";
+import * as request from "supertest";
 
 /**
  * класс для тестирования MockController.
@@ -7,11 +7,13 @@ import * as request from 'supertest';
  * Пример использования можно увидеть в mock.e2e-spec.ts
  */
 export class UserTestManager {
-  constructor(private app: INestApplication) {}
+	constructor(private app: INestApplication) {}
 
-  async getUsers(): Promise<{ version: string; message: string }> {
-    const response = await request(this.app.getHttpServer()).get(`/users`).expect(200);
+	async getUsers(): Promise<{ version: string; message: string }> {
+		const response = await request(this.app.getHttpServer())
+			.get(`/users`)
+			.expect(200);
 
-    return response.body;
-  }
+		return response.body;
+	}
 }

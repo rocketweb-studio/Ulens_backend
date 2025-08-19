@@ -1,133 +1,158 @@
-import { PrismaService } from '@auth/core/prisma/prisma.service';
-import { Inject, Injectable } from '@nestjs/common';
-import { CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, RegistrationResultView, NewPasswordDto, LoginDto } from '@libs/contracts/index';
-import { IUserCommandRepository } from './user.interfaces';
-import { User } from './user.entity';
-import * as bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
-import { JwtService } from '@nestjs/jwt';
-import { UserEnvConfig } from './user.config';
-import { UserWithPayloadFromJwt } from '@auth/modules/user/dto/user.dto';
-import { LoginInputDto } from './dto/login-input.dto';
-import { LoginOutputDto } from './dto/login-output.dto';
-import { randomUUID } from 'crypto';
-import { SessionService } from '@auth/modules/session/session.service';
+import { Inject, Injectable } from "@nestjs/common";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	RegistrationResultView,
+	NewPasswordDto,
+	LoginDto,
+} from "@libs/contracts/index";
+import { IUserCommandRepository } from "./user.interfaces";
+import { User } from "./user.entity";
+import * as bcrypt from "bcrypt";
+import { v4 as uuidv4 } from "uuid";
+import { JwtService } from "@nestjs/jwt";
+import { UserEnvConfig } from "./user.config";
+import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
+import { LoginInputDto } from "./dto/login-input.dto";
+import { LoginOutputDto } from "./dto/login-output.dto";
+import { randomUUID } from "crypto";
+import { SessionService } from "@auth/modules/session/session.service";
 
 @Injectable()
 export class UserService {
-  constructor(
-    @Inject() private readonly jwtService: JwtService,
-    private readonly userCommandRepository: IUserCommandRepository,
-    private readonly userEnvConfig: UserEnvConfig,
-    private readonly sessionService: SessionService
-  ) {}
+	constructor(
+		@Inject() private readonly jwtService: JwtService,
+		private readonly userCommandRepository: IUserCommandRepository,
+		private readonly userEnvConfig: UserEnvConfig,
+		private readonly sessionService: SessionService,
+	) {}
 
-  // // !this method was added as example and must be removed later
-  // async getUsers() {
-  //   const users = await this.prisma.user.findMany();
-  //   return users;
-  // }
+	// // !this method was added as example and must be removed later
+	// async getUsers() {
+	//   const users = await this.prisma.user.findMany();
+	//   return users;
+	// }
 
-  // // !this method was added as example and must be removed later
-  // async createUserExample(createUserDto: CreateUserDto) {
-  //   const user = await this.prisma.user.create({
-  //     //@ts-ignore
-  //     data: createUserDto
-  //   });
-  //   return BaseUserView.mapToView(user);
-  // }
+	// // !this method was added as example and must be removed later
+	// async createUserExample(createUserDto: CreateUserDto) {
+	//   const user = await this.prisma.user.create({
 
-  async createUser(dto: CreateUserDto): Promise<RegistrationResultView> {
-    const { email, password, userName } = dto;
+	//     data: createUserDto
+	//   });
+	//   return BaseUserView.mapToView(user);
+	// }
 
-    const passwordHash = await bcrypt.hash(password, 10);
+	async createUser(dto: CreateUserDto): Promise<RegistrationResultView> {
+		const { email, password, userName } = dto;
 
-    const userEntity = new User(userName, email, passwordHash);
-    // throw new BadRequestRpcException('User with such email was not found');
+		const passwordHash = await bcrypt.hash(password, 10);
 
-    return this.userCommandRepository.createUser(userEntity);
-  }
+		const userEntity = new User(userName, email, passwordHash);
+		// throw new BadRequestRpcException('User with such email was not found');
 
-  async confirmEmail(dto: ConfirmCodeDto): Promise<Boolean> {
-    return this.userCommandRepository.confirmEmail(dto);
-  }
+		return this.userCommandRepository.createUser(userEntity);
+	}
 
-  async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
-    const confirmationCode = uuidv4();
+	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
+		return this.userCommandRepository.confirmEmail(dto);
+	}
 
-    return this.userCommandRepository.resendEmail({ ...dto, confirmationCode });
-  }
+	async resendEmail(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
+		const confirmationCode = uuidv4();
 
-  async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
-    const recoveryCode = uuidv4();
+		return this.userCommandRepository.resendEmail({ ...dto, confirmationCode });
+	}
 
-    return this.userCommandRepository.passwordRecovery({ ...dto, recoveryCode });
-  }
+	async passwordRecovery(dto: ResendEmailDto): Promise<ConfirmCodeDto> {
+		const recoveryCode = uuidv4();
 
-  async setNewPassword(dto: NewPasswordDto): Promise<Boolean> {
-    const { newPassword, recoveryCode } = dto;
+		return this.userCommandRepository.passwordRecovery({
+			...dto,
+			recoveryCode,
+		});
+	}
 
-    const newPasswordHash = await bcrypt.hash(newPassword, 10);
+	async setNewPassword(dto: NewPasswordDto): Promise<boolean> {
+		const { newPassword, recoveryCode } = dto;
 
-    return this.userCommandRepository.setNewPassword({ recoveryCode, newPasswordHash });
-  }
+		const newPasswordHash = await bcrypt.hash(newPassword, 10);
 
-  async login(dto: LoginInputDto): Promise<LoginOutputDto> {
-    const deviceId = randomUUID();
-    const payloadForJwt = {
-      userId: dto.loginDto.id,
-      deviceId
-    };
+		return this.userCommandRepository.setNewPassword({
+			recoveryCode,
+			newPasswordHash,
+		});
+	}
 
-    const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-      expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
-      secret: this.userEnvConfig.refreshTokenSecret
-    });
+	async login(dto: LoginInputDto): Promise<LoginOutputDto> {
+		const deviceId = randomUUID();
+		const payloadForJwt = {
+			userId: dto.loginDto.id,
+			deviceId,
+		};
 
-    const payloadFromJwt = this.jwtService.decode(refreshToken);
+		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
+			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
+			secret: this.userEnvConfig.refreshTokenSecret,
+		});
 
-    //@ts-expect-error TODO: fix this when user id will be uuid
-    await this.sessionService.createSession(dto.loginDto.id, deviceId, dto.metadata, payloadFromJwt);
+		const payloadFromJwt = this.jwtService.decode(refreshToken);
 
-    //@ts-expect-error TODO: fix this when user id will be uuid
-    return { refreshToken, payloadForJwt };
-  }
+		//TODO: fix this when user id will be uuid
+		await this.sessionService.createSession(
+			//@ts-expect-error TODO: fix this when user id will be uuid
+			dto.loginDto.id,
+			deviceId,
+			dto.metadata,
+			payloadFromJwt,
+		);
 
-  async validateUser(payload: LoginDto): Promise<any> {
-    const user = await this.userCommandRepository.findUserByEmail(payload.email);
-    if (!user) {
-      return null;
-    }
+		//@ts-expect-error TODO: fix this when user id will be uuid
+		return { refreshToken, payloadForJwt };
+	}
 
-    const passwordIsValid = await bcrypt.compare(payload.password, user.passwordHash);
-    if (!passwordIsValid) {
-      return null;
-    }
+	async validateUser(payload: LoginDto): Promise<any> {
+		const user = await this.userCommandRepository.findUserByEmail(
+			payload.email,
+		);
+		if (!user) {
+			return null;
+		}
 
-    return user;
-  }
+		const passwordIsValid = await bcrypt.compare(
+			payload.password,
+			user.passwordHash,
+		);
+		if (!passwordIsValid) {
+			return null;
+		}
 
-  async refreshTokens(dto: UserWithPayloadFromJwt): Promise<{ refreshToken: string; payloadForJwt: any }> {
-    const payloadForJwt = {
-      userId: dto.userId,
-      deviceId: dto.deviceId
-    };
+		return user;
+	}
 
-    const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-      expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
-      secret: this.userEnvConfig.refreshTokenSecret
-    });
+	async refreshTokens(
+		dto: UserWithPayloadFromJwt,
+	): Promise<{ refreshToken: string; payloadForJwt: any }> {
+		const payloadForJwt = {
+			userId: dto.userId,
+			deviceId: dto.deviceId,
+		};
 
-    const payloadFromJwt = this.jwtService.decode(refreshToken);
-    await this.sessionService.updateSession(dto.deviceId, payloadFromJwt);
+		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
+			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
+			secret: this.userEnvConfig.refreshTokenSecret,
+		});
 
-    // TODO: add old refresh token to blacklist
+		const payloadFromJwt = this.jwtService.decode(refreshToken);
+		await this.sessionService.updateSession(dto.deviceId, payloadFromJwt);
 
-    return { refreshToken, payloadForJwt };
-  }
+		// TODO: add old refresh token to blacklist
 
-  async logout(dto: UserWithPayloadFromJwt): Promise<any> {
-    const session = await this.sessionService.deleteSession(dto.deviceId);
-    return session;
-  }
+		return { refreshToken, payloadForJwt };
+	}
+
+	async logout(dto: UserWithPayloadFromJwt): Promise<any> {
+		const session = await this.sessionService.deleteSession(dto.deviceId);
+		return session;
+	}
 }

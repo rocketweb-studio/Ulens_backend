@@ -1,4 +1,4 @@
 export class RecoveryPasswordDto {
-    email: string;
-    recoveryCode: string;
+	email: string;
+	recoveryCode: string;
 }

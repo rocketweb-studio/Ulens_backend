@@ -1,41 +1,51 @@
-import { MailerService } from '@nestjs-modules/mailer';
-import { Injectable } from '@nestjs/common';
-import { MailConfig } from '@notifications/modules/mail/mail.config';
-import { buildRegistrationTemplate } from '@notifications/modules/mail/templates/registration.template';
-import { buildPasswordRecoveryTemplate } from '@notifications/modules/mail/templates/recovery.template';
+import { MailerService } from "@nestjs-modules/mailer";
+import { Injectable } from "@nestjs/common";
+import { MailConfig } from "@notifications/modules/mail/mail.config";
+import { buildRegistrationTemplate } from "@notifications/modules/mail/templates/registration.template";
+import { buildPasswordRecoveryTemplate } from "@notifications/modules/mail/templates/recovery.template";
 
 export enum MailPurpose {
-  REGISTRATION = 'REGISTRATION',
-  PASSWORD_RECOVERY = 'PASSWORD_RECOVERY'
+	REGISTRATION = "REGISTRATION",
+	PASSWORD_RECOVERY = "PASSWORD_RECOVERY",
 }
 
 @Injectable()
 export class EmailService {
-  constructor(
-    private mailerService: MailerService,
-    private mailConfig: MailConfig
-  ) {}
+	constructor(
+		private mailerService: MailerService,
+		private mailConfig: MailConfig,
+	) {}
 
-  async sendEmail(email: string, code: string, purpose: MailPurpose): Promise<void> {
-    const template = {
-      html: '',
-      subject: ''
-    };
-    switch (purpose) {
-      case MailPurpose.REGISTRATION:
-        template.html = buildRegistrationTemplate(code, this.mailConfig.frontendUrl);
-        template.subject = 'Registration Confirmation!';
-        break;
-      case MailPurpose.PASSWORD_RECOVERY:
-        template.html = buildPasswordRecoveryTemplate(code, this.mailConfig.frontendUrl);
-        template.subject = 'Password Recovery!';
-        break;
-    }
+	async sendEmail(
+		email: string,
+		code: string,
+		purpose: MailPurpose,
+	): Promise<void> {
+		const template = {
+			html: "",
+			subject: "",
+		};
+		switch (purpose) {
+			case MailPurpose.REGISTRATION:
+				template.html = buildRegistrationTemplate(
+					code,
+					this.mailConfig.frontendUrl,
+				);
+				template.subject = "Registration Confirmation!";
+				break;
+			case MailPurpose.PASSWORD_RECOVERY:
+				template.html = buildPasswordRecoveryTemplate(
+					code,
+					this.mailConfig.frontendUrl,
+				);
+				template.subject = "Password Recovery!";
+				break;
+		}
 
-    await this.mailerService.sendMail({
-      to: email,
-      subject: template.subject,
-      html: template.html
-    });
-  }
+		await this.mailerService.sendMail({
+			to: email,
+			subject: template.subject,
+			html: template.html,
+		});
+	}
 }

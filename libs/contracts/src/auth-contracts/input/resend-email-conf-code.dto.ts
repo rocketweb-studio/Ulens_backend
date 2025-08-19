@@ -1,4 +1,4 @@
 export class ResendEmailConfCodeDto {
-    email: string;
-    confirmationCode: string;
+	email: string;
+	confirmationCode: string;
 }

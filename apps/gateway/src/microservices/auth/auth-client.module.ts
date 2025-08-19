@@ -5,6 +5,7 @@ import { AuthClientController } from '@gateway/microservices/auth/auth-client.co
 import { AuthClientService } from '@gateway/microservices/auth/auth-client.service';
 import { Microservice } from '@libs/constants/microservices';
 import { NotificationsClientModule } from '../notifications/notifications-client.module';
+import { JwtModule } from '@nestjs/jwt';
 
 @Module({
   imports: [
@@ -22,6 +23,13 @@ import { NotificationsClientModule } from '../notifications/notifications-client
         extraProviders: [AuthClientEnvConfig]
       }
     ]),
+    JwtModule.registerAsync({
+      useFactory: (authEnvConfig: AuthClientEnvConfig) => ({
+        secret: authEnvConfig.accessTokenSecret
+      }),
+      inject: [AuthClientEnvConfig],
+      extraProviders: [AuthClientEnvConfig]
+    }),
     NotificationsClientModule
   ],
   controllers: [AuthClientController],

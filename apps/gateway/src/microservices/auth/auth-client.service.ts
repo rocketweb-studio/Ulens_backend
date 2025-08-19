@@ -1,16 +1,29 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { ClientProxy } from '@nestjs/microservices';
 import { firstValueFrom } from 'rxjs';
-import { IAuthClientService, CreateUserDto, BaseUserView, ConfirmCodeDto, ResendEmailDto, NewPasswordDto } from '@libs/contracts/index';
+import {
+  IAuthClientService,
+  CreateUserDto,
+  BaseUserView,
+  ConfirmCodeDto,
+  ResendEmailDto,
+  NewPasswordDto,
+  LoginDto,
+  SessionMetadataDto
+} from '@libs/contracts/index';
 import { Microservice } from '@libs/constants/microservices';
 import { AuthMessages } from '@libs/constants/auth-messages';
-import { UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
+import { UnauthorizedRpcException, UnexpectedErrorRpcException } from '@libs/exeption/rpc-exeption';
 import { NotificationsClientService } from '../notifications/notifications-client.service';
+import { JwtService } from '@nestjs/jwt';
+import { AuthClientEnvConfig } from './auth-client.config';
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
   constructor(
     @Inject(Microservice.AUTH) private readonly client: ClientProxy,
+    private readonly authEnvConfig: AuthClientEnvConfig,
+    private readonly jwtService: JwtService,
     private readonly notificationsClientService: NotificationsClientService
   ) {}
 
@@ -79,5 +92,39 @@ export class AuthClientService implements IAuthClientService {
 
   async setNewPassword(newPasswordDto: NewPasswordDto): Promise<boolean> {
     return firstValueFrom(this.client.send({ cmd: AuthMessages.NEW_PASSWORD }, newPasswordDto));
+  }
+
+  async login(loginDto: LoginDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }> {
+    const { refreshToken, payloadForJwt } = await firstValueFrom(this.client.send({ cmd: AuthMessages.LOGIN }, { loginDto, metadata }));
+    const accessToken = await this.jwtService.signAsync(payloadForJwt, {
+      expiresIn: this.authEnvConfig.accessTokenExpirationTime,
+      secret: this.authEnvConfig.accessTokenSecret
+    });
+    return { accessToken, refreshToken };
+  }
+
+  async refreshTokens(refreshTokenFromCookie: string): Promise<{ accessToken: string; refreshToken: string }> {
+    if (!refreshTokenFromCookie) {
+      throw new UnauthorizedRpcException();
+    }
+    const { refreshToken, payloadForJwt } = await firstValueFrom(
+      this.client.send({ cmd: AuthMessages.REFRESH_TOKENS }, { refreshToken: refreshTokenFromCookie })
+    );
+
+    const accessToken = await this.jwtService.signAsync(payloadForJwt, {
+      expiresIn: this.authEnvConfig.accessTokenExpirationTime,
+      secret: this.authEnvConfig.accessTokenSecret
+    });
+
+    return { accessToken, refreshToken };
+  }
+
+  async logout(refreshTokenFromCookie: string): Promise<void> {
+    const session = await firstValueFrom(this.client.send({ cmd: AuthMessages.LOGOUT }, { refreshToken: refreshTokenFromCookie }));
+    if (!session) {
+      throw new UnexpectedErrorRpcException('Something went wrong');
+    }
+
+    return session;
   }
 }

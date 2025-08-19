@@ -2,12 +2,12 @@ import { DynamicModule, Module } from '@nestjs/common';
 import { CoreEnvConfig, Environments } from '@auth/core/core.config';
 import { CoreModule } from '@auth/core/core.module';
 import { UserModule } from '@auth/modules/user/user.module';
-import { UserController } from '@auth/modules/user/user.controller';
 import { TestingModule } from '@auth/modules/testing/testing.module';
+import { SessionModule } from '@auth/modules/session/session.module';
 
 @Module({
-  imports: [CoreModule, UserModule, TestingModule],
-  controllers: [UserController],
+  imports: [CoreModule, UserModule, TestingModule, SessionModule],
+  controllers: [],
   providers: []
 })
 export class AppModule {
@@ -19,8 +19,8 @@ export class AppModule {
     }
     return {
       module: AppModule,
-      imports: [CoreModule, UserModule, ...testingModule],
-      controllers: [UserController],
+      imports: [CoreModule, UserModule, SessionModule, ...testingModule],
+      controllers: [],
       providers: [
         {
           provide: CoreEnvConfig,

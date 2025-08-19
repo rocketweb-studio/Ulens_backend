@@ -41,6 +41,7 @@ model Session {
   iat DateTime
   exp DateTime
   ip String
+  deletedAt DateTime?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("sessions")

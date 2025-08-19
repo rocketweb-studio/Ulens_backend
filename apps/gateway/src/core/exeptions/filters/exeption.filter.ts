@@ -48,7 +48,7 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 
     // Обработка rpc ошибок которые приходят из микросервисов или возникают в гейтвей
     if (this.isRpcException(exception) || exception instanceof RpcException) {
-      const status = (exception as any).statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
+      const status = (exception as any)?.statusCode ?? (exception as any).error?.statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
       if (status === HttpStatuses.BAD_REQUEST_400) {
         const responseBody: any = {
           errorsMessages: [{ field: (exception as any)?.field, message: (exception as any).message }]

@@ -1,4 +1,4 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
 
 export class BaseUserView {
   @ApiProperty({ example: 1 })
@@ -11,6 +11,7 @@ export class BaseUserView {
   createdAt: Date;
 
   constructor(model: any) {
+    this.id = model.id;
     this.userName = model.userName;
     this.email = model.email;
     this.createdAt = model.createdAt;
@@ -24,3 +25,4 @@ export class BaseUserView {
     return users.map((user) => BaseUserView.mapToView(user));
   }
 }
+

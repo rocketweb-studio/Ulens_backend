@@ -4,6 +4,7 @@ import { DocumentBuilder } from '@nestjs/swagger';
 import { formatValidationErrors } from '@libs/utils/index';
 import { CoreEnvConfig } from '@gateway/core/core.config';
 import { GatewayExceptionFilter } from './core/exeptions/filters/exeption.filter';
+import * as cookieParser from 'cookie-parser';
 
 export function configApp(app: INestApplication, config: CoreEnvConfig) {
   app.setGlobalPrefix('api/v1');
@@ -36,6 +37,8 @@ export function configApp(app: INestApplication, config: CoreEnvConfig) {
   );
 
   app.useGlobalFilters(new GatewayExceptionFilter(config));
+
+  app.use(cookieParser());
 
   // app.enableCors({
   //   origin: '*',

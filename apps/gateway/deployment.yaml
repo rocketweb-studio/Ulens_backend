@@ -32,6 +32,36 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: AUTH_CLIENT_PORT
+             - name: MAIN_CLIENT_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: MAIN_CLIENT_HOST
+             - name: MAIN_CLIENT_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: MAIN_CLIENT_PORT
+             - name: NOTIFICATIONS_CLIENT_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: NOTIFICATIONS_CLIENT_HOST
+             - name: NOTIFICATIONS_CLIENT_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: NOTIFICATIONS_CLIENT_PORT
+             - name: ACCESS_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ACCESS_SECRET_KEY
+             - name: ACCESS_EXPIRES_IN
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ACCESS_EXPIRES_IN
              - name: PORT
                valueFrom:
                  secretKeyRef:

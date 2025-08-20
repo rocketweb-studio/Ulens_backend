@@ -11,3 +11,7 @@ export enum RouterPaths {
 	REFRESH_TOKENS = "refresh",
 	LOGOUT = "logout",
 }
+
+export enum MainRouterPaths {
+	MAIN = "main",
+}

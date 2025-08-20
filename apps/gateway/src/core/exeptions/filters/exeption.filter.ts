@@ -1,10 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-enum-comparison */
-import {
-	ArgumentsHost,
-	Catch,
-	ExceptionFilter,
-	HttpException,
-} from "@nestjs/common";
+import { ArgumentsHost, Catch, ExceptionFilter, HttpException } from "@nestjs/common";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { HttpStatuses } from "@libs/constants/http-statuses";
 import { DefaultErrorResponse } from "@libs/constants/errors";
@@ -25,8 +20,7 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 
 		// Обработка http ошибок
 		if (exception instanceof HttpException) {
-			const status =
-				exception.getStatus?.() ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
+			const status = exception.getStatus?.() ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
 
 			// Your 400 validation shape
 			if (status === HttpStatuses.BAD_REQUEST_400) {
@@ -48,19 +42,13 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 				statusCode: status,
 				timestamp: new Date().toISOString(),
 				path: request.url,
-				message:
-					this.coreConfig.env === "production"
-						? "Internal server error"
-						: (this.safeMsg(exception) ?? "Internal server error"),
+				message: this.coreConfig.env === "production" ? "Internal server error" : (this.safeMsg(exception) ?? "Internal server error"),
 			} as DefaultErrorResponse);
 		}
 
 		// Обработка rpc ошибок которые приходят из микросервисов или возникают в гейтвей
 		if (this.isRpcException(exception) || exception instanceof RpcException) {
-			const status =
-				(exception as any)?.statusCode ??
-				(exception as any).error?.statusCode ??
-				HttpStatuses.INTERNAL_SERVER_ERROR_500;
+			const status = (exception as any)?.statusCode ?? (exception as any).error?.statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
 			if (status === HttpStatuses.BAD_REQUEST_400) {
 				const responseBody: any = {
 					errorsMessages: [
@@ -96,10 +84,6 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 
 	// Проверяем является ли ошибка rpc ошибкой
 	private isRpcException(exception: unknown): boolean {
-		return (
-			!!exception &&
-			typeof exception === "object" &&
-			("statusCode" in exception || "message" in exception)
-		);
+		return !!exception && typeof exception === "object" && ("statusCode" in exception || "message" in exception);
 	}
 }

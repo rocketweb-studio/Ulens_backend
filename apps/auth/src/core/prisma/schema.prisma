@@ -16,19 +16,19 @@ datasource db {
 
 // Модель пользователя - таблица в БД
 model User {
-  id    Int     @default(autoincrement()) @id
-  userName String @unique
+  id String @id @default(uuid())
   email String  @unique
+	userName String @unique
   createdAt DateTime @default(now())
-  passwordHash String?
+  passwordHash String
   confirmationCode String? @unique
-  confCodeConfirmed Boolean
+  confirmationCodeConfirmed Boolean @default(false)
+	confirmationCodeExpDate DateTime?
   recoveryCode String? @unique
-  recCodeConfirmed Boolean?
-  confCodeExpDate DateTime?
-  recCodeExpDate DateTime?
+  recoveryCodeExpDate DateTime?
   googleUserId String? @unique
   gitHubUserId String? @unique
+	deletedAt DateTime?
 
   sessions Session[]  // обратная сторона связи
   @@map("users")  
@@ -36,13 +36,33 @@ model User {
 
 model Session {
   deviceId String @id @unique
-  userId Int 
+  userId String 
   deviceName String
   iat DateTime
   exp DateTime
   ip String
+	country String?
+	city String?
+	latitude Float?
+	longitude Float?
+	timezone String?
+	browser String?
+	os String?
+	type String?
+	userAgent String?
   deletedAt DateTime?
+	createdAt DateTime @default(now())
+
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("sessions")
+}
+
+
+model TokensBlacklist {
+  id String @id @default(uuid())
+  token String
+  createdAt DateTime @default(now())
+	expiredAt DateTime
+  @@map("blacklist")
 }

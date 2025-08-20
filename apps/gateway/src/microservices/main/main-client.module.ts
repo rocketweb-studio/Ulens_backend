@@ -24,5 +24,6 @@ import { Microservice } from "@libs/constants/microservices";
 	],
 	controllers: [MainClientController],
 	providers: [MainClientService, MainClientEnvConfig],
+	exports: [MainClientService],
 })
 export class MainClientModule {}

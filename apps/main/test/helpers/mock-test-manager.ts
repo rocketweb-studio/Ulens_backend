@@ -10,9 +10,7 @@ export class MockTestManager {
 	constructor(private app: INestApplication) {}
 
 	async getMock(): Promise<{ version: string; message: string }> {
-		const response = await request(this.app.getHttpServer())
-			.get(`/api/v1`)
-			.expect(200);
+		const response = await request(this.app.getHttpServer()).get(`/api/v1`).expect(200);
 
 		return response.body;
 	}

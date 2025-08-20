@@ -1,13 +1,12 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@main/core/core.module";
 import { CoreEnvConfig } from "@main/core/core.config";
-import { SubscriptionModule } from "@main/modules/subscription/subscription.module";
-import { SubscriptionController } from "@main/modules/subscription/subscription.controller";
+import { ProfileModule } from "./modules/profile/profile.module";
 
 @Module({
 	// 1
-	imports: [CoreModule, SubscriptionModule], // 2
-	controllers: [SubscriptionController],
+	imports: [CoreModule, ProfileModule], // 2
+	controllers: [],
 	providers: [],
 })
 export class AppModule {
@@ -15,6 +14,7 @@ export class AppModule {
 		// 3
 		return {
 			module: AppModule,
+			imports: [CoreModule, ProfileModule],
 			providers: [
 				{
 					provide: CoreEnvConfig,

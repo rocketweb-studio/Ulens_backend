@@ -6,12 +6,7 @@ import { MainClientModule } from "./microservices/main/main-client.module";
 import { NotificationsClientModule } from "./microservices/notifications/notifications-client.module";
 
 @Module({
-	imports: [
-		CoreModule,
-		AuthClientModule,
-		MainClientModule,
-		NotificationsClientModule,
-	],
+	imports: [CoreModule, AuthClientModule, MainClientModule, NotificationsClientModule],
 	controllers: [],
 	providers: [],
 })

@@ -14,25 +14,18 @@ const microservicesRootModules = {
 };
 
 export const startMicroserviceForTest = async (microserviceName: string) => {
-	const envPath = path.resolve(
-		__dirname,
-		`../../../${microserviceName}/.env.testing.local`,
-	);
+	const envPath = path.resolve(__dirname, `../../../${microserviceName}/.env.testing.local`);
 	dotenv.config({ path: envPath });
 	console.log(`[env] Loaded for ${microserviceName}: ${envPath}`);
 
-	const microservice =
-		await NestFactory.createMicroservice<MicroserviceOptions>(
-			microservicesRootModules[microserviceName],
-			{
-				transport: Transport.TCP,
-				// запуск микросервиса в тестовом окружении
-				options: {
-					host: process.env.TCP_HOST,
-					port: +(process.env.TCP_PORT ?? 0),
-				},
-			},
-		);
+	const microservice = await NestFactory.createMicroservice<MicroserviceOptions>(microservicesRootModules[microserviceName], {
+		transport: Transport.TCP,
+		// запуск микросервиса в тестовом окружении
+		options: {
+			host: process.env.TCP_HOST,
+			port: +(process.env.TCP_PORT ?? 0),
+		},
+	});
 
 	await microservice.listen();
 	return microservice;

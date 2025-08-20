@@ -1,8 +1,6 @@
-import { UUID } from "crypto";
-
 export class PayloadForJwtDto {
-	userId: UUID;
-	deviceId: UUID;
+	userId: string;
+	deviceId: string;
 }
 
 export class LoginOutputDto {

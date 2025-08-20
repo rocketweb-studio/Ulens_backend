@@ -16,10 +16,7 @@ export class BaseRpcException extends RpcException {
 }
 
 export class BadRequestRpcException extends BaseRpcException {
-	constructor(
-		message: string = RpcExceptionDefaultMessages.BAD_REQUEST,
-		field?: string,
-	) {
+	constructor(message: string = RpcExceptionDefaultMessages.BAD_REQUEST, field?: string) {
 		super(400, message, { field });
 	}
 }
@@ -49,9 +46,7 @@ export class TooManyRequestsRpcException extends BaseRpcException {
 }
 
 export class UnexpectedErrorRpcException extends BaseRpcException {
-	constructor(
-		message: string = RpcExceptionDefaultMessages.INTERNAL_SERVER_ERROR,
-	) {
+	constructor(message: string = RpcExceptionDefaultMessages.INTERNAL_SERVER_ERROR) {
 		super(500, message);
 	}
 }

@@ -18,10 +18,8 @@ export class UserEnvConfig {
 	refreshTokenSecret: string;
 
 	constructor(private configService: ConfigService<any, true>) {
-		this.refreshTokenExpirationTime =
-			this.configService.get<string>("REFRESH_EXPIRES_IN");
-		this.refreshTokenSecret =
-			this.configService.get<string>("REFRESH_SECRET_KEY");
+		this.refreshTokenExpirationTime = this.configService.get<string>("REFRESH_EXPIRES_IN");
+		this.refreshTokenSecret = this.configService.get<string>("REFRESH_SECRET_KEY");
 
 		configValidationUtility.validateConfig(this);
 	}

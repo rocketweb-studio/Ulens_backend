@@ -2,10 +2,7 @@ import { Module } from "@nestjs/common";
 import { SessionService } from "@auth/modules/session/session.service";
 import { PrismaSessionCommandRepository } from "./repositories/session.command.repository";
 import { PrismaSessionQueryRepository } from "./repositories/session.query.repository";
-import {
-	ISessionCommandRepository,
-	ISessionQueryRepository,
-} from "./session.interfaces";
+import { ISessionCommandRepository, ISessionQueryRepository } from "./session.interfaces";
 
 @Module({
 	imports: [],

@@ -6,9 +6,7 @@ export class AuthTestManager {
 	constructor(private app: INestApplication) {}
 
 	async getUsers(): Promise<{ version: string; message: string }> {
-		const response = await request(this.app.getHttpServer())
-			.get(`/api/v1/users`)
-			.expect(200);
+		const response = await request(this.app.getHttpServer()).get(`/api/v1/users`).expect(200);
 
 		return response.body;
 	}

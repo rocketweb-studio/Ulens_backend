@@ -4,5 +4,8 @@
 	"editor.insertSpaces": false,
 	"editor.detectIndentation": false,
 	"editor.defaultFormatter": "biomejs.biome",
-	"biome.configPath": "..\\biome.json"
+	"biome.configPath": "..\\biome.json",
+	"[typescript]": {
+		"editor.defaultFormatter": "vscode.typescript-language-features"
+	}
 }

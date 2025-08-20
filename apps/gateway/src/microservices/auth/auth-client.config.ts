@@ -30,10 +30,8 @@ export class AuthClientEnvConfig {
 	constructor(private configService: ConfigService<any, true>) {
 		this.authClientHost = this.configService.get<string>("AUTH_CLIENT_HOST");
 		this.authClientPort = this.configService.get<number>("AUTH_CLIENT_PORT");
-		this.accessTokenSecret =
-			this.configService.get<string>("ACCESS_SECRET_KEY");
-		this.accessTokenExpirationTime =
-			this.configService.get<string>("ACCESS_EXPIRES_IN");
+		this.accessTokenSecret = this.configService.get<string>("ACCESS_SECRET_KEY");
+		this.accessTokenExpirationTime = this.configService.get<string>("ACCESS_EXPIRES_IN");
 
 		configValidationUtility.validateConfig(this);
 	}

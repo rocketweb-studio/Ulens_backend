@@ -13,9 +13,7 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
 	@IsEnum(Environments, {
-		message:
-			"Ser correct NODE_ENV value, available values: " +
-			configValidationUtility.getEnumValues(Environments).join(", "),
+		message: `Ser correct NODE_ENV value, available values: ${configValidationUtility.getEnumValues(Environments).join(", ")}`,
 	})
 	env: string;
 

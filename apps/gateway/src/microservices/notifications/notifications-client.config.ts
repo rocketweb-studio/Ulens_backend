@@ -18,12 +18,8 @@ export class NotificationsClientEnvConfig {
 	notificationsClientPort: number;
 
 	constructor(private configService: ConfigService<any, true>) {
-		this.notificationsClientHost = this.configService.get<string>(
-			"NOTIFICATIONS_CLIENT_HOST",
-		);
-		this.notificationsClientPort = this.configService.get<number>(
-			"NOTIFICATIONS_CLIENT_PORT",
-		);
+		this.notificationsClientHost = this.configService.get<string>("NOTIFICATIONS_CLIENT_HOST");
+		this.notificationsClientPort = this.configService.get<number>("NOTIFICATIONS_CLIENT_PORT");
 
 		configValidationUtility.validateConfig(this);
 	}

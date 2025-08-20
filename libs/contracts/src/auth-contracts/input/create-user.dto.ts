@@ -1,6 +1,6 @@
+import { Trim } from "../../utils/trim-pipe";
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, Length, Matches, IsEmail } from "class-validator";
-// ? import { Trim } from "@libs/utils/index" так и не получилось импортировать этот pipe из либы
 
 export class CreateUserDto {
 	@ApiProperty({
@@ -10,7 +10,7 @@ export class CreateUserDto {
 		maxLength: 30,
 		pattern: "^[a-zA-Z0-9_-]*$",
 	})
-	// @Trim()
+	@Trim()
 	@IsString()
 	@Length(6, 30)
 	@Matches(/^[a-zA-Z0-9_-]*$/, {
@@ -23,8 +23,8 @@ export class CreateUserDto {
 		format: "email",
 		description: "Unique email",
 	})
-	// @Trim()
-	@IsEmail()
+	@Trim()
+	@IsEmail({}, { message: "The email must match the format example@example.com" })
 	email: string;
 
 	@ApiProperty({
@@ -34,12 +34,11 @@ export class CreateUserDto {
 		maxLength: 20,
 		pattern: "^[0-9A-Za-z!\"#$%&'()*+,\\-./:;<=>?@[\\]\\\\^_{|}~]+$",
 	})
-	// @Trim()
+	@Trim()
 	@IsString()
 	@Length(6, 20)
 	@Matches(/^[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\]\\^_{|}~]+$/, {
-		message:
-			"Allowed characters: 0-9, A-Z, a-z and special symbols ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~",
+		message: "Allowed characters: 0-9, A-Z, a-z and special symbols ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~",
 	})
 	password: string;
 }

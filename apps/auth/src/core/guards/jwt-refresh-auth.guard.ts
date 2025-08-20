@@ -1,5 +1,6 @@
 //* вместо passport.js, мы не можем использовать passport для RPC
 
+import { BlacklistService } from "@auth/modules/blacklist/blacklist.service";
 import { ISessionQueryRepository } from "@auth/modules/session/session.interfaces";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
@@ -11,14 +12,19 @@ export class JwtRefreshAuthGuard implements CanActivate {
 	constructor(
 		private readonly userQueryRepository: IUserQueryRepository,
 		private readonly sessionQueryRepository: ISessionQueryRepository,
+		private readonly blacklistService: BlacklistService,
 		private readonly jwtService: JwtService,
 	) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const dataFromRpc = context
-			.switchToRpc()
-			.getData<{ refreshToken: string }>();
+		const dataFromRpc = context.switchToRpc().getData<{ refreshToken: string }>();
 		let payload: any;
+
+		const isTokenInBlacklist = await this.blacklistService.findTokenInBlacklist(dataFromRpc.refreshToken);
+		if (isTokenInBlacklist) {
+			throw new UnauthorizedRpcException();
+		}
+
 		try {
 			payload = this.jwtService.verify(dataFromRpc.refreshToken);
 		} catch (e) {
@@ -31,8 +37,7 @@ export class JwtRefreshAuthGuard implements CanActivate {
 			throw new UnauthorizedRpcException();
 		}
 
-		const session =
-			await this.sessionQueryRepository.findSessionByTokenData(payload);
+		const session = await this.sessionQueryRepository.findSessionByTokenData(payload);
 		if (!session) {
 			throw new UnauthorizedRpcException();
 		}

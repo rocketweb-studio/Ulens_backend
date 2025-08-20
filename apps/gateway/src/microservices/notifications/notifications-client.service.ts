@@ -11,21 +11,13 @@ class SendEmailDto {
 
 @Injectable()
 export class NotificationsClientService {
-	constructor(
-		@Inject(Microservice.NOTIFICATIONS) private readonly client: ClientProxy,
-	) {}
+	constructor(@Inject(Microservice.NOTIFICATIONS) private readonly client: ClientProxy) {}
 
 	async sendRegistrationEmail(sendEmailDto: SendEmailDto): Promise<void> {
-		this.client.emit(
-			NotificationMessages.SEND_REGISTRATION_EMAIL,
-			sendEmailDto,
-		);
+		this.client.emit(NotificationMessages.SEND_REGISTRATION_EMAIL, sendEmailDto);
 	}
 
 	async sendPasswordRecoveryEmail(sendEmailDto: SendEmailDto): Promise<void> {
-		this.client.emit(
-			NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL,
-			sendEmailDto,
-		);
+		this.client.emit(NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL, sendEmailDto);
 	}
 }

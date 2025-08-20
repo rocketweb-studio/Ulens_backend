@@ -40,15 +40,13 @@ export class BaseSubscriptionViewDto {
 	}
 
 	static mapToViewList(subscriptions: any[]): BaseSubscriptionViewDto[] {
-		return subscriptions.map((subscriptions) =>
-			BaseSubscriptionViewDto.mapToView(subscriptions),
-		);
+		return subscriptions.map((subscriptions) => BaseSubscriptionViewDto.mapToView(subscriptions));
 	}
 }
 
+// biome-ignore lint/suspicious/noEmptyInterface: <as>
 export interface IMainClientService {
-	getSubscriptions(): Promise<BaseSubscriptionViewDto[]>;
-	createSubscription(
-		createSubscriptionDto: CreateSubscriptionDto,
-	): Promise<BaseSubscriptionViewDto>;
+	//
+	// getSubscriptions(): Promise<BaseSubscriptionViewDto[]>;
+	// createSubscription(createSubscriptionDto: CreateSubscriptionDto): Promise<BaseSubscriptionViewDto>;
 }

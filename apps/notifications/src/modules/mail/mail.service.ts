@@ -16,28 +16,18 @@ export class EmailService {
 		private mailConfig: MailConfig,
 	) {}
 
-	async sendEmail(
-		email: string,
-		code: string,
-		purpose: MailPurpose,
-	): Promise<void> {
+	async sendEmail(email: string, code: string, purpose: MailPurpose): Promise<void> {
 		const template = {
 			html: "",
 			subject: "",
 		};
 		switch (purpose) {
 			case MailPurpose.REGISTRATION:
-				template.html = buildRegistrationTemplate(
-					code,
-					this.mailConfig.frontendUrl,
-				);
+				template.html = buildRegistrationTemplate(code, this.mailConfig.frontendUrl);
 				template.subject = "Registration Confirmation!";
 				break;
 			case MailPurpose.PASSWORD_RECOVERY:
-				template.html = buildPasswordRecoveryTemplate(
-					code,
-					this.mailConfig.frontendUrl,
-				);
+				template.html = buildPasswordRecoveryTemplate(code, this.mailConfig.frontendUrl);
 				template.subject = "Password Recovery!";
 				break;
 		}

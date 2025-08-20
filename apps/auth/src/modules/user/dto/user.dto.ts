@@ -27,6 +27,19 @@ export class UserWithRefreshToken extends BaseUserView {
 	}
 }
 
+export class UserWithConfirmationCode extends BaseUserView {
+	confirmationCode: string;
+
+	constructor(model: any) {
+		super(model);
+		this.confirmationCode = model.confirmationCode;
+	}
+
+	static mapToView(user: any): UserWithConfirmationCode {
+		return new UserWithConfirmationCode(user);
+	}
+}
+
 export class UserWithPayloadFromJwt {
 	refreshToken: string;
 	userId: UUID;

@@ -1,9 +1,6 @@
 import { Controller } from "@nestjs/common";
 import { EventPattern, Payload } from "@nestjs/microservices";
-import {
-	EmailService,
-	MailPurpose,
-} from "@notifications/modules/mail/mail.service";
+import { EmailService, MailPurpose } from "@notifications/modules/mail/mail.service";
 import { NotificationMessages } from "@libs/constants/notification-messages";
 
 //вынести класс в библиотеку
@@ -21,24 +18,12 @@ export class MailController {
 	 *    возвращалась 500 ошибка
 	 */
 	@EventPattern(NotificationMessages.SEND_REGISTRATION_EMAIL)
-	async sendRegistrationEmail(
-		@Payload() sendEmailDto: SendEmailDto,
-	): Promise<void> {
-		await this.emailService.sendEmail(
-			sendEmailDto.email,
-			sendEmailDto.code,
-			MailPurpose.REGISTRATION,
-		);
+	async sendRegistrationEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
+		await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.REGISTRATION);
 	}
 
 	@EventPattern(NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL)
-	async sendPasswordRecoveryEmail(
-		@Payload() sendEmailDto: SendEmailDto,
-	): Promise<void> {
-		await this.emailService.sendEmail(
-			sendEmailDto.email,
-			sendEmailDto.code,
-			MailPurpose.PASSWORD_RECOVERY,
-		);
+	async sendPasswordRecoveryEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
+		await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.PASSWORD_RECOVERY);
 	}
 }

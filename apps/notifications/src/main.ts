@@ -14,8 +14,6 @@ async function bootstrap() {
 	});
 
 	await app.listen();
-	console.log(
-		`Notifications microservice is listening on port ${config.tcpPort}`,
-	);
+	console.log(`Notifications microservice is listening on port ${config.tcpPort}`);
 }
 bootstrap();

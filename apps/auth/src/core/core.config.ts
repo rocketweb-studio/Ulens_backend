@@ -13,8 +13,7 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
 	@IsNotEmpty({
-		message:
-			"Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
+		message: "Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
 	})
 	databaseUrl: string;
 

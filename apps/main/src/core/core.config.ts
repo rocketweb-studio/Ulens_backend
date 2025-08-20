@@ -15,9 +15,7 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
 	@IsEnum(Environments, {
-		message:
-			"Ser correct NODE_ENV value, available values: " +
-			configValidationUtility.getEnumValues(Environments).join(", "),
+		message: `Ser correct NODE_ENV value, available values: ${configValidationUtility.getEnumValues(Environments).join(", ")}`,
 	})
 	env: string;
 
@@ -32,8 +30,7 @@ export class CoreEnvConfig {
 	tcpPort: number;
 
 	@IsNotEmpty({
-		message:
-			"Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
+		message: "Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
 	})
 	databaseUrl: string;
 

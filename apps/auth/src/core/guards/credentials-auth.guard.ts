@@ -10,9 +10,7 @@ export class CredentialsAuthGuard implements CanActivate {
 	constructor(private readonly userService: UserService) {}
 
 	async canActivate(context: ExecutionContext): Promise<boolean> {
-		const { loginDto } = context
-			.switchToRpc()
-			.getData<{ loginDto: LoginDto; metadata: SessionMetadataDto }>();
+		const { loginDto } = context.switchToRpc().getData<{ loginDto: LoginDto; metadata: SessionMetadataDto }>();
 		const user = await this.userService.validateUser(loginDto);
 
 		if (!user) {

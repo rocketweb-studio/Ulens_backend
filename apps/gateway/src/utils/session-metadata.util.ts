@@ -4,10 +4,7 @@ import { lookup } from "geoip-lite";
 import DeviceDetector = require("device-detector-js");
 import { SessionMetadataDto } from "@libs/contracts/index";
 
-export function getSessionMetadata(
-	req: Request,
-	userAgent: string = "Unknown",
-): SessionMetadataDto {
+export function getSessionMetadata(req: Request, userAgent: string = "Unknown"): SessionMetadataDto {
 	const devIp = "127.0.0.1";
 	const ip = req.ip || devIp;
 

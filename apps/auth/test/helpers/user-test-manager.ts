@@ -10,9 +10,7 @@ export class UserTestManager {
 	constructor(private app: INestApplication) {}
 
 	async getUsers(): Promise<{ version: string; message: string }> {
-		const response = await request(this.app.getHttpServer())
-			.get(`/users`)
-			.expect(200);
+		const response = await request(this.app.getHttpServer()).get(`/users`).expect(200);
 
 		return response.body;
 	}

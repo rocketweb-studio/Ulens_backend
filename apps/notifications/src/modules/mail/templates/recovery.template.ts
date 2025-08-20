@@ -1,7 +1,4 @@
-export const buildPasswordRecoveryTemplate = (
-	token: string,
-	clientUrl: string,
-) => {
+export const buildPasswordRecoveryTemplate = (token: string, clientUrl: string) => {
 	return `
     <!doctype html>
 <html lang="en">

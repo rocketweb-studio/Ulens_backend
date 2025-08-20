@@ -2,18 +2,17 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { UUID } from "crypto";
 import { ISessionCommandRepository } from "../session.interfaces";
+import { SessionInputRepoDto } from "../dto/session-input-repo.dto";
 
 @Injectable()
-export class PrismaSessionCommandRepository
-	implements ISessionCommandRepository
-{
+export class PrismaSessionCommandRepository implements ISessionCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async createSession(payload: any) {
-		const session = await this.prisma.session.create({
-			data: payload,
+	async createSession(sessionDto: SessionInputRepoDto): Promise<void> {
+		await this.prisma.session.create({
+			data: sessionDto,
 		});
-		return session;
+		return;
 	}
 
 	async deleteSession(deviceId: UUID) {

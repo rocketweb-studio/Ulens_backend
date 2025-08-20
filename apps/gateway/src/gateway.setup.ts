@@ -1,8 +1,4 @@
-import {
-	BadRequestException,
-	INestApplication,
-	ValidationPipe,
-} from "@nestjs/common";
+import { BadRequestException, INestApplication, ValidationPipe } from "@nestjs/common";
 import { SwaggerModule } from "@nestjs/swagger";
 import { DocumentBuilder } from "@nestjs/swagger";
 import { formatValidationErrors } from "@libs/utils/index";
@@ -46,7 +42,8 @@ export function configApp(app: INestApplication, config: CoreEnvConfig) {
 
 	app.use(cookieParser());
 
-	// app.enableCors({
-	//   origin: '*',
-	// });
+	// TODO: add origin
+	app.enableCors({
+		origin: "*",
+	});
 }

@@ -13,10 +13,7 @@ export type ErrorResponse = { message: string; field: string };
 // Пример использования:
 // const errors = formatValidationErrors(errors);
 // throw new BadRequestException(errors);
-export const formatValidationErrors = (
-	errors: ValidationError[],
-	errorMessage?: any,
-): ErrorResponse[] => {
+export const formatValidationErrors = (errors: ValidationError[], errorMessage?: any): ErrorResponse[] => {
 	// Инициализируем массив для накопления ошибок
 	const errorsForResponse = errorMessage || [];
 
@@ -36,9 +33,7 @@ export const formatValidationErrors = (
 				// Добавляем ошибку в массив ответа с сообщением и полем
 				errorsForResponse.push({
 					// Формируем сообщение: текст ошибки + полученное значение
-					message: error.constraints[key]
-						? `${error.constraints[key]}; Received value: ${error?.value}`
-						: "",
+					message: error.constraints[key] ? `${error.constraints[key]}; Received value: ${error?.value}` : "",
 					// Указываем поле, в котором произошла ошибка
 					field: error.property,
 				});

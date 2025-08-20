@@ -4,8 +4,9 @@ import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.con
 import { AuthClientController } from "@gateway/microservices/auth/auth-client.controller";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { Microservice } from "@libs/constants/microservices";
-import { NotificationsClientModule } from "../notifications/notifications-client.module";
+import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
 import { JwtModule } from "@nestjs/jwt";
+import { MainClientModule } from "@gateway/microservices/main/main-client.module";
 
 @Module({
 	imports: [
@@ -31,6 +32,7 @@ import { JwtModule } from "@nestjs/jwt";
 			extraProviders: [AuthClientEnvConfig],
 		}),
 		NotificationsClientModule,
+		MainClientModule,
 	],
 	controllers: [AuthClientController],
 	providers: [AuthClientService, AuthClientEnvConfig],

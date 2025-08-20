@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, Matches, Length } from "class-validator";
+import { Trim } from "../../utils/trim-pipe";
 
 export class NewPasswordDto {
 	@ApiProperty({
@@ -9,12 +10,11 @@ export class NewPasswordDto {
 		maxLength: 20,
 		pattern: "^[0-9A-Za-z!\"#$%&'()*+,\\-./:;<=>?@[\\]\\\\^_{|}~]+$",
 	})
-	// @Trim()
+	@Trim()
 	@IsString()
 	@Length(6, 20)
 	@Matches(/^[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\]\\^_{|}~]+$/, {
-		message:
-			"Allowed characters: 0-9, A-Z, a-z and special symbols ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~",
+		message: "Allowed characters: 0-9, A-Z, a-z and special symbols ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~",
 	})
 	newPassword: string;
 

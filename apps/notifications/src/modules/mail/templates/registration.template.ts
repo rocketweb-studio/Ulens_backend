@@ -1,5 +1,5 @@
 export const buildRegistrationTemplate = (token: string, clientUrl: string) => {
-  return `
+	return `
    <!DOCTYPE html>
 <html lang="en">
 <head>

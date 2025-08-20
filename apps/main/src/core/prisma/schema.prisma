@@ -16,12 +16,18 @@ datasource db {
 
 
 // Модель подписки - таблица в БД
-model Subscription {
-  id                Int       @default(autoincrement()) @id
-  typeSubscription  String
-  paymentType       String
-  amount            Int
-  baseUrl           String
+model Profile {
+  id String @id @default(uuid())
+  userName String @unique
+  firstName String?
+  lastName String?
+  city String?
+  country String?
+  region String?
+  dateOfBirth DateTime?
+  aboutMe String?
+  createdAt DateTime @default(now())
+	deletedAt DateTime?
 
-  @@map("subscriptions")
+  @@map("profiles")
 }

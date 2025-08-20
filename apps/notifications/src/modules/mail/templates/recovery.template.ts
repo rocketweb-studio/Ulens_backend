@@ -1,5 +1,5 @@
 export const buildPasswordRecoveryTemplate = (token: string, clientUrl: string) => {
-  return `
+	return `
     <!doctype html>
 <html lang="en">
   <head>

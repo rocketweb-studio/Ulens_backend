@@ -32,6 +32,16 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-auth-production-config-secret
                    key: POSTGRES_URL
+             - name: REFRESH_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-auth-production-config-secret
+                   key: REFRESH_SECRET_KEY
+             - name: REFRESH_EXPIRES_IN
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-auth-production-config-secret
+                   key: REFRESH_EXPIRES_IN
              - name: TCP_PORT
                valueFrom:
                  secretKeyRef:

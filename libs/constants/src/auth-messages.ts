@@ -10,4 +10,5 @@ export enum AuthMessages {
 	LOGIN = "login",
 	REFRESH_TOKENS = "refresh_tokens",
 	LOGOUT = "logout",
+	ME = "me",
 }

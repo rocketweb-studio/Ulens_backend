@@ -2,10 +2,10 @@ import { applyDecorators } from "@nestjs/common";
 import { ApiBearerAuth, ApiNoContentResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
 /**
- * Swagger decorator for auth POST endpoints that can return 429 Too many requests
  * @swagger
- * @response 200 - No content
+ * @response 204 - No content
  * @response 400 - Bad request
+ * @response 401 - Unauthorized
  * @response 429 - Too many requests
  */
 export const LogoutSwagger = () => {

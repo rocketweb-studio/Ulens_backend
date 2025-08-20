@@ -10,10 +10,15 @@ import { LoginInputDto } from "./dto/login-input.dto";
 import { LoginOutputDto } from "./dto/login-output.dto";
 import { RegistrationOutputDto } from "./dto/registration-output.dto";
 import { CodeOutputDto } from "./dto/code-output.dto";
+import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { IUserQueryRepository } from "./user.interfaces";
 
 @Controller()
 export class UserController {
-	constructor(private readonly userService: UserService) {}
+	constructor(
+		private readonly userService: UserService,
+		private readonly userQueryRepository: IUserQueryRepository,
+	) {}
 
 	@MessagePattern({ cmd: AuthMessages.REGISTRATION })
 	async registration(@Payload() createUserDto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -61,6 +66,13 @@ export class UserController {
 	@MessagePattern({ cmd: AuthMessages.LOGOUT })
 	async logout(@Payload() dto: UserWithPayloadFromJwt): Promise<any> {
 		const response = await this.userService.logout(dto);
+		return response;
+	}
+
+	@UseGuards(JwtRefreshAuthGuard)
+	@MessagePattern({ cmd: AuthMessages.ME })
+	async me(@Payload() dto: UserWithPayloadFromJwt): Promise<MeUserViewDto> {
+		const response = await this.userQueryRepository.getMe(dto);
 		return response;
 	}
 }

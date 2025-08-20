@@ -1,8 +1,8 @@
-import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req } from "@nestjs/common";
+import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto } from "@libs/contracts/index";
 import { ApiTags } from "@nestjs/swagger";
-import { HttpStatuses, RouterPaths } from "@libs/constants/index";
+import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
 import { LoginSwagger } from "@gateway/core/decorators/swagger/auth/login-swagger.decorator";
@@ -13,14 +13,16 @@ import { PassRecoverySwagger } from "@gateway/core/decorators/swagger/auth/pass-
 import { RegistrationEmailResendingSwagger } from "@gateway/core/decorators/swagger/auth/registration-resend-swagger.decorator";
 import { RegistrationConfirmationSwagger } from "@gateway/core/decorators/swagger/auth/registration-confirm-swagger.decorator";
 import { RegistrationSwagger } from "@gateway/core/decorators/swagger/auth/registration-swagger.decorator";
+import { MeSwagger } from "@gateway/core/decorators/swagger/auth/me-swagger.decorator";
+import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 
-@ApiTags(RouterPaths.AUTH)
-@Controller(RouterPaths.AUTH)
+@ApiTags(AuthRouterPaths.AUTH)
+@Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
 	constructor(private readonly authClientService: AuthClientService) {}
 
 	@RegistrationSwagger()
-	@Post(RouterPaths.REGISTRATION)
+	@Post(AuthRouterPaths.REGISTRATION)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async registration(@Body() createUserDto: CreateUserDto): Promise<void> {
 		await this.authClientService.registration(createUserDto);
@@ -28,7 +30,7 @@ export class AuthClientController {
 	}
 
 	@RegistrationConfirmationSwagger()
-	@Post(RouterPaths.REGISTRATION_CONFIRMATION)
+	@Post(AuthRouterPaths.REGISTRATION_CONFIRMATION)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async registrationConfirmation(@Body() confirmCodeDto: ConfirmCodeDto): Promise<void> {
 		await this.authClientService.emailConfirmation(confirmCodeDto);
@@ -36,7 +38,7 @@ export class AuthClientController {
 	}
 
 	@RegistrationEmailResendingSwagger()
-	@Post(RouterPaths.REGISTRATION_EMAIL_RESENDING)
+	@Post(AuthRouterPaths.REGISTRATION_EMAIL_RESENDING)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async registrationEmailResending(@Body() resendEmailDto: ResendEmailDto): Promise<void> {
 		await this.authClientService.resendEmail(resendEmailDto);
@@ -44,7 +46,7 @@ export class AuthClientController {
 	}
 
 	@PassRecoverySwagger()
-	@Post(RouterPaths.PASSWORD_RECOVERY)
+	@Post(AuthRouterPaths.PASSWORD_RECOVERY)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async passwordRecovery(@Body() passwordRecoveryDto: ResendEmailDto): Promise<void> {
 		await this.authClientService.passwordRecovery(passwordRecoveryDto);
@@ -52,7 +54,7 @@ export class AuthClientController {
 	}
 
 	@NewPasswordSwagger()
-	@Post(RouterPaths.NEW_PASSWORD)
+	@Post(AuthRouterPaths.NEW_PASSWORD)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async newPassword(@Body() newPasswordDto: NewPasswordDto): Promise<void> {
 		await this.authClientService.setNewPassword(newPasswordDto);
@@ -60,7 +62,7 @@ export class AuthClientController {
 	}
 
 	@LoginSwagger()
-	@Post(RouterPaths.LOGIN)
+	@Post(AuthRouterPaths.LOGIN)
 	@HttpCode(HttpStatus.OK)
 	async login(@Body() loginDto: LoginDto, @Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<AccessTokenDto> {
 		const userAgent = request.headers["user-agent"];
@@ -75,7 +77,7 @@ export class AuthClientController {
 	}
 
 	@RefreshSwagger()
-	@Post(RouterPaths.REFRESH_TOKENS)
+	@Post(AuthRouterPaths.REFRESH_TOKENS)
 	@HttpCode(HttpStatus.OK)
 	async refreshTokens(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<AccessTokenDto> {
 		const refreshTokenFromCookie = request.cookies?.refreshToken;
@@ -89,12 +91,21 @@ export class AuthClientController {
 	}
 
 	@LogoutSwagger()
-	@Post(RouterPaths.LOGOUT)
+	@Post(AuthRouterPaths.LOGOUT)
 	@HttpCode(HttpStatus.NO_CONTENT)
 	async logout(@Req() request: Request, @Res({ passthrough: true }) response: Response): Promise<void> {
 		const refreshTokenFromCookie = request.cookies?.refreshToken;
 		await this.authClientService.logout(refreshTokenFromCookie);
 		response.clearCookie("refreshToken");
 		return;
+	}
+
+	@MeSwagger()
+	@Get(AuthRouterPaths.ME)
+	@HttpCode(HttpStatus.OK)
+	async me(@Req() request: Request): Promise<MeUserViewDto> {
+		const refreshTokenFromCookie = request.cookies?.refreshToken;
+		const userInfo = await this.authClientService.me(refreshTokenFromCookie);
+		return userInfo;
 	}
 }

@@ -10,6 +10,7 @@ import { JwtService } from "@nestjs/jwt";
 import { AuthClientEnvConfig } from "./auth-client.config";
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
 import { MainClientService } from "../main/main-client.service";
+import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
@@ -117,5 +118,10 @@ export class AuthClientService implements IAuthClientService {
 		}
 
 		return session;
+	}
+
+	async me(refreshTokenFromCookie: string): Promise<MeUserViewDto> {
+		const userInfo = await firstValueFrom(this.client.send({ cmd: AuthMessages.ME }, { refreshToken: refreshTokenFromCookie }));
+		return userInfo;
 	}
 }

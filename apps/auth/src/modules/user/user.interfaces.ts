@@ -1,10 +1,11 @@
 import { ConfirmCodeDto, BaseUserView } from "@libs/contracts/index";
 
-import { UserWithConfirmationCode, UserWithPassword } from "@auth/modules/user/dto/user.dto";
+import { UserWithConfirmationCode, UserWithPassword, UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
 import { UserDbInputDto } from "./dto/user-db-input.dto";
 import { ConfirmationCodeInputRepoDto } from "./dto/confirm-input-repo.dto";
 import { RecoveryCodeInputRepoDto } from "./dto/recovery-input-repo.dto";
 import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
+import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -12,8 +13,8 @@ import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
  */
 
 export abstract class IUserQueryRepository {
-	// abstract findUserByConfirmationCode(dto: ConfirmCodeDto): Promise<BaseUserView | null>;
 	abstract findUserById(id: string): Promise<BaseUserView | null>;
+	abstract getMe(dto: UserWithPayloadFromJwt): Promise<MeUserViewDto>;
 }
 
 export abstract class IUserCommandRepository {

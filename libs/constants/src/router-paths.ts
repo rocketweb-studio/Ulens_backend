@@ -1,4 +1,4 @@
-export enum RouterPaths {
+export enum AuthRouterPaths {
 	AUTH = "auth",
 	USERS = "users",
 	SUBSCRIPTIONS = "subscriptions",
@@ -10,6 +10,7 @@ export enum RouterPaths {
 	LOGIN = "login",
 	REFRESH_TOKENS = "refresh",
 	LOGOUT = "logout",
+	ME = "me",
 }
 
 export enum MainRouterPaths {

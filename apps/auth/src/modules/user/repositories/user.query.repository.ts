@@ -27,4 +27,9 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		});
 		return MeUserViewDto.mapToView(user);
 	}
+
+	async getUsers(): Promise<BaseUserView[]> {
+		const users = await this.prisma.user.findMany();
+		return users.map((user) => BaseUserView.mapToView(user));
+	}
 }

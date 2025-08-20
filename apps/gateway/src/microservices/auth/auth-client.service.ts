@@ -1,7 +1,7 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, SessionMetadataDto } from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, SessionMetadataDto, BaseUserView } from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages } from "@libs/constants/auth-messages";
 import { UnauthorizedRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
@@ -123,5 +123,10 @@ export class AuthClientService implements IAuthClientService {
 	async me(refreshTokenFromCookie: string): Promise<MeUserViewDto> {
 		const userInfo = await firstValueFrom(this.client.send({ cmd: AuthMessages.ME }, { refreshToken: refreshTokenFromCookie }));
 		return userInfo;
+	}
+
+	async getUsers(): Promise<BaseUserView[]> {
+		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
+		return users;
 	}
 }

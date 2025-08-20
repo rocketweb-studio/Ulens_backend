@@ -1,7 +1,7 @@
-import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get } from "@nestjs/common";
+import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto } from "@libs/contracts/index";
-import { ApiTags } from "@nestjs/swagger";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView } from "@libs/contracts/index";
+import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
@@ -15,6 +15,7 @@ import { RegistrationConfirmationSwagger } from "@gateway/core/decorators/swagge
 import { RegistrationSwagger } from "@gateway/core/decorators/swagger/auth/registration-swagger.decorator";
 import { MeSwagger } from "@gateway/core/decorators/swagger/auth/me-swagger.decorator";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -108,5 +109,19 @@ export class AuthClientController {
 		const refreshTokenFromCookie = request.cookies?.refreshToken;
 		const userInfo = await this.authClientService.me(refreshTokenFromCookie);
 		return userInfo;
+	}
+
+	@ApiOperation({ summary: "Get users - TEST ENDPOINT" })
+	@ApiOkResponse({ description: "Successfully received users", type: [BaseUserView] })
+	@ApiUnauthorizedResponse({
+		description: "If the access token is wrong or expired",
+	})
+	@ApiBearerAuth()
+	@UseGuards(JwtAccessAuthGuard)
+	@Get(AuthRouterPaths.USERS)
+	@HttpCode(HttpStatus.OK)
+	async getUsers(): Promise<BaseUserView[]> {
+		const users = await this.authClientService.getUsers();
+		return users;
 	}
 }

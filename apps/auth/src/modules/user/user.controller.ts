@@ -2,7 +2,7 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "@auth/modules/user/user.service";
 import { AuthMessages } from "@libs/constants/auth-messages";
-import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from "@libs/contracts/index";
+import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
 import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
@@ -73,6 +73,12 @@ export class UserController {
 	@MessagePattern({ cmd: AuthMessages.ME })
 	async me(@Payload() dto: UserWithPayloadFromJwt): Promise<MeUserViewDto> {
 		const response = await this.userQueryRepository.getMe(dto);
+		return response;
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_USERS })
+	async getUsers(): Promise<BaseUserView[]> {
+		const response = await this.userQueryRepository.getUsers();
 		return response;
 	}
 }

@@ -15,6 +15,7 @@ import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-vie
 export abstract class IUserQueryRepository {
 	abstract findUserById(id: string): Promise<BaseUserView | null>;
 	abstract getMe(dto: UserWithPayloadFromJwt): Promise<MeUserViewDto>;
+	abstract getUsers(): Promise<BaseUserView[]>;
 }
 
 export abstract class IUserCommandRepository {

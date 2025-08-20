@@ -1,14 +1,13 @@
-import { BadRequestException, ValidationPipe } from "@nestjs/common";
+import { BadRequestException, INestApplication, ValidationPipe } from "@nestjs/common";
 import { SwaggerModule } from "@nestjs/swagger";
 import { DocumentBuilder } from "@nestjs/swagger";
 import { formatValidationErrors } from "@libs/utils/index";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GatewayExceptionFilter } from "./core/exeptions/filters/exeption.filter";
 import * as cookieParser from "cookie-parser";
-import { NestExpressApplication } from "@nestjs/platform-express";
 import { buildOrigins } from "./utils/build-origins";
 
-export function configApp(app: NestExpressApplication, config: CoreEnvConfig) {
+export function configApp(app: INestApplication, config: CoreEnvConfig) {
 	app.setGlobalPrefix("api/v1");
 
 	// Setting Swagger
@@ -17,6 +16,7 @@ export function configApp(app: NestExpressApplication, config: CoreEnvConfig) {
 		.setDescription("The best API documentation ever!")
 		.setVersion("1.0.0")
 		.addServer("https://ulens.org - Production Server")
+		.addBearerAuth()
 		.build();
 	const document = SwaggerModule.createDocument(app, swaggerConfig, {
 		ignoreGlobalPrefix: false,
@@ -43,8 +43,6 @@ export function configApp(app: NestExpressApplication, config: CoreEnvConfig) {
 	app.useGlobalFilters(new GatewayExceptionFilter(config));
 
 	app.use(cookieParser());
-
-	app.set("trust proxy", 1);
 
 	app.enableCors({
 		origin: buildOrigins(config.allowedOrigins),

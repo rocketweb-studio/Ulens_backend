@@ -22,9 +22,13 @@ export class CoreEnvConfig {
 	})
 	applicationPort: number;
 
+	@IsNotEmpty()
+	allowedOrigins: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.applicationPort = this.configService.get<number>("PORT");
+		this.allowedOrigins = this.configService.get<string>("ALLOWED_ORIGINS");
 
 		configValidationUtility.validateConfig(this);
 	}

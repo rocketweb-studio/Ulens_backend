@@ -17,6 +17,10 @@ export class CredentialsAuthGuard implements CanActivate {
 			throw new UnauthorizedRpcException("Invalid email or password");
 		}
 
+		if (!user.confirmationCodeConfirmed) {
+			throw new UnauthorizedRpcException("User is not confirmed");
+		}
+
 		const data = context.getArgByIndex(0);
 		data.loginDto = user;
 		return true;

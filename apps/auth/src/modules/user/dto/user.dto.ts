@@ -3,10 +3,12 @@ import { UUID } from "crypto";
 
 export class UserWithPassword extends BaseUserView {
 	passwordHash: string;
+	confirmationCodeConfirmed: boolean;
 
 	constructor(model: any) {
 		super(model);
 		this.passwordHash = model.passwordHash;
+		this.confirmationCodeConfirmed = model.confirmationCodeConfirmed;
 	}
 
 	static mapToView(user: any): UserWithPassword {

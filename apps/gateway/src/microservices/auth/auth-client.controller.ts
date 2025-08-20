@@ -73,6 +73,7 @@ export class AuthClientController {
 			secure: true,
 			sameSite: "strict",
 		});
+
 		return { accessToken };
 	}
 

@@ -32,7 +32,8 @@ export const initSettings = async (
 	configApp(app, coreConfig);
 
 	//  Запускаем микросервис auth
-	const authMicroservice = await startMicroserviceForTest("auth");
+	await startMicroserviceForTest("auth");
+	await startMicroserviceForTest("main");
 
 	await app.init();
 
@@ -46,6 +47,5 @@ export const initSettings = async (
 		app,
 		httpServer,
 		authTestManger,
-		authMicroservice,
 	};
 };

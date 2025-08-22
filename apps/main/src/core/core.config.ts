@@ -20,25 +20,25 @@ export class CoreEnvConfig {
 	env: string;
 
 	@IsNotEmpty({
-		message: "Set Env variable TCP_HOST, example: 0.0.0.0",
+		message: "Set Env variable MAIN_TCP_HOST, example: 0.0.0.0",
 	})
 	tcpHost: string;
 
 	@IsNotEmpty({
-		message: "Set Env variable TCP_PORT, example: 3001",
+		message: "Set Env variable MAIN_TCP_PORT, example: 3001",
 	})
 	tcpPort: number;
 
 	@IsNotEmpty({
-		message: "Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
+		message: "Set Env variable MAIN_POSTGRES_URL, example: postgresql://user:password@host:port/database",
 	})
 	databaseUrl: string;
 
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get("NODE_ENV"); // 1
-		this.tcpHost = this.configService.get<string>("TCP_HOST");
-		this.tcpPort = this.configService.get<number>("TCP_PORT");
-		this.databaseUrl = this.configService.get<string>("POSTGRES_URL");
+		this.tcpHost = this.configService.get<string>("MAIN_TCP_HOST");
+		this.tcpPort = this.configService.get<number>("MAIN_TCP_PORT");
+		this.databaseUrl = this.configService.get<string>("MAIN_POSTGRES_URL");
 
 		configValidationUtility.validateConfig(this); // 2
 	}

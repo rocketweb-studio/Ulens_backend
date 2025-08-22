@@ -13,18 +13,18 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
 	@IsNotEmpty({
-		message: "Set Env variable POSTGRES_URL, example: postgresql://user:password@host:port/database",
+		message: "Set Env variable AUTH_POSTGRES_URL, example: postgresql://user:password@host:port/database",
 	})
 	databaseUrl: string;
 
 	@IsString()
 	@IsNotEmpty({
-		message: "Set Env variable TCP_HOST, example: 0.0.0.0",
+		message: "Set Env variable AUTH_TCP_HOST, example: 0.0.0.0",
 	})
 	tcpHost: string;
 
 	@IsNotEmpty({
-		message: "Set Env variable TCP_PORT, example: 3001",
+		message: "Set Env variable AUTH_TCP_PORT, example: 3001",
 	})
 	tcpPort: number;
 
@@ -36,9 +36,9 @@ export class CoreEnvConfig {
 
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
-		this.databaseUrl = this.configService.get<string>("POSTGRES_URL");
-		this.tcpHost = this.configService.get<string>("TCP_HOST");
-		this.tcpPort = this.configService.get<number>("TCP_PORT");
+		this.databaseUrl = this.configService.get<string>("AUTH_POSTGRES_URL");
+		this.tcpHost = this.configService.get<string>("AUTH_TCP_HOST");
+		this.tcpPort = this.configService.get<number>("AUTH_TCP_PORT");
 
 		configValidationUtility.validateConfig(this);
 	}

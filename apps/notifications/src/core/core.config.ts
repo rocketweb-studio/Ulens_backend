@@ -14,18 +14,18 @@ export enum Environments {
 export class CoreEnvConfig {
 	@IsString()
 	@IsNotEmpty({
-		message: "Set Env variable TCP_HOST, example: 0.0.0.0",
+		message: "Set Env variable NOTIFICATIONS_TCP_HOST, example: 0.0.0.0",
 	})
 	tcpHost: string;
 
 	@IsNotEmpty({
-		message: "Set Env variable TCP_PORT, example: 3001",
+		message: "Set Env variable NOTIFICATIONS_TCP_PORT, example: 3001",
 	})
 	tcpPort: number;
 
 	constructor(private configService: ConfigService<any, true>) {
-		this.tcpHost = this.configService.get<string>("TCP_HOST");
-		this.tcpPort = this.configService.get<number>("TCP_PORT");
+		this.tcpHost = this.configService.get<string>("NOTIFICATIONS_TCP_HOST");
+		this.tcpPort = this.configService.get<number>("NOTIFICATIONS_TCP_PORT");
 
 		configValidationUtility.validateConfig(this);
 	}

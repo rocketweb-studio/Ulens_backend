@@ -1,3 +1,7 @@
+export enum RouterPrefix {
+	API_V1 = "api/v1",
+}
+
 export enum AuthRouterPaths {
 	AUTH = "auth",
 	USERS = "users",

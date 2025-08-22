@@ -13,17 +13,52 @@ describe("AuthController", () => {
 		app = result.app;
 	});
 
-	afterAll(async () => {
-		await app.close();
-	});
-	it("should register user", async () => {
-		const paylaod = {
-			userName: "john_doe",
-			email: "user.email@gmail.com",
-			password: "123123123",
-		};
-		const userResult = await authTestManager.registerUser(paylaod);
-		console.log(userResult);
+	// describe("getUsers", () => {
+	// 	it("should return users", async () => {
+	// 		const userResult = await authTestManager.getUsers();
+	// 		console.log('userResult:', userResult);
+	// 		expect(userResult).toBeDefined();
+	// 		expect(userResult).toBeInstanceOf(Array);
+	// 	});
+
+	// 	it("should clear database", async () => {
+	// 		const userResult = await authTestManager.clearDatabase();
+	// 		expect(userResult).toBeDefined();
+	// 		expect(userResult).toBe("clear database");
+	// 	});
+	// });
+
+	describe("RegistrationFlow", () => {
+		it("- POST failed registration with incorrect input", async () => {
+			await authTestManager.registration({ userName: "Fa", email: "cat2021gmail.com", password: "12345" }, 400, {
+				errorsMessages: [
+					{
+						message: "userName must be longer than or equal to 6 characters; Received value: Fa",
+						field: "userName",
+					},
+					{
+						message: "The email must match the format example@example.com; Received value: cat2021gmail.com",
+						field: "email",
+					},
+					{
+						message: "password must be longer than or equal to 6 characters; Received value: 12345",
+						field: "password",
+					},
+				],
+			},
+			);
+		});
+
+		it("+ POST successed registration with correct input", async () => {
+			await authTestManager.registration(
+				{
+					userName: "Eugene",
+					email: "eugene.novik.dev@gmail.com",
+					password: "123456"
+				},
+				204
+			);
+		});
 	});
 
 	it("should clear database", async () => {

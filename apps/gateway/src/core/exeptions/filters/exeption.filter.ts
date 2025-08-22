@@ -25,6 +25,7 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 			// Your 400 validation shape
 			if (status === HttpStatuses.BAD_REQUEST_400) {
 				const responseBody: any = exception.getResponse();
+
 				if (responseBody?.error && Array.isArray(responseBody?.message)) {
 					const errorResponse: ValidationErrorResponse = {
 						errorsMessages: [],

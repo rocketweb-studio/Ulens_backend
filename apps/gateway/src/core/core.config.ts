@@ -27,7 +27,7 @@ export class CoreEnvConfig {
 
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
-		this.applicationPort = this.configService.get<number>("PORT");
+		this.applicationPort = this.configService.get<number>("GATEWAY_PORT");
 		this.allowedOrigins = this.configService.get<string>("ALLOWED_ORIGINS");
 
 		configValidationUtility.validateConfig(this);

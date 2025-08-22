@@ -10,7 +10,7 @@
     "^@gateway/(.*)$": "<rootDir>/src/$1",
     "^@libs/constants/(.*)$": "<rootDir>/../../libs/constants/src/$1",
     "^@libs/utils/(.*)$": "<rootDir>/../../libs/utils/src/$1",
-    "^@libs/contracts/(.*)$": "<rootDir>/../../libs/constants/src/$1",
+    "^@libs/contracts/(.*)$": "<rootDir>/../../libs/contracts/src/$1",
     "^@libs/exeption/(.*)$": "<rootDir>/../../libs/exeption/src/$1",
     "^@auth/(.*)$": "<rootDir>/../auth/src/$1",
     "^@main/(.*)$": "<rootDir>/../main/src/$1"

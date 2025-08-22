@@ -7,13 +7,13 @@ import { IsNotEmpty, IsString } from "class-validator";
 export class AuthClientEnvConfig {
 	@IsString()
 	@IsNotEmpty({
-		message: "Set Env variable AUTH_CLIENT_HOST, example: localhost",
+		message: "Set Env variable AUTH_TCP_HOST, example: localhost",
 	})
 	authClientHost: string;
 
 	@IsString()
 	@IsNotEmpty({
-		message: "Set Env variable AUTH_CLIENT_PORT, example: 3001",
+		message: "Set Env variable AUTH_TCP_PORT, example: 3001",
 	})
 	authClientPort: number;
 
@@ -28,8 +28,8 @@ export class AuthClientEnvConfig {
 	accessTokenExpirationTime: string;
 
 	constructor(private configService: ConfigService<any, true>) {
-		this.authClientHost = this.configService.get<string>("AUTH_CLIENT_HOST");
-		this.authClientPort = this.configService.get<number>("AUTH_CLIENT_PORT");
+		this.authClientHost = this.configService.get<string>("AUTH_TCP_HOST");
+		this.authClientPort = this.configService.get<number>("AUTH_TCP_PORT");
 		this.accessTokenSecret = this.configService.get<string>("ACCESS_SECRET_KEY");
 		this.accessTokenExpirationTime = this.configService.get<string>("ACCESS_EXPIRES_IN");
 

@@ -11,11 +11,10 @@ export class AuthTestManager {
 		return response.body;
 	}
 
-	// async createUser(payload: any): Promise<{ version: string; message: string }> {
-	//   const response = await request(this.app.getHttpServer()).post(`/api/v1/users`).send(payload).expect(201);
-
-	//   return response.body;
-	// }
+	async registerUser(payload: any): Promise<any> {
+		const response = await request(this.app.getHttpServer()).post(`/api/v1/auth/registration`).send(payload).expect(204);
+		return response.body;
+	}
 
 	clearDatabase() {
 		const client = this.app.get(Microservice.AUTH);

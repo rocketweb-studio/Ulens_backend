@@ -1,39 +1,32 @@
 import { initSettings } from "./helpers/init-settings";
 import { AuthTestManager } from "./helpers/auth-test-manager";
-import { INestApplication } from "@nestjs/common";
 import { MainTestManager } from "./helpers/main-test-manager";
+import { getAuthPrisma } from "./helpers/get-auth-prisma";
+import { randomUUID } from "crypto";
 
 // тесты для MockController
 describe("AuthController", () => {
 	let authTestManager: AuthTestManager;
 	let mainTestManager: MainTestManager;
-	let app: INestApplication;
+	let prismaAuth: ReturnType<typeof getAuthPrisma>;
+
+	// переменные используемые во время тестов
+	let confirmationCode: string;
+	let _recoveryCode: string;
 
 	beforeAll(async () => {
 		const result = await initSettings();
 		authTestManager = result.authTestManger;
 		mainTestManager = result.mainTestManager;
-		app = result.app;
+
+		prismaAuth = getAuthPrisma(); // используем для прямого обращения к тестовой БД во время выполнения тестов
+		await prismaAuth.$connect(); // подключаемся к БД перед началом выполнения тестов
 	});
 
 	afterAll(async () => {
 		await Promise.all([authTestManager.clearDatabase(), mainTestManager.clearDatabase()]);
+		await prismaAuth.$disconnect(); // отключаемся от БД после выполнения тестов
 	});
-
-	// describe("getUsers", () => {
-	// 	it("should return users", async () => {
-	// 		const userResult = await authTestManager.getUsers();
-	// 		console.log('userResult:', userResult);
-	// 		expect(userResult).toBeDefined();
-	// 		expect(userResult).toBeInstanceOf(Array);
-	// 	});
-
-	// 	it("should clear database", async () => {
-	// 		const userResult = await authTestManager.clearDatabase();
-	// 		expect(userResult).toBeDefined();
-	// 		expect(userResult).toBe("clear database");
-	// 	});
-	// });
 
 	describe("RegistrationFlow", () => {
 		it("- POST failed registration with incorrect input", async () => {
@@ -56,14 +49,28 @@ describe("AuthController", () => {
 		});
 
 		it("+ POST successed registration with correct input", async () => {
+			const email = "joseph.biden.dev@gmail.com";
 			await authTestManager.registration(
 				{
-					userName: "Eugene",
-					email: "eugene.novik.dev@gmail.com",
+					userName: "Joseph",
+					email,
 					password: "123456",
 				},
 				204,
 			);
+
+			const user = await prismaAuth.user.findUnique({ where: { email } });
+			expect(user).toBeTruthy();
+			confirmationCode = user?.confirmationCode ?? "";
+		});
+
+		it("- POST failed registration-confirmation with incorrect code", async () => {
+			const randomCode = randomUUID();
+			await authTestManager.registrationConfirmation(randomCode, 400);
+		});
+
+		it("+ POST successed registration-confirmation with correct code", async () => {
+			await authTestManager.registrationConfirmation(confirmationCode, 204);
 		});
 	});
 });

@@ -20,7 +20,7 @@ export abstract class IUserQueryRepository {
 
 export abstract class IUserCommandRepository {
 	abstract createUser(userDto: UserDbInputDto): Promise<UserWithConfirmationCode>;
-	abstract confirmEmail(dto: ConfirmCodeDto): Promise<void>;
+	abstract confirmEmail(dto: ConfirmCodeDto): Promise<boolean>;
 	abstract resendEmail(email: string, newConfirmationCodeBody: ConfirmationCodeInputRepoDto): Promise<string | null>;
 	abstract passwordRecovery(email: string, recoveryCodeBody: RecoveryCodeInputRepoDto): Promise<string | null>;
 	abstract setNewPassword(userId: string, newPasswordBody: NewPasswordInputRepoDto): Promise<boolean>;

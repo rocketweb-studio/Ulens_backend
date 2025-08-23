@@ -33,6 +33,15 @@ export class AuthTestManager {
 		return res.body;
 	}
 
+	async registrationConfirmation(code: string, status: HttpStatus): Promise<{ version: string; message: string }> {
+		const server = this.app.getHttpServer();
+		const url = `/${RouterPrefix.API_V1}/${AuthRouterPaths.AUTH}/${AuthRouterPaths.REGISTRATION_CONFIRMATION}`;
+
+		const res = await request(server).post(url).send({ code }).expect(status);
+
+		return res.body;
+	}
+
 	clearDatabase() {
 		const client = this.app.get(Microservice.AUTH);
 		return client.send(AuthMessages.CLEAR_AUTH_DATABASE, {}).toPromise();

@@ -60,9 +60,12 @@ export class UserService {
 		};
 	}
 
-	async confirmEmail(dto: ConfirmCodeDto): Promise<void> {
-		await this.userCommandRepository.confirmEmail(dto);
-		return;
+	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
+		const result = await this.userCommandRepository.confirmEmail(dto);
+		if (!result) {
+			throw new BadRequestRpcException("User with this code was not found or code alredy expired");
+		}
+		return true;
 	}
 
 	async resendEmail(dto: ResendEmailDto): Promise<CodeOutputDto> {

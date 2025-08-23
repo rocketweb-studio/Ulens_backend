@@ -25,10 +25,14 @@ export class UserController {
 		return this.userService.createUser(createUserDto);
 	}
 
+	/**
+	 *В @MessagePattern всегда нужно вернуть какое-то значение, иначе клиент через send() получит
+	 *	 «пустую последовательность» и выбросит ошибку.
+	 */
 	@MessagePattern({ cmd: AuthMessages.EMAIL_CONFIRMATION })
-	async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto): Promise<void> {
+	async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto): Promise<boolean> {
 		await this.userService.confirmEmail(confirmCodeDto);
-		return;
+		return true;
 	}
 
 	@MessagePattern({ cmd: AuthMessages.RESEND_EMAIL })

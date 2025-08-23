@@ -1,16 +1,23 @@
 import { initSettings } from "./helpers/init-settings";
 import { AuthTestManager } from "./helpers/auth-test-manager";
 import { INestApplication } from "@nestjs/common";
+import { MainTestManager } from "./helpers/main-test-manager";
 
 // тесты для MockController
 describe("AuthController", () => {
 	let authTestManager: AuthTestManager;
+	let mainTestManager: MainTestManager;
 	let app: INestApplication;
 
 	beforeAll(async () => {
 		const result = await initSettings();
 		authTestManager = result.authTestManger;
+		mainTestManager = result.mainTestManager;
 		app = result.app;
+	});
+
+	afterAll(async () => {
+		await Promise.all([authTestManager.clearDatabase(), mainTestManager.clearDatabase()]);
 	});
 
 	// describe("getUsers", () => {
@@ -45,8 +52,7 @@ describe("AuthController", () => {
 						field: "password",
 					},
 				],
-			},
-			);
+			});
 		});
 
 		it("+ POST successed registration with correct input", async () => {
@@ -54,16 +60,10 @@ describe("AuthController", () => {
 				{
 					userName: "Eugene",
 					email: "eugene.novik.dev@gmail.com",
-					password: "123456"
+					password: "123456",
 				},
-				204
+				204,
 			);
 		});
-	});
-
-	it("should clear database", async () => {
-		const userResult = await authTestManager.clearDatabase();
-		expect(userResult).toBeDefined();
-		expect(userResult).toBe("clear database");
 	});
 });

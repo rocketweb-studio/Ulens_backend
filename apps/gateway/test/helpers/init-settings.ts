@@ -4,6 +4,7 @@ import { GatewayModule } from "../../src/gateway.module";
 import { CoreEnvConfig } from "../../src/core/core.config";
 import { configApp } from "../../src/gateway.setup";
 import { startMicroserviceForTest } from "./startMicroserviceForTest";
+import { MainTestManager } from "./main-test-manager";
 // import { Microservice } from '@libs/constants/index';
 
 /**
@@ -40,6 +41,7 @@ export const initSettings = async (
 
 	const httpServer = app.getHttpServer();
 	const authTestManger = new AuthTestManager(app);
+	const mainTestManager = new MainTestManager(app);
 
 	// TODO: delete all data from database for testing
 	// await deleteAllData(app);
@@ -48,6 +50,7 @@ export const initSettings = async (
 		app,
 		httpServer,
 		authTestManger,
+		mainTestManager,
 		authMicroservice,
 		mainMicroservice,
 	};

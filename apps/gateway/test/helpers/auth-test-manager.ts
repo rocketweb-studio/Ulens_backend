@@ -18,7 +18,7 @@ export class AuthTestManager {
 
 	// 	return response.body;
 	// }
-	
+
 	async registration(payload: any, status: HttpStatus, expectedBody?: unknown): Promise<{ version: string; message: string }> {
 		const server = this.app.getHttpServer();
 		const url = `/${RouterPrefix.API_V1}/${AuthRouterPaths.AUTH}/${AuthRouterPaths.REGISTRATION}`;

@@ -1,6 +1,6 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView } from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -16,6 +16,7 @@ import { RegistrationSwagger } from "@gateway/core/decorators/swagger/auth/regis
 import { MeSwagger } from "@gateway/core/decorators/swagger/auth/me-swagger.decorator";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
+import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -60,6 +61,14 @@ export class AuthClientController {
 	async newPassword(@Body() newPasswordDto: NewPasswordDto): Promise<void> {
 		await this.authClientService.setNewPassword(newPasswordDto);
 		return;
+	}
+
+	@CheckRecoveryCodeSwagger()
+	@Post(AuthRouterPaths.CHECK_RECOVERY_CODE)
+	@HttpCode(HttpStatus.OK)
+	async checkRecoveryCode(@Body() checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {
+		const { email } = await this.authClientService.checkRecoveryCode(checkRecoveryCodeDto);
+		return { email };
 	}
 
 	@LoginSwagger()

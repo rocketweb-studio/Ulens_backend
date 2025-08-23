@@ -93,7 +93,10 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null> {
 		const user = await this.prisma.user.findUnique({
-			where: { recoveryCode },
+			where: {
+				recoveryCode: recoveryCode,
+				recoveryCodeExpDate: { gte: new Date() },
+			},
 		});
 		if (!user) return null;
 

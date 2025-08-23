@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto } from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, EmailDto } from "@libs/contracts/index";
 import { IUserCommandRepository } from "./user.interfaces";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
@@ -126,6 +126,16 @@ export class UserService {
 		};
 
 		await this.userCommandRepository.setNewPassword(user.id, newPasswordBody);
+	}
+
+	async checkRecoveryCode(checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {
+		const user = await this.userCommandRepository.findUserByRecoveryCode(checkRecoveryCodeDto.code);
+
+		if (!user) {
+			throw new BadRequestRpcException("User with this recovery code was not found", "recoveryCode");
+		}
+
+		return { email: user.email };
 	}
 
 	async login(dto: LoginInputDto): Promise<LoginOutputDto> {

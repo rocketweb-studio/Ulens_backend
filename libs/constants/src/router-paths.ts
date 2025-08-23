@@ -10,6 +10,7 @@ export enum AuthRouterPaths {
 	REGISTRATION_CONFIRMATION = "registration-confirmation",
 	REGISTRATION_EMAIL_RESENDING = "registration-email-resending",
 	PASSWORD_RECOVERY = "password-recovery",
+	CHECK_RECOVERY_CODE = "check-recovery-code",
 	NEW_PASSWORD = "new-password",
 	LOGIN = "login",
 	REFRESH_TOKENS = "refresh",

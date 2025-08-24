@@ -1,20 +1,26 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@main/core/core.module";
-import { CoreEnvConfig } from "@main/core/core.config";
+import { CoreEnvConfig, Environments } from "@main/core/core.config";
 import { ProfileModule } from "./modules/profile/profile.module";
+import { TestingModule } from "./modules/testing/testing.module";
 
 @Module({
 	// 1
-	imports: [CoreModule, ProfileModule], // 2
+	imports: [CoreModule, ProfileModule, TestingModule], // 2
 	controllers: [],
 	providers: [],
 })
 export class AppModule {
 	static forRoot(config: CoreEnvConfig): DynamicModule {
 		// 3
+		// используем тестовый модуль только в тестовом окружении
+		const testingModule: any[] = [];
+		if (config.env === Environments.TESTING) {
+			testingModule.push(TestingModule);
+		}
 		return {
 			module: AppModule,
-			imports: [CoreModule, ProfileModule],
+			imports: [CoreModule, ProfileModule, ...testingModule],
 			providers: [
 				{
 					provide: CoreEnvConfig,

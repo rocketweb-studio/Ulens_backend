@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto } from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, EmailDto } from "@libs/contracts/index";
 import { IUserCommandRepository } from "./user.interfaces";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
@@ -60,9 +60,12 @@ export class UserService {
 		};
 	}
 
-	async confirmEmail(dto: ConfirmCodeDto): Promise<void> {
-		await this.userCommandRepository.confirmEmail(dto);
-		return;
+	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
+		const result = await this.userCommandRepository.confirmEmail(dto);
+		if (!result) {
+			throw new BadRequestRpcException("User with this code was not found or code alredy expired");
+		}
+		return true;
 	}
 
 	async resendEmail(dto: ResendEmailDto): Promise<CodeOutputDto> {
@@ -108,7 +111,7 @@ export class UserService {
 		return { code: recoveryCode };
 	}
 
-	async setNewPassword(dto: NewPasswordDto): Promise<void> {
+	async setNewPassword(dto: NewPasswordDto): Promise<boolean> {
 		const { newPassword, recoveryCode } = dto;
 
 		const user = await this.userCommandRepository.findUserByRecoveryCode(recoveryCode);
@@ -125,7 +128,23 @@ export class UserService {
 			passwordHash: newPasswordHash,
 		};
 
-		await this.userCommandRepository.setNewPassword(user.id, newPasswordBody);
+		const result = await this.userCommandRepository.setNewPassword(user.id, newPasswordBody);
+
+		if (!result) {
+			throw new BadRequestRpcException("New password was not set");
+		}
+
+		return true;
+	}
+
+	async checkRecoveryCode(checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {
+		const user = await this.userCommandRepository.findUserByRecoveryCode(checkRecoveryCodeDto.code);
+
+		if (!user) {
+			throw new BadRequestRpcException("User with this recovery code was not found", "recoveryCode");
+		}
+
+		return { email: user.email };
 	}
 
 	async login(dto: LoginInputDto): Promise<LoginOutputDto> {

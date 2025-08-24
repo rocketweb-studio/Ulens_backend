@@ -2,7 +2,7 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "@auth/modules/user/user.service";
 import { AuthMessages } from "@libs/constants/auth-messages";
-import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto } from "@libs/contracts/index";
+import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
 import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
@@ -25,10 +25,14 @@ export class UserController {
 		return this.userService.createUser(createUserDto);
 	}
 
+	/**
+	 *В @MessagePattern всегда нужно вернуть какое-то значение, иначе клиент через send() получит
+	 *	 «пустую последовательность» и выбросит ошибку.
+	 */
 	@MessagePattern({ cmd: AuthMessages.EMAIL_CONFIRMATION })
-	async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto): Promise<void> {
+	async emailConfirmation(@Payload() confirmCodeDto: ConfirmCodeDto): Promise<boolean> {
 		await this.userService.confirmEmail(confirmCodeDto);
-		return;
+		return true;
 	}
 
 	@MessagePattern({ cmd: AuthMessages.RESEND_EMAIL })
@@ -42,10 +46,17 @@ export class UserController {
 		return response;
 	}
 
+	@MessagePattern({ cmd: AuthMessages.CHECK_RECOVERY_CODE })
+	async checkRecoveryCode(@Payload() checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {
+		const response = await this.userService.checkRecoveryCode(checkRecoveryCodeDto);
+		return response;
+	}
+
+	// таже история что и с emailConfirmation, если оставить просто return падает 500 ошибка
 	@MessagePattern({ cmd: AuthMessages.NEW_PASSWORD })
-	async newPassword(@Payload() newPasswordDto: NewPasswordDto): Promise<void> {
+	async newPassword(@Payload() newPasswordDto: NewPasswordDto): Promise<boolean> {
 		await this.userService.setNewPassword(newPasswordDto);
-		return;
+		return true;
 	}
 
 	@UseGuards(CredentialsAuthGuard)

@@ -14,6 +14,8 @@ export interface IAuthClientService {
 
 	passwordRecovery(passwordRecoveryDto: ResendEmailDto): Promise<void>;
 
+	checkRecoveryCode(checkRecoveryCodeDto: ConfirmCodeDto): Promise<{ email: string }>;
+
 	setNewPassword(newPasswordDto: NewPasswordDto): Promise<void>;
 
 	login(loginDto: LoginDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }>;

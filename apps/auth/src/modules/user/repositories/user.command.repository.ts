@@ -20,8 +20,8 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		return UserWithConfirmationCode.mapToView(user);
 	}
 
-	async confirmEmail(dto: ConfirmCodeDto): Promise<void> {
-		await this.prisma.user.update({
+	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
+		const { count } = await this.prisma.user.updateMany({
 			where: {
 				confirmationCode: dto.code,
 				confirmationCodeConfirmed: false,
@@ -34,7 +34,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			},
 		});
 
-		return;
+		return count > 0;
 	}
 
 	async resendEmail(email: string, newConfirmationCodeBody: ConfirmationCodeInputRepoDto): Promise<string | null> {
@@ -93,7 +93,10 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null> {
 		const user = await this.prisma.user.findUnique({
-			where: { recoveryCode },
+			where: {
+				recoveryCode: recoveryCode,
+				recoveryCodeExpDate: { gte: new Date() },
+			},
 		});
 		if (!user) return null;
 

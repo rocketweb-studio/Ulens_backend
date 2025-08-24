@@ -4,6 +4,7 @@ import { GatewayModule } from "../../src/gateway.module";
 import { CoreEnvConfig } from "../../src/core/core.config";
 import { configApp } from "../../src/gateway.setup";
 import { startMicroserviceForTest } from "./startMicroserviceForTest";
+import { MainTestManager } from "./main-test-manager";
 // import { Microservice } from '@libs/constants/index';
 
 /**
@@ -32,13 +33,15 @@ export const initSettings = async (
 	configApp(app, coreConfig);
 
 	//  Запускаем микросервис auth
-	await startMicroserviceForTest("auth");
-	await startMicroserviceForTest("main");
+	const authMicroservice = await startMicroserviceForTest("auth");
+	// Запускаем микросервис main
+	const mainMicroservice = await startMicroserviceForTest("main");
 
 	await app.init();
 
 	const httpServer = app.getHttpServer();
 	const authTestManger = new AuthTestManager(app);
+	const mainTestManager = new MainTestManager(app);
 
 	// TODO: delete all data from database for testing
 	// await deleteAllData(app);
@@ -47,5 +50,8 @@ export const initSettings = async (
 		app,
 		httpServer,
 		authTestManger,
+		mainTestManager,
+		authMicroservice,
+		mainMicroservice,
 	};
 };

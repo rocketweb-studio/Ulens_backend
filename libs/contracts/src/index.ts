@@ -6,6 +6,7 @@ export * from "./auth-contracts/input/resend-email-conf-code.dto";
 export * from "./auth-contracts/input/recovery-password.dto";
 export * from "./auth-contracts/output/base-user-view.dto";
 export * from "./auth-contracts/output/user-model.view";
+export * from "./auth-contracts/output/email-view.dto";
 export * from "./main-contracts/subscription-contract";
 export * from "./auth-contracts/input/login.dto";
 export * from "./auth-contracts/input/metadata.dto";

@@ -86,6 +86,11 @@ export class AuthClientService implements IAuthClientService {
 		return;
 	}
 
+	async checkRecoveryCode(checkRecoveryCodeDto: ConfirmCodeDto): Promise<{ email: string }> {
+		const { email } = await firstValueFrom(this.client.send({ cmd: AuthMessages.CHECK_RECOVERY_CODE }, checkRecoveryCodeDto));
+		return { email };
+	}
+
 	async login(loginDto: LoginDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }> {
 		const { refreshToken, payloadForJwt } = await firstValueFrom(this.client.send({ cmd: AuthMessages.LOGIN }, { loginDto, metadata }));
 		const accessToken = await this.jwtService.signAsync(payloadForJwt, {

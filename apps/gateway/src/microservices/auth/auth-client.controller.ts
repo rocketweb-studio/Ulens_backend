@@ -1,6 +1,6 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView } from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -16,12 +16,16 @@ import { RegistrationSwagger } from "@gateway/core/decorators/swagger/auth/regis
 import { MeSwagger } from "@gateway/core/decorators/swagger/auth/me-swagger.decorator";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
+import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
+import { ThrottlerGuard } from "@nestjs/throttler";
+import { Environments } from "../../core/core.config";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
 	constructor(private readonly authClientService: AuthClientService) {}
 
+	@UseGuards(ThrottlerGuard)
 	@RegistrationSwagger()
 	@Post(AuthRouterPaths.REGISTRATION)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
@@ -29,7 +33,7 @@ export class AuthClientController {
 		await this.authClientService.registration(createUserDto);
 		return;
 	}
-
+	@UseGuards(ThrottlerGuard)
 	@RegistrationConfirmationSwagger()
 	@Post(AuthRouterPaths.REGISTRATION_CONFIRMATION)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
@@ -38,6 +42,7 @@ export class AuthClientController {
 		return;
 	}
 
+	@UseGuards(ThrottlerGuard)
 	@RegistrationEmailResendingSwagger()
 	@Post(AuthRouterPaths.REGISTRATION_EMAIL_RESENDING)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
@@ -54,6 +59,7 @@ export class AuthClientController {
 		return;
 	}
 
+	@UseGuards(ThrottlerGuard)
 	@NewPasswordSwagger()
 	@Post(AuthRouterPaths.NEW_PASSWORD)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
@@ -62,6 +68,16 @@ export class AuthClientController {
 		return;
 	}
 
+	@UseGuards(ThrottlerGuard)
+	@CheckRecoveryCodeSwagger()
+	@Post(AuthRouterPaths.CHECK_RECOVERY_CODE)
+	@HttpCode(HttpStatus.OK)
+	async checkRecoveryCode(@Body() checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {
+		const { email } = await this.authClientService.checkRecoveryCode(checkRecoveryCodeDto);
+		return { email };
+	}
+
+	@UseGuards(ThrottlerGuard)
 	@LoginSwagger()
 	@Post(AuthRouterPaths.LOGIN)
 	@HttpCode(HttpStatus.OK)
@@ -71,7 +87,7 @@ export class AuthClientController {
 		const { accessToken, refreshToken } = await this.authClientService.login(loginDto, metadata);
 		response.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: true,
+			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
 			sameSite: "lax",
 		});
 
@@ -86,7 +102,7 @@ export class AuthClientController {
 		const { accessToken, refreshToken } = await this.authClientService.refreshTokens(refreshTokenFromCookie);
 		response.cookie("refreshToken", refreshToken, {
 			httpOnly: true,
-			secure: true,
+			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
 			sameSite: "lax",
 		});
 		return { accessToken };

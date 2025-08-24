@@ -7,6 +7,7 @@ import { Microservice } from "@libs/constants/microservices";
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
 import { JwtModule } from "@nestjs/jwt";
 import { MainClientModule } from "@gateway/microservices/main/main-client.module";
+import { ThrottlerModule } from "@nestjs/throttler";
 
 @Module({
 	imports: [
@@ -22,6 +23,12 @@ import { MainClientModule } from "@gateway/microservices/main/main-client.module
 				}),
 				inject: [AuthClientEnvConfig],
 				extraProviders: [AuthClientEnvConfig],
+			},
+		]),
+		ThrottlerModule.forRoot([
+			{
+				ttl: 10000,
+				limit: 5,
 			},
 		]),
 		JwtModule.registerAsync({

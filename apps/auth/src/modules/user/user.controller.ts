@@ -52,10 +52,11 @@ export class UserController {
 		return response;
 	}
 
+	// таже история что и с emailConfirmation, если оставить просто return падает 500 ошибка
 	@MessagePattern({ cmd: AuthMessages.NEW_PASSWORD })
-	async newPassword(@Payload() newPasswordDto: NewPasswordDto): Promise<void> {
+	async newPassword(@Payload() newPasswordDto: NewPasswordDto): Promise<boolean> {
 		await this.userService.setNewPassword(newPasswordDto);
-		return;
+		return true;
 	}
 
 	@UseGuards(CredentialsAuthGuard)

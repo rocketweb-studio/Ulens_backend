@@ -111,7 +111,7 @@ export class UserService {
 		return { code: recoveryCode };
 	}
 
-	async setNewPassword(dto: NewPasswordDto): Promise<void> {
+	async setNewPassword(dto: NewPasswordDto): Promise<boolean> {
 		const { newPassword, recoveryCode } = dto;
 
 		const user = await this.userCommandRepository.findUserByRecoveryCode(recoveryCode);
@@ -128,7 +128,13 @@ export class UserService {
 			passwordHash: newPasswordHash,
 		};
 
-		await this.userCommandRepository.setNewPassword(user.id, newPasswordBody);
+		const result = await this.userCommandRepository.setNewPassword(user.id, newPasswordBody);
+
+		if (!result) {
+			throw new BadRequestRpcException("New password was not set");
+		}
+
+		return true;
 	}
 
 	async checkRecoveryCode(checkRecoveryCodeDto: ConfirmCodeDto): Promise<EmailDto> {

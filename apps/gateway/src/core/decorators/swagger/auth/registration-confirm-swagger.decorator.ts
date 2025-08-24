@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiNoContentResponse, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiNoContentResponse, ApiOperation, ApiResponse, ApiTooManyRequestsResponse } from "@nestjs/swagger";
 import { BadRequestResponse } from "../common/BadRequestResponse";
 
 /**
@@ -15,6 +15,9 @@ export const RegistrationConfirmationSwagger = () => {
 			description: "Email was verified. Account was activated",
 		}),
 		ApiResponse(BadRequestResponse),
+		ApiTooManyRequestsResponse({
+			description: "More than 5 attempts from one IP-address during 10 seconds",
+		}),
 	];
 
 	return applyDecorators(...decorators);

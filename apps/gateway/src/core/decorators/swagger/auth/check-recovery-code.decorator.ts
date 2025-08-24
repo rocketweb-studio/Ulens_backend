@@ -1,6 +1,6 @@
 import { EmailDto } from "@libs/contracts/index";
 import { applyDecorators } from "@nestjs/common";
-import { ApiOkResponse, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiOkResponse, ApiOperation, ApiResponse, ApiTooManyRequestsResponse } from "@nestjs/swagger";
 
 /**
  * @swagger
@@ -19,6 +19,9 @@ export const CheckRecoveryCodeSwagger = () => {
 		ApiResponse({
 			status: 400,
 			description: "If the recovery code is incorrect or already expired",
+		}),
+		ApiTooManyRequestsResponse({
+			description: "More than 5 attempts from one IP-address during 10 seconds",
 		}),
 	];
 

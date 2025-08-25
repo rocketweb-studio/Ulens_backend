@@ -19,6 +19,7 @@ import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { Environments } from "../../core/core.config";
+import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -139,5 +140,24 @@ export class AuthClientController {
 	async getUsers(): Promise<BaseUserView[]> {
 		const users = await this.authClientService.getUsers();
 		return users;
+	}
+
+	@Get("google-login")
+	@UseGuards(GoogleGuard)
+	async googleAuth(res) {}
+
+	@Get("google-callback")
+	@UseGuards(GoogleGuard)
+	async googleAuthRedirect() {
+		// todo получить рефреш токен из гварда
+		// todo сгенерить accessToken(возможно нужно будет сделать отдельный метод для этого в сервисе)
+		// const accessToken = request.user.accessToken;
+		// todo отправить рефреш токен в куку а аксесс токен в параметр урла и редиректнуть на фронтенд
+		// response.cookie("refreshToken", refreshToken, {
+		// 	httpOnly: true,
+		// 	secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
+		// 	sameSite: "lax",
+		// });
+		// response.redirect(`http://frontend.org?profile=${accessToken}`)
 	}
 }

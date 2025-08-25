@@ -18,7 +18,7 @@ export class CoreEnvConfig {
 	env: string;
 
 	@IsNotEmpty({
-		message: "Set Env variable PORT, example: 3000",
+		message: "Set Env variable GATEWAY_PORT, example: 3000",
 	})
 	applicationPort: number;
 

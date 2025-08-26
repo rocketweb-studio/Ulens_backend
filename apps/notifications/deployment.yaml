@@ -22,11 +22,11 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
-             - name: TCP_PORT
+             - name: NOTIFICATIONS_TCP_PORT
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-notifications-production-config-secret
-                   key: TCP_PORT
+                   key: NOTIFICATIONS_TCP_PORT
              - name: SMTP_PORT
                valueFrom:
                  secretKeyRef:
@@ -52,8 +52,8 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-notifications-production-config-secret
                    key: FRONTEND_URL
-             - name: TCP_HOST
+             - name: NOTIFICATIONS_TCP_HOST
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-notifications-production-config-secret
-                   key: TCP_HOST
+                   key: NOTIFICATIONS_TCP_HOST

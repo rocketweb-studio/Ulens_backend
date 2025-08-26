@@ -2,7 +2,7 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "@auth/modules/user/user.service";
 import { AuthMessages } from "@libs/constants/auth-messages";
-import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto } from "@libs/contracts/index";
+import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto, RegistrationGoogleOutputDto } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
 import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
@@ -12,6 +12,7 @@ import { RegistrationOutputDto } from "./dto/registration-output.dto";
 import { CodeOutputDto } from "./dto/code-output.dto";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 import { IUserQueryRepository } from "./user.interfaces";
+import { GoogleRegisterInputDto } from "./dto/google-register-input.dto";
 
 @Controller()
 export class UserController {
@@ -23,6 +24,11 @@ export class UserController {
 	@MessagePattern({ cmd: AuthMessages.REGISTRATION })
 	async registration(@Payload() createUserDto: CreateUserDto): Promise<RegistrationOutputDto> {
 		return this.userService.createUser(createUserDto);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.REGISTRATION_GOOGLE })
+	async registrationGoogle(@Payload() dto: GoogleRegisterInputDto): Promise<RegistrationGoogleOutputDto> {
+		return this.userService.registrationGoogle(dto);
 	}
 
 	/**

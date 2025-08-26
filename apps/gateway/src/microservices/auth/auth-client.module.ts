@@ -8,6 +8,8 @@ import { NotificationsClientModule } from "@gateway/microservices/notifications/
 import { JwtModule } from "@nestjs/jwt";
 import { MainClientModule } from "@gateway/microservices/main/main-client.module";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
+import { CoreEnvConfig } from "@gateway/core/core.config";
 
 @Module({
 	imports: [
@@ -42,6 +44,6 @@ import { ThrottlerModule } from "@nestjs/throttler";
 		MainClientModule,
 	],
 	controllers: [AuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig],
+	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, CoreEnvConfig],
 })
 export class AuthClientModule {}

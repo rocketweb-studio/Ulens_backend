@@ -16,6 +16,8 @@ export enum AuthRouterPaths {
 	REFRESH_TOKENS = "refresh",
 	LOGOUT = "logout",
 	ME = "me",
+	GOOGLE_LOGIN = "google-login",
+	GOOGLE_CALLBACK = "google-callback",
 }
 
 export enum MainRouterPaths {

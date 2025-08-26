@@ -1,6 +1,16 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	AccessTokenDto,
+	BaseUserView,
+	EmailDto,
+	CreateGoogleUserDto,
+} from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -18,12 +28,16 @@ import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-vie
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import { Environments } from "../../core/core.config";
+import { CoreEnvConfig, Environments } from "../../core/core.config";
+import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
-	constructor(private readonly authClientService: AuthClientService) {}
+	constructor(
+		private readonly authClientService: AuthClientService,
+		private readonly coreConfig: CoreEnvConfig,
+	) {}
 
 	@UseGuards(ThrottlerGuard)
 	@RegistrationSwagger()
@@ -139,5 +153,27 @@ export class AuthClientController {
 	async getUsers(): Promise<BaseUserView[]> {
 		const users = await this.authClientService.getUsers();
 		return users;
+	}
+
+	@Get(AuthRouterPaths.GOOGLE_LOGIN)
+	@UseGuards(GoogleGuard)
+	async googleAuth() {}
+
+	@Get(AuthRouterPaths.GOOGLE_CALLBACK)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(GoogleGuard)
+	async googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
+		const user = request.user as CreateGoogleUserDto;
+		const userAgent = request.headers["user-agent"];
+		const metadata = getSessionMetadata(request, userAgent);
+
+		const { accessToken, refreshToken } = await this.authClientService.registrationGoogle(user, metadata);
+		response.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
+			sameSite: "lax",
+		});
+
+		response.redirect(`${this.coreConfig.frontendUrl}/?token=${accessToken}`);
 	}
 }

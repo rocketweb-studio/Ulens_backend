@@ -1,6 +1,16 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	AccessTokenDto,
+	BaseUserView,
+	EmailDto,
+	CreateGoogleUserDto,
+} from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -142,22 +152,27 @@ export class AuthClientController {
 		return users;
 	}
 
-	@Get("google-login")
+	@Get(AuthRouterPaths.GOOGLE_LOGIN)
 	@UseGuards(GoogleGuard)
-	async googleAuth(res) {}
+	async googleAuth() {}
 
-	@Get("google-callback")
+	@Get(AuthRouterPaths.GOOGLE_CALLBACK)
+	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(GoogleGuard)
-	async googleAuthRedirect() {
-		// todo получить рефреш токен из гварда
-		// todo сгенерить accessToken(возможно нужно будет сделать отдельный метод для этого в сервисе)
-		// const accessToken = request.user.accessToken;
-		// todo отправить рефреш токен в куку а аксесс токен в параметр урла и редиректнуть на фронтенд
-		// response.cookie("refreshToken", refreshToken, {
-		// 	httpOnly: true,
-		// 	secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
-		// 	sameSite: "lax",
-		// });
-		// response.redirect(`http://frontend.org?profile=${accessToken}`)
+	async googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
+		const user = request.user as CreateGoogleUserDto;
+		const userAgent = request.headers["user-agent"];
+		const metadata = getSessionMetadata(request, userAgent);
+
+		const { accessToken, refreshToken } = await this.authClientService.registrationGoogle(user, metadata);
+		response.cookie("refreshToken", refreshToken, {
+			httpOnly: true,
+			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
+			sameSite: "lax",
+		});
+
+		console.log(accessToken, refreshToken);
+
+		response.redirect(`https://ulens.org/?profile=${accessToken}`);
 	}
 }

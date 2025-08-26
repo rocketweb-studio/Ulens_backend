@@ -1,7 +1,16 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, SessionMetadataDto, BaseUserView } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	SessionMetadataDto,
+	BaseUserView,
+	CreateGoogleUserDto,
+} from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages } from "@libs/constants/auth-messages";
 import { UnauthorizedRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
@@ -25,14 +34,7 @@ export class AuthClientService implements IAuthClientService {
 	async registration(createUserDto: CreateUserDto): Promise<void> {
 		const { userId, userName, email, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
 
-		const isProfileCreated = await this.mainClientService.createProfile({
-			userName: userName,
-			id: userId,
-		});
-
-		if (!isProfileCreated) {
-			throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
-		}
+		await this.createProfileInMainService(userName, userId);
 
 		this.notificationsClientService
 			.sendRegistrationEmail({
@@ -44,6 +46,21 @@ export class AuthClientService implements IAuthClientService {
 			});
 
 		return;
+	}
+
+	async registrationGoogle(registerDto: CreateGoogleUserDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }> {
+		const { id, userName, existedUser, refreshToken, payloadForJwt } = await firstValueFrom(
+			this.client.send({ cmd: AuthMessages.REGISTRATION_GOOGLE }, { registerDto, metadata }),
+		);
+
+		if (!existedUser) await this.createProfileInMainService(userName, id);
+
+		const accessToken = await this.jwtService.signAsync(payloadForJwt, {
+			expiresIn: this.authEnvConfig.accessTokenExpirationTime,
+			secret: this.authEnvConfig.accessTokenSecret,
+		});
+
+		return { accessToken, refreshToken };
 	}
 
 	async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<void> {
@@ -133,5 +150,12 @@ export class AuthClientService implements IAuthClientService {
 	async getUsers(): Promise<BaseUserView[]> {
 		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
 		return users;
+	}
+
+	private async createProfileInMainService(userId: string, userName: string): Promise<void> {
+		const ok = await this.mainClientService.createProfile({ id: userId, userName });
+		if (!ok) {
+			throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
+		}
 	}
 }

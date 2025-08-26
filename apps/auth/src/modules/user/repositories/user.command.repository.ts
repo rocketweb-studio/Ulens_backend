@@ -8,6 +8,7 @@ import { UserDbInputDto } from "../dto/user-db-input.dto";
 import { ConfirmationCodeInputRepoDto } from "../dto/confirm-input-repo.dto";
 import { RecoveryCodeInputRepoDto } from "../dto/recovery-input-repo.dto";
 import { NewPasswordInputRepoDto } from "../dto/new-pass-input-repo.dto";
+import { UserGoogleDbInputDto } from "../dto/user-google-db-input.dto";
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
@@ -18,6 +19,13 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			data: userDto,
 		});
 		return UserWithConfirmationCode.mapToView(user);
+	}
+
+	async createGoogleUser(dto: UserGoogleDbInputDto): Promise<UserWithPassword> {
+		const user = await this.prisma.user.create({
+			data: dto,
+		});
+		return UserWithPassword.mapToView(user);
 	}
 
 	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
@@ -70,6 +78,21 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		if (result.count === 1) return true;
 
 		throw new BaseRpcException(400, "Invalid or expired password recovery code");
+	}
+
+	async setGoogleUserId(email: string, googleUserId: string): Promise<boolean> {
+		const result = await this.prisma.user.updateMany({
+			where: {
+				email,
+			},
+			data: {
+				googleUserId,
+			},
+		});
+
+		if (result.count === 1) return true;
+
+		throw new BaseRpcException(400, "Vailed attempt to login by Google");
 	}
 
 	async findUserByEmail(email: string): Promise<UserWithPassword | null> {

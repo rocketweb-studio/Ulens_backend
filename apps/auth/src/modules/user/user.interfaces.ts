@@ -6,6 +6,7 @@ import { ConfirmationCodeInputRepoDto } from "./dto/confirm-input-repo.dto";
 import { RecoveryCodeInputRepoDto } from "./dto/recovery-input-repo.dto";
 import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { UserGoogleDbInputDto } from "./dto/user-google-db-input.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -20,6 +21,7 @@ export abstract class IUserQueryRepository {
 
 export abstract class IUserCommandRepository {
 	abstract createUser(userDto: UserDbInputDto): Promise<UserWithConfirmationCode>;
+	abstract createGoogleUser(dto: UserGoogleDbInputDto): Promise<BaseUserView>;
 	abstract confirmEmail(dto: ConfirmCodeDto): Promise<boolean>;
 	abstract resendEmail(email: string, newConfirmationCodeBody: ConfirmationCodeInputRepoDto): Promise<string | null>;
 	abstract passwordRecovery(email: string, recoveryCodeBody: RecoveryCodeInputRepoDto): Promise<string | null>;
@@ -27,4 +29,5 @@ export abstract class IUserCommandRepository {
 	abstract findUserByEmail(email: string): Promise<UserWithPassword | null>;
 	abstract findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null>;
 	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null>;
+	abstract setGoogleUserId(email: string, googleUserId: string): Promise<boolean>;
 }

@@ -20,13 +20,13 @@ model User {
   email String  @unique
 	userName String @unique
   createdAt DateTime @default(now())
-  passwordHash String
+  passwordHash String?
   confirmationCode String? @unique
   confirmationCodeConfirmed Boolean @default(false)
 	confirmationCodeExpDate DateTime?
   recoveryCode String? @unique
   recoveryCodeExpDate DateTime?
-  googleUserId String? @unique
+  googleUserId String? 
   gitHubUserId String? @unique
 	deletedAt DateTime?
 

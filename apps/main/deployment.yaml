@@ -22,18 +22,18 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
-             - name: TCP_PORT
+             - name: MAIN_TCP_PORT
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-main-production-config-secret
-                   key: TCP_PORT
-             - name: POSTGRES_URL
+                   key: MAIN_TCP_PORT
+             - name: MAIN_POSTGRES_URL
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-main-production-config-secret
-                   key: POSTGRES_URL
-             - name: TCP_HOST
+                   key: MAIN_POSTGRES_URL
+             - name: MAIN_TCP_HOST
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-main-production-config-secret
-                   key: TCP_HOST
+                   key: MAIN_TCP_HOST

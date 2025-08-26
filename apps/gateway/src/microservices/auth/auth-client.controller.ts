@@ -174,8 +174,6 @@ export class AuthClientController {
 			sameSite: "lax",
 		});
 
-		console.log(accessToken, refreshToken);
-
-		response.redirect(`${this.coreConfig.frontendUrl}/?profile=${accessToken}`);
+		response.redirect(`${this.coreConfig.frontendUrl}/?token=${accessToken}`);
 	}
 }

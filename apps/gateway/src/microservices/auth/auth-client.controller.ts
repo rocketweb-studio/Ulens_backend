@@ -175,7 +175,7 @@ export class AuthClientController {
 			sameSite: "lax",
 		});
 
-		//не отсылать через query параметры
+		// согласовать урл с фронтом
 		response.redirect(`${this.coreConfig.frontendUrl}`);
 	}
 
@@ -197,8 +197,8 @@ export class AuthClientController {
 			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
 			sameSite: "lax",
 		});
-		// console.log("CALLBACK GITHUB");
-		//не отсылать через query параметры
+
+		// согласовать урл с фронтом
 		response.redirect(`${this.coreConfig.frontendUrl}`);
 	}
 }

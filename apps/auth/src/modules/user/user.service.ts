@@ -8,6 +8,7 @@ import {
 	EmailDto,
 	BaseUserView,
 	RegistrationGoogleOutputDto,
+	CreateOauthUserDto,
 } from "@libs/contracts/index";
 import { IUserCommandRepository } from "./user.interfaces";
 import * as bcrypt from "bcrypt";
@@ -27,8 +28,8 @@ import { RecoveryCodeInputRepoDto } from "./dto/recovery-input-repo.dto";
 import { CodeOutputDto } from "./dto/code-output.dto";
 import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
 import { BlacklistService } from "../blacklist/blacklist.service";
-import { UserGoogleDbInputDto } from "./dto/user-google-db-input.dto";
-import { GoogleRegisterInputDto } from "./dto/google-register-input.dto";
+import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
+import { Oauth2Providers } from "@libs/constants/auth-messages";
 
 @Injectable()
 export class UserService {
@@ -71,26 +72,28 @@ export class UserService {
 		};
 	}
 
-	async registrationGoogle(dto: GoogleRegisterInputDto): Promise<RegistrationGoogleOutputDto> {
-		const { email, googleUserId, userName } = dto.registerDto;
+	async registrationOauth2(dto: CreateOauthUserDto, metadata: any, provider: Oauth2Providers): Promise<RegistrationGoogleOutputDto> {
+		const { email, providerProfileId, userName } = dto;
 		let createdUser: BaseUserView | null = null;
+
+		const providerField = provider === Oauth2Providers.GOOGLE ? "googleUserId" : "githubUserId";
 
 		const existedUser = await this.userCommandRepository.findUserByEmail(email);
 
-		if (existedUser && !existedUser.googleUserId) {
-			await this.userCommandRepository.setGoogleUserId(email, googleUserId);
+		if (existedUser && !existedUser[providerField]) {
+			await this.userCommandRepository.setOauthUserId(email, { [providerField]: providerProfileId });
 		}
 
 		if (!existedUser) {
-			const newUser: UserGoogleDbInputDto = {
+			const newUser: UserOauthDbInputDto = {
 				id: randomUUID(),
 				userName,
 				email,
-				googleUserId,
+				[providerField]: providerProfileId,
 				confirmationCodeConfirmed: true,
 			};
 
-			createdUser = await this.userCommandRepository.createGoogleUser(newUser);
+			createdUser = await this.userCommandRepository.createOauth2User(newUser);
 		}
 
 		const finalUser: any = existedUser ?? createdUser;
@@ -113,7 +116,7 @@ export class UserService {
 
 		const payloadFromJwt = this.jwtService.decode(refreshToken);
 
-		await this.sessionService.createSession(finalUser.id, deviceId, dto.metadata, payloadFromJwt);
+		await this.sessionService.createSession(finalUser.id, deviceId, metadata, payloadFromJwt);
 		//! ----
 
 		return {

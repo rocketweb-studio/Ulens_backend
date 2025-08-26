@@ -2,7 +2,7 @@ export enum AuthMessages {
 	GET_USERS = "get_users",
 	CREATE_USER = "create_user",
 	REGISTRATION = "registration",
-	REGISTRATION_GOOGLE = "registration_google",
+	REGISTRATION_OAUTH2 = "registration_oauth2",
 	EMAIL_CONFIRMATION = "email_confirmation",
 	RESEND_EMAIL = "resend_email",
 	PASSWORD_RECOVERY = "password_recovery",
@@ -13,4 +13,9 @@ export enum AuthMessages {
 	REFRESH_TOKENS = "refresh_tokens",
 	LOGOUT = "logout",
 	ME = "me",
+}
+
+export enum Oauth2Providers {
+	GOOGLE = "google",
+	GITHUB = "github",
 }

@@ -10,6 +10,7 @@ import { MainClientModule } from "@gateway/microservices/main/main-client.module
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 import { CoreEnvConfig } from "@gateway/core/core.config";
+import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
 
 @Module({
 	imports: [
@@ -44,6 +45,6 @@ import { CoreEnvConfig } from "@gateway/core/core.config";
 		MainClientModule,
 	],
 	controllers: [AuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, CoreEnvConfig],
+	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig],
 })
 export class AuthClientModule {}

@@ -7,12 +7,12 @@ import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
 import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
 import { LoginInputDto } from "./dto/login-input.dto";
-import { LoginOutputDto } from "./dto/login-output.dto";
+import { LoginOutputDto, RefreshOutputDto } from "./dto/login-output.dto";
 import { RegistrationOutputDto } from "./dto/registration-output.dto";
 import { CodeOutputDto } from "./dto/code-output.dto";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
 import { IUserQueryRepository } from "./user.interfaces";
-import { GoogleRegisterInputDto } from "./dto/google-register-input.dto";
+import { OauthInputDto } from "./dto/oauth-input.dto";
 
 @Controller()
 export class UserController {
@@ -26,9 +26,10 @@ export class UserController {
 		return this.userService.createUser(createUserDto);
 	}
 
-	@MessagePattern({ cmd: AuthMessages.REGISTRATION_GOOGLE })
-	async registrationGoogle(@Payload() dto: GoogleRegisterInputDto): Promise<RegistrationGoogleOutputDto> {
-		return this.userService.registrationGoogle(dto);
+	@MessagePattern({ cmd: AuthMessages.REGISTRATION_OAUTH2 })
+	async registrationOauth2(@Payload() dto: OauthInputDto): Promise<RegistrationGoogleOutputDto> {
+		const { registerDto, metadata, provider } = dto;
+		return this.userService.registrationOauth2(registerDto, metadata, provider);
 	}
 
 	/**
@@ -74,7 +75,7 @@ export class UserController {
 
 	@UseGuards(JwtRefreshAuthGuard)
 	@MessagePattern({ cmd: AuthMessages.REFRESH_TOKENS })
-	async refreshTokens(@Payload() dto: UserWithPayloadFromJwt): Promise<{ refreshToken: string; payloadForJwt: any }> {
+	async refreshTokens(@Payload() dto: UserWithPayloadFromJwt): Promise<RefreshOutputDto> {
 		const response = await this.userService.refreshTokens(dto);
 		return response;
 	}

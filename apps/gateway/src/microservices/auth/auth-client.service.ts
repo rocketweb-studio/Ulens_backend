@@ -9,10 +9,10 @@ import {
 	LoginDto,
 	SessionMetadataDto,
 	BaseUserView,
-	CreateGoogleUserDto,
+	CreateOauthUserDto,
 } from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
-import { AuthMessages } from "@libs/constants/auth-messages";
+import { AuthMessages, Oauth2Providers } from "@libs/constants/auth-messages";
 import { UnauthorizedRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { NotificationsClientService } from "../notifications/notifications-client.service";
 import { JwtService } from "@nestjs/jwt";
@@ -48,19 +48,14 @@ export class AuthClientService implements IAuthClientService {
 		return;
 	}
 
-	async registrationGoogle(registerDto: CreateGoogleUserDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }> {
-		const { id, userName, existedUser, refreshToken, payloadForJwt } = await firstValueFrom(
-			this.client.send({ cmd: AuthMessages.REGISTRATION_GOOGLE }, { registerDto, metadata }),
+	async registrationOauth2(registerDto: CreateOauthUserDto, metadata: SessionMetadataDto, provider: Oauth2Providers): Promise<{ refreshToken: string }> {
+		const { id, userName, existedUser, refreshToken } = await firstValueFrom(
+			this.client.send({ cmd: AuthMessages.REGISTRATION_OAUTH2 }, { registerDto, metadata, provider }),
 		);
 
 		if (!existedUser) await this.createProfileInMainService(userName, id);
 
-		const accessToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.authEnvConfig.accessTokenExpirationTime,
-			secret: this.authEnvConfig.accessTokenSecret,
-		});
-
-		return { accessToken, refreshToken };
+		return { refreshToken };
 	}
 
 	async emailConfirmation(confirmCodeDto: ConfirmCodeDto): Promise<void> {

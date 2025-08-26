@@ -27,7 +27,7 @@ model User {
   recoveryCode String? @unique
   recoveryCodeExpDate DateTime?
   googleUserId String? 
-  gitHubUserId String? @unique
+  githubUserId String? @unique
 	deletedAt DateTime?
 
   sessions Session[]  // обратная сторона связи

@@ -9,6 +9,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { MainClientModule } from "@gateway/microservices/main/main-client.module";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
+import { CoreEnvConfig } from "@gateway/core/core.config";
 
 @Module({
 	imports: [
@@ -43,6 +44,6 @@ import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 		MainClientModule,
 	],
 	controllers: [AuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy],
+	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, CoreEnvConfig],
 })
 export class AuthClientModule {}

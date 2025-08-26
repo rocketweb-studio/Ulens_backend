@@ -25,10 +25,26 @@ export class CoreEnvConfig {
 	@IsNotEmpty()
 	allowedOrigins: string;
 
+	@IsNotEmpty()
+	googleClientId: string;
+
+	@IsNotEmpty()
+	googleClientSecret: string;
+
+	@IsNotEmpty()
+	googleCallbackUrl: string;
+
+	@IsNotEmpty()
+	frontendUrl: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.applicationPort = this.configService.get<number>("GATEWAY_PORT");
 		this.allowedOrigins = this.configService.get<string>("ALLOWED_ORIGINS");
+		this.googleClientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
+		this.googleClientSecret = this.configService.get<string>("GOOGLE_CLIENT_SECRET");
+		this.googleCallbackUrl = this.configService.get<string>("GOOGLE_CALLBACK_URL");
+		this.frontendUrl = this.configService.get<string>("FRONTEND_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

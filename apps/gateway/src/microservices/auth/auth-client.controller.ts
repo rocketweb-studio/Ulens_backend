@@ -28,13 +28,16 @@ import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-vie
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import { Environments } from "../../core/core.config";
+import { CoreEnvConfig, Environments } from "../../core/core.config";
 import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
 
 @ApiTags(AuthRouterPaths.AUTH)
 @Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
-	constructor(private readonly authClientService: AuthClientService) {}
+	constructor(
+		private readonly authClientService: AuthClientService,
+		private readonly coreConfig: CoreEnvConfig,
+	) {}
 
 	@UseGuards(ThrottlerGuard)
 	@RegistrationSwagger()
@@ -173,6 +176,6 @@ export class AuthClientController {
 
 		console.log(accessToken, refreshToken);
 
-		response.redirect(`https://ulens.org/?profile=${accessToken}`);
+		response.redirect(`${this.coreConfig.frontendUrl}/?profile=${accessToken}`);
 	}
 }

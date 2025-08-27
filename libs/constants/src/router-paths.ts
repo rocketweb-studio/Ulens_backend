@@ -18,6 +18,8 @@ export enum AuthRouterPaths {
 	ME = "me",
 	GOOGLE_LOGIN = "google-login",
 	GOOGLE_CALLBACK = "google-callback",
+	GITHUB_LOGIN = "github-login",
+	GITHUB_CALLBACK = "github-callback",
 }
 
 export enum MainRouterPaths {

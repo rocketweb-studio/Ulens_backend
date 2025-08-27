@@ -37,6 +37,15 @@ export class CoreEnvConfig {
 	@IsNotEmpty()
 	frontendUrl: string;
 
+	@IsNotEmpty()
+	githubClientId: string;
+
+	@IsNotEmpty()
+	githubClientSecret: string;
+
+	@IsNotEmpty()
+	githubCallbackUrl: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.applicationPort = this.configService.get<number>("GATEWAY_PORT");
@@ -44,6 +53,9 @@ export class CoreEnvConfig {
 		this.googleClientId = this.configService.get<string>("GOOGLE_CLIENT_ID");
 		this.googleClientSecret = this.configService.get<string>("GOOGLE_CLIENT_SECRET");
 		this.googleCallbackUrl = this.configService.get<string>("GOOGLE_CALLBACK_URL");
+		this.githubClientId = this.configService.get<string>("GITHUB_CLIENT_ID");
+		this.githubClientSecret = this.configService.get<string>("GITHUB_CLIENT_SECRET");
+		this.githubCallbackUrl = this.configService.get<string>("GITHUB_CALLBACK_URL");
 		this.frontendUrl = this.configService.get<string>("FRONTEND_URL");
 
 		configValidationUtility.validateConfig(this);

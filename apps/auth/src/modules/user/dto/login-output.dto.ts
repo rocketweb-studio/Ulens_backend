@@ -7,3 +7,5 @@ export class LoginOutputDto {
 	refreshToken: string;
 	payloadForJwt: PayloadForJwtDto;
 }
+
+export class RefreshOutputDto extends LoginOutputDto {}

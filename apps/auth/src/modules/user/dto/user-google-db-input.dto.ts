@@ -1,7 +1,8 @@
-export class UserGoogleDbInputDto {
+export class UserOauthDbInputDto {
 	id: string;
 	userName: string;
-	googleUserId: string;
+	googleUserId?: string;
+	githubUserId?: string;
 	email: string;
 	confirmationCodeConfirmed: boolean;
 }

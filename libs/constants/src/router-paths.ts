@@ -25,3 +25,8 @@ export enum AuthRouterPaths {
 export enum MainRouterPaths {
 	MAIN = "main",
 }
+
+export enum ApiTagsNames {
+	AUTH = "Auth",
+	OAuth2 = "OAuth2",
+}

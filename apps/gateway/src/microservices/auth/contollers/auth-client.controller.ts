@@ -1,18 +1,8 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import {
-	CreateUserDto,
-	ConfirmCodeDto,
-	ResendEmailDto,
-	NewPasswordDto,
-	LoginDto,
-	AccessTokenDto,
-	BaseUserView,
-	EmailDto,
-	CreateOauthUserDto,
-} from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { HttpStatuses, AuthRouterPaths, Oauth2Providers } from "@libs/constants/index";
+import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
 import { LoginSwagger } from "@gateway/core/decorators/swagger/auth/login-swagger.decorator";
@@ -28,17 +18,12 @@ import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-vie
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import { CoreEnvConfig, Environments } from "../../core/core.config";
-import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
-import { GithubGuard } from "@gateway/core/guards/github/github.guard";
+import { Environments } from "../../../core/core.config";
 
-@ApiTags(AuthRouterPaths.AUTH)
+@ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
-	constructor(
-		private readonly authClientService: AuthClientService,
-		private readonly coreConfig: CoreEnvConfig,
-	) {}
+	constructor(private readonly authClientService: AuthClientService) {}
 
 	@UseGuards(ThrottlerGuard)
 	@RegistrationSwagger()
@@ -154,51 +139,5 @@ export class AuthClientController {
 	async getUsers(): Promise<BaseUserView[]> {
 		const users = await this.authClientService.getUsers();
 		return users;
-	}
-
-	@Get(AuthRouterPaths.GOOGLE_LOGIN)
-	@UseGuards(GoogleGuard)
-	async googleAuth() {}
-
-	@Get(AuthRouterPaths.GOOGLE_CALLBACK)
-	@HttpCode(HttpStatus.CREATED)
-	@UseGuards(GoogleGuard)
-	async googleAuthRedirect(@Req() request: Request, @Res() response: Response) {
-		const user = request.user as CreateOauthUserDto;
-		const userAgent = request.headers["user-agent"];
-		const metadata = getSessionMetadata(request, userAgent);
-
-		const { refreshToken } = await this.authClientService.registrationOauth2(user, metadata, Oauth2Providers.GOOGLE);
-		response.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
-			sameSite: "lax",
-		});
-
-		// согласовать урл с фронтом
-		response.redirect(`${this.coreConfig.frontendUrl}`);
-	}
-
-	@Get(AuthRouterPaths.GITHUB_LOGIN)
-	@UseGuards(GithubGuard)
-	async githubAuth() {}
-
-	@Get(AuthRouterPaths.GITHUB_CALLBACK)
-	@HttpCode(HttpStatus.CREATED)
-	@UseGuards(GithubGuard)
-	async githubAuthRedirect(@Req() request: Request, @Res() response: Response) {
-		const user = request.user as CreateOauthUserDto;
-		const userAgent = request.headers["user-agent"];
-		const metadata = getSessionMetadata(request, userAgent);
-
-		const { refreshToken } = await this.authClientService.registrationOauth2(user, metadata, Oauth2Providers.GITHUB);
-		response.cookie("refreshToken", refreshToken, {
-			httpOnly: true,
-			secure: process.env.NODE_ENV === Environments.PRODUCTION, // secure только в проде, а для тестов false
-			sameSite: "lax",
-		});
-
-		// согласовать урл с фронтом
-		response.redirect(`${this.coreConfig.frontendUrl}`);
 	}
 }

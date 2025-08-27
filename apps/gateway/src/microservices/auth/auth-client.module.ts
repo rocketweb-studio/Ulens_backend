@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
-import { AuthClientController } from "@gateway/microservices/auth/auth-client.controller";
+import { AuthClientController } from "@gateway/microservices/auth/contollers/auth-client.controller";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { Microservice } from "@libs/constants/microservices";
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
@@ -11,6 +11,8 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
+import { AuthClientOAuthGoogleController } from "./contollers/google.auth-client.controller";
+import { AuthClientOAuthGithubController } from "./contollers/github.auth-client.controller";
 
 @Module({
 	imports: [
@@ -44,7 +46,7 @@ import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
 		NotificationsClientModule,
 		MainClientModule,
 	],
-	controllers: [AuthClientController],
+	controllers: [AuthClientController, AuthClientOAuthGoogleController, AuthClientOAuthGithubController],
 	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig],
 })
 export class AuthClientModule {}

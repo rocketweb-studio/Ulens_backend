@@ -25,3 +25,8 @@ export enum AuthRouterPaths {
 export enum MainRouterPaths {
 	MAIN = "main",
 }
+
+export enum ApiTagsNames {
+	AUTH = "Auth",
+	GOOGLE_OAUTH2 = "Google-OAuth2",
+}

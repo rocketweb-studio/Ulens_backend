@@ -11,8 +11,8 @@ import {
 	EmailDto,
 	CreateOauthUserDto,
 } from "@libs/contracts/index";
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { HttpStatuses, AuthRouterPaths, Oauth2Providers } from "@libs/constants/index";
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { HttpStatuses, AuthRouterPaths, ApiTagsNames, Oauth2Providers } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
 import { LoginSwagger } from "@gateway/core/decorators/swagger/auth/login-swagger.decorator";
@@ -32,7 +32,7 @@ import { CoreEnvConfig, Environments } from "../../core/core.config";
 import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
 import { GithubGuard } from "@gateway/core/guards/github/github.guard";
 
-@ApiTags(AuthRouterPaths.AUTH)
+@ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
 export class AuthClientController {
 	constructor(
@@ -156,10 +156,12 @@ export class AuthClientController {
 		return users;
 	}
 
+	@ApiTags(ApiTagsNames.GOOGLE_OAUTH2)
 	@Get(AuthRouterPaths.GOOGLE_LOGIN)
 	@UseGuards(GoogleGuard)
 	async googleAuth() {}
 
+	@ApiExcludeEndpoint()
 	@Get(AuthRouterPaths.GOOGLE_CALLBACK)
 	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(GoogleGuard)

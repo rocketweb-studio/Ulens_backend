@@ -9,6 +9,7 @@ import {
 	BaseUserView,
 	RegistrationGoogleOutputDto,
 	CreateOauthUserDto,
+	SessionMetadataDto,
 } from "@libs/contracts/index";
 import { IUserCommandRepository } from "./user.interfaces";
 import * as bcrypt from "bcrypt";
@@ -102,22 +103,7 @@ export class UserService {
 			throw new BadRequestRpcException("Attempt to login by Google was failed");
 		}
 
-		//! ---эту логику вероятно позже можно будет выполнять в login, но нужно переписывать типизацию
-		const deviceId = randomUUID();
-		const payloadForJwt = {
-			userId: finalUser.id,
-			deviceId,
-		};
-
-		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
-			secret: this.userEnvConfig.refreshTokenSecret,
-		});
-
-		const payloadFromJwt = this.jwtService.decode(refreshToken);
-
-		await this.sessionService.createSession(finalUser.id, deviceId, metadata, payloadFromJwt);
-		//! ----
+		const { refreshToken, payloadForJwt } = await this.issueRefreshTokenAndCreateSession(finalUser.id, metadata);
 
 		return {
 			id: finalUser.id,
@@ -216,20 +202,7 @@ export class UserService {
 	}
 
 	async login(dto: LoginInputDto): Promise<LoginOutputDto> {
-		const deviceId = randomUUID();
-		const payloadForJwt = {
-			userId: dto.loginDto.id,
-			deviceId,
-		};
-
-		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
-			secret: this.userEnvConfig.refreshTokenSecret,
-		});
-
-		const payloadFromJwt = this.jwtService.decode(refreshToken);
-
-		await this.sessionService.createSession(dto.loginDto.id, deviceId, dto.metadata, payloadFromJwt);
+		const { refreshToken, payloadForJwt } = await this.issueRefreshTokenAndCreateSession(dto.loginDto.id, dto.metadata);
 
 		return { refreshToken, payloadForJwt };
 	}
@@ -272,5 +245,27 @@ export class UserService {
 	async logout(dto: UserWithPayloadFromJwt): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
+	}
+
+	private async issueRefreshTokenAndCreateSession(
+		userId: string,
+		metadata: SessionMetadataDto,
+	): Promise<{ refreshToken: string; payloadForJwt: { userId: string; deviceId: string } }> {
+		const deviceId = randomUUID();
+
+		const payloadForJwt = {
+			userId,
+			deviceId,
+		};
+
+		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
+			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
+			secret: this.userEnvConfig.refreshTokenSecret,
+		});
+
+		const payloadFromJwt = this.jwtService.decode(refreshToken); // string | object | null
+		await this.sessionService.createSession(userId, deviceId, metadata, payloadFromJwt);
+
+		return { refreshToken, payloadForJwt };
 	}
 }

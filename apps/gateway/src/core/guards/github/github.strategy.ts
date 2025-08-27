@@ -1,3 +1,4 @@
+import { CoreEnvConfig } from "@gateway/core/core.config";
 import { CreateOauthUserDto } from "@libs/contracts/auth-contracts/input/create-oauth-user.dto";
 import { Injectable } from "@nestjs/common";
 import { PassportStrategy } from "@nestjs/passport";
@@ -5,11 +6,12 @@ import { Strategy } from "passport-github2";
 
 @Injectable()
 export class GithubStrategy extends PassportStrategy(Strategy, "github") {
-	constructor() {
+	// biome-ignore lint/correctness/noUnusedPrivateClassMembers: <used in super>
+	constructor(private readonly coreConfig: CoreEnvConfig) {
 		super({
-			clientID: "Ov23lijbCaMf5jJMhn32",
-			clientSecret: "7c68ab25ad9583b90b7df0bafefdcb0b53ab9f20",
-			callbackURL: "http://localhost:4000/api/v1/auth/github-callback",
+			clientID: coreConfig.githubClientId,
+			clientSecret: coreConfig.githubClientSecret,
+			callbackURL: coreConfig.githubCallbackUrl,
 			scope: ["user:email"],
 		});
 	}

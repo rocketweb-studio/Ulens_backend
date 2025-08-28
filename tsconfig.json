@@ -43,6 +43,9 @@
       ],
       "@notifications/*": [
         "apps/notifications/src/*"
+      ],
+      "@files/*": [
+        "apps/files/src/*"
       ]
     }
   },
@@ -58,6 +61,9 @@
     },
     {
       "path": "./apps/notifications/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/files/tsconfig.app.json"
     },
     {
       "path": "./libs/constants/tsconfig.lib.json"

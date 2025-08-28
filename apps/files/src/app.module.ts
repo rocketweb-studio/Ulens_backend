@@ -1,10 +1,10 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@files/core/core.module";
 import { CoreEnvConfig } from "@files/core/core.config";
-import { StorageModule } from "@files/modules/storage/storage.module";
+import { FilesModule } from "./modules/files/files.module";
 
 @Module({
-	imports: [CoreModule, StorageModule],
+	imports: [CoreModule, FilesModule],
 	controllers: [],
 	providers: [],
 })

@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { StorageConfig } from "@files/modules/storage/storage.confg";
+import { StorageConfig } from "@files/core/storage/storage.confg";
 import { DeleteObjectCommand, DeleteObjectCommandInput, PutObjectCommand, PutObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
 
 @Injectable()

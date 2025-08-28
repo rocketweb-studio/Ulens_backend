@@ -97,6 +97,11 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: GITHUB_CALLBACK_URL
+             - name: FRONTEND_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FRONTEND_URL
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

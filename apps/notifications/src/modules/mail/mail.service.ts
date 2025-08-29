@@ -27,7 +27,7 @@ export class EmailService {
 				template.subject = "Registration Confirmation!";
 				break;
 			case MailPurpose.PASSWORD_RECOVERY:
-				template.html = buildPasswordRecoveryTemplate(code, this.mailConfig.frontendUrl);
+				template.html = buildPasswordRecoveryTemplate(code, email, this.mailConfig.frontendUrl);
 				template.subject = "Password Recovery!";
 				break;
 		}

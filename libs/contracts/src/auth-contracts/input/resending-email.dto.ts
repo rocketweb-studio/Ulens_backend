@@ -9,4 +9,10 @@ export class ResendEmailDto {
 	@IsEmail()
 	@IsString()
 	email: string;
+
+	@ApiProperty({
+		example: "123456",
+	})
+	@IsString()
+	recaptchaToken: string;
 }

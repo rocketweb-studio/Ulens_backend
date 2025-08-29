@@ -102,6 +102,11 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: FRONTEND_URL
+             - name: RECAPTCHA_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: RECAPTCHA_SECRET_KEY
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

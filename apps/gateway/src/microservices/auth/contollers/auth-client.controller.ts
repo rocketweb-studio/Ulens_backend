@@ -19,6 +19,7 @@ import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { Environments } from "../../../core/core.config";
+import { RecaptchaGuard } from "@gateway/core/guards/recaptcha.guard";
 
 @ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -53,6 +54,7 @@ export class AuthClientController {
 
 	@PassRecoverySwagger()
 	@Post(AuthRouterPaths.PASSWORD_RECOVERY)
+	@UseGuards(RecaptchaGuard)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async passwordRecovery(@Body() passwordRecoveryDto: ResendEmailDto): Promise<void> {
 		await this.authClientService.passwordRecovery(passwordRecoveryDto);

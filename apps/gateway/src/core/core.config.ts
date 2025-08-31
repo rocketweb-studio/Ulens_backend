@@ -46,6 +46,9 @@ export class CoreEnvConfig {
 	@IsNotEmpty()
 	githubCallbackUrl: string;
 
+	@IsNotEmpty()
+	recaptchaSecretKey: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.applicationPort = this.configService.get<number>("GATEWAY_PORT");
@@ -57,6 +60,7 @@ export class CoreEnvConfig {
 		this.githubClientSecret = this.configService.get<string>("GITHUB_CLIENT_SECRET");
 		this.githubCallbackUrl = this.configService.get<string>("GITHUB_CALLBACK_URL");
 		this.frontendUrl = this.configService.get<string>("FRONTEND_URL");
+		this.recaptchaSecretKey = this.configService.get<string>("RECAPTCHA_SECRET_KEY");
 
 		configValidationUtility.validateConfig(this);
 	}

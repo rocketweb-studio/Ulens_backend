@@ -1,23 +1,44 @@
+import { Controller, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
+import { StreamingServer } from "./streaming.server";
 import { StorageService } from "@files/core/storage/storage.service";
-import { Controller, HttpCode, HttpStatus, Post, UploadedFile, UseInterceptors } from "@nestjs/common";
-import { FileInterceptor } from "@nestjs/platform-express";
+import { FilesConfig } from "./files.config";
 
-@Controller("files")
-export class FilesController {
-	constructor(private readonly storageService: StorageService) {}
+@Controller()
+// Контроллер для файлового сервиса
+export class FilesController implements OnModuleInit, OnModuleDestroy {
+	private streamingServer: StreamingServer;
 
-	@Post("upload")
-	@HttpCode(HttpStatus.CREATED)
-	@UseInterceptors(FileInterceptor("file")) // 'file' — это имя поля в форме
-	async uploadFile(@UploadedFile() file: any): Promise<any> {
-		console.log("Uploaded file:", file);
-		const buffer = file.buffer;
-		const filename = `avatars/${file.originalname}`;
-		const mimeType = file.mimetype;
+	constructor(
+		private readonly storageService: StorageService,
+		private readonly filesConfig: FilesConfig,
+	) {}
 
-		await this.storageService.uploadFile(buffer, filename, mimeType);
-
-		// await this.storageService.uploadFile(buffer, filename, mimeType);
-		return { message: "File uploaded successfully", filename: file.originalname };
+	// Запускаем TCP сервер для streaming
+	async onModuleInit() {
+		// Запускаем TCP сервер для streaming
+		// todo попробовать использовать DI
+		this.streamingServer = new StreamingServer(this.storageService, this.filesConfig.streamingPort);
+		await this.streamingServer.start();
 	}
+
+	// Останавливаем TCP сервер для streaming
+	async onModuleDestroy() {
+		if (this.streamingServer) {
+			await this.streamingServer.stop();
+		}
+	}
+
+	//! этот метод нужен только если у нас есть своя БД у файлового сервиса
+	//! получается что если у нас нет свой БД то нам не нужно вообще TCP соединение у NestJs
+	// @MessagePattern(FilesMessages.FILE_UPLOAD)
+	// async initUpload(data: any) {
+	// 	console.log(`Initializing upload ${data}`);
+
+	// 	// await this.filesService.initUpload(data);
+
+	// 	return {
+	// 		success: true,
+	// 		uploadId: 1
+	// 	};
+	// }
 }

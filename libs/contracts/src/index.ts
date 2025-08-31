@@ -15,3 +15,5 @@ export * from "./auth-contracts/output/access-token.dto";
 export * from "./auth-contracts/output/registration-goole-view.dto";
 export * from "./main-contracts/input/create-profile.dto";
 export * from "./auth-contracts/auth.contract";
+export * from "./files-contracts/files.contract";
+export * from "./files-contracts/output/upload-file.output.dto";

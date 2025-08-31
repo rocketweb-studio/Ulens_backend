@@ -18,8 +18,8 @@ import { NotificationsClientService } from "../notifications/notifications-clien
 import { JwtService } from "@nestjs/jwt";
 import { AuthClientEnvConfig } from "./auth-client.config";
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
-import { MainClientService } from "../main/main-client.service";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { ProfileClientService } from "../main/profile/profile-client.service";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
@@ -28,13 +28,13 @@ export class AuthClientService implements IAuthClientService {
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
-		private readonly mainClientService: MainClientService,
+		private readonly profileClientService: ProfileClientService,
 	) {}
 
 	async registration(createUserDto: CreateUserDto): Promise<void> {
 		const { userId, userName, email, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
 
-		await this.createProfileInMainService(userName, userId);
+		await this.createProfileInMainService(userId, userName);
 
 		this.notificationsClientService
 			.sendRegistrationEmail({
@@ -148,7 +148,7 @@ export class AuthClientService implements IAuthClientService {
 	}
 
 	private async createProfileInMainService(userId: string, userName: string): Promise<void> {
-		const ok = await this.mainClientService.createProfile({ id: userId, userName });
+		const ok = await this.profileClientService.createProfile({ id: userId, userName });
 		if (!ok) {
 			throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
 		}

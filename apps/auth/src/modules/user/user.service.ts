@@ -64,7 +64,6 @@ export class UserService {
 		};
 
 		const createdUser = await this.userCommandRepository.createUser(newUser);
-
 		return {
 			userId: createdUser.id,
 			userName,

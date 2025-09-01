@@ -50,6 +50,8 @@
     "prisma:migrateDeploy:main": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/main/src/core/prisma/schema.prisma"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.876.0",
+    "@aws-sdk/lib-storage": "^3.879.0",
     "@nestjs-modules/mailer": "^2.0.2",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
@@ -65,13 +67,15 @@
     "date-fns": "^4.1.0",
     "device-detector-js": "^3.0.3",
     "geoip-lite": "^1.4.10",
+    "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
     "passport": "^0.7.0",
     "passport-github2": "^0.1.12",
     "passport-google-oauth20": "^2.0.0",
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
-    "rxjs": "^7.8.1"
+    "rxjs": "^7.8.1",
+    "sharp": "^0.34.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

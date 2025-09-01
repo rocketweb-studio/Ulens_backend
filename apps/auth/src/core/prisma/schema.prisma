@@ -16,7 +16,7 @@ datasource db {
 
 // Модель пользователя - таблица в БД
 model User {
-  id String @id @default(uuid())
+  id String @id
   email String  @unique
 	userName String @unique
   createdAt DateTime @default(now())

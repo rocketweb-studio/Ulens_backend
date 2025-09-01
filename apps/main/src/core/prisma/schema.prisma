@@ -17,7 +17,7 @@ datasource db {
 
 // Модель подписки - таблица в БД
 model Profile {
-  id String @id @default(uuid())
+  id String @id
   userName String @unique
   firstName String?
   lastName String?
@@ -26,6 +26,7 @@ model Profile {
   region String?
   dateOfBirth DateTime?
   aboutMe String?
+  avatarUrl String?
   createdAt DateTime @default(now())
 	deletedAt DateTime?
 

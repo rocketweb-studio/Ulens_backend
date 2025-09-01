@@ -17,9 +17,24 @@ export class MainClientEnvConfig {
 	})
 	mainClientPort: number;
 
+	@IsString()
+	@IsNotEmpty({
+		message: "Set Env variable ACCESS_SECRET_KEY, example: secret",
+	})
+	accessTokenSecret: string;
+
+	@IsString()
+	@IsNotEmpty({
+		message: "Set Env variable ACCESS_EXPIRES_IN, example: 1h",
+	})
+	accessTokenExpirationTime: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.mainClientHost = this.configService.get<string>("MAIN_TCP_HOST");
 		this.mainClientPort = this.configService.get<number>("MAIN_TCP_PORT");
+
+		this.accessTokenSecret = this.configService.get<string>("ACCESS_SECRET_KEY");
+		this.accessTokenExpirationTime = this.configService.get<string>("ACCESS_EXPIRES_IN");
 
 		configValidationUtility.validateConfig(this);
 	}

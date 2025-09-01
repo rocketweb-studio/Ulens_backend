@@ -1,6 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { StorageConfig } from "@files/core/storage/storage.confg";
-import { DeleteObjectCommand, DeleteObjectCommandInput, PutObjectCommand, PutObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
+import { DeleteObjectCommand, DeleteObjectCommandInput, S3Client } from "@aws-sdk/client-s3";
+import { Upload } from "@aws-sdk/lib-storage";
+import { PassThrough } from "stream";
 
 @Injectable()
 export class StorageService {
@@ -20,17 +22,44 @@ export class StorageService {
 		this.bucket = this.storageConfig.s3Bucket;
 	}
 
-	async uploadFile(buffer: Buffer, key: string, mimeType: string) {
+	// Загрузка файла через Buffer (старый метод, сейчас не используется)
+	// async uploadFile(buffer: Buffer, key: string, mimeType: string) {
+	// 	try {
+	// 		const command: PutObjectCommandInput = {
+	// 			Bucket: this.bucket,
+	// 			Key: key,
+	// 			Body: buffer,
+	// 			ContentType: mimeType,
+	// 		};
+	// 		await this.client.send(new PutObjectCommand(command));
+	// 	} catch (error) {
+	// 		throw new Error((error as Error).message);
+	// 	}
+	// }
+
+	// Загрузка файла через поток
+	async uploadFileStream(stream: NodeJS.ReadableStream, key: string, mimeType: string) {
 		try {
-			const command: PutObjectCommandInput = {
-				Bucket: this.bucket,
-				Key: key,
-				Body: buffer,
-				ContentType: mimeType,
-			};
-			await this.client.send(new PutObjectCommand(command));
+			const pass = new PassThrough();
+			stream.pipe(pass);
+
+			const upload = new Upload({
+				client: this.client,
+				params: {
+					Bucket: this.bucket,
+					Key: key,
+					Body: pass,
+					ContentType: mimeType,
+				},
+				queueSize: 4, // параллельные чанки
+				partSize: 5 * 1024 * 1024, // 5MB по дефолту
+				leavePartsOnError: false,
+			});
+
+			await upload.done();
 		} catch (error) {
-			throw new Error(error);
+			console.error("Upload stream error:", error);
+			throw new Error((error as Error).message);
 		}
 	}
 
@@ -42,7 +71,7 @@ export class StorageService {
 			};
 			await this.client.send(new DeleteObjectCommand(command));
 		} catch (error) {
-			throw new Error(error);
+			throw new Error((error as Error).message);
 		}
 	}
 }

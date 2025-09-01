@@ -1,25 +1,31 @@
 import { StorageService } from "@files/core/storage/storage.service";
 import * as net from "net";
 import * as sharp from "sharp";
+import { PassThrough } from "stream";
+import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 
-// Сервер для streaming
+// TCP сервер для потоковой загрузки файлов
 export class StreamingServer {
 	private server: net.Server;
 
 	constructor(
-		private readonly storageService: StorageService,
-		private readonly port: number,
+		private readonly storageService: StorageService, // сервис для загрузки файлов в S3
+		private readonly port: number, // порт, на котором будет слушать сервер
 	) {
 		this.port = port;
 	}
 
-	// Запускаем TCP сервер для streaming
+	// Запуск TCP сервера
 	async start(): Promise<void> {
 		return new Promise((resolve) => {
-			this.server = net.createServer((socket) => {
-				this.handleConnection(socket);
+			// создаём TCP сервер
+			this.server = net.createServer({ allowHalfOpen: true }, (socket) => {
+				socket.setNoDelay(true); // отключаем Nagle для минимизации задержек
+				socket.setKeepAlive(true); // держим соединение активным
+				this.handleConnection(socket); // обрабатываем новое подключение
 			});
 
+			// сервер начинает слушать указанный порт
 			this.server.listen(this.port, () => {
 				console.log(`Streaming server listening on port ${this.port}`);
 				resolve();
@@ -27,7 +33,7 @@ export class StreamingServer {
 		});
 	}
 
-	// Останавливаем TCP сервер для streaming
+	// Остановка TCP сервера
 	async stop(): Promise<void> {
 		return new Promise((resolve) => {
 			if (this.server) {
@@ -41,118 +47,140 @@ export class StreamingServer {
 		});
 	}
 
-	// Обрабатываем соединение с клиентом
+	// Обработка нового TCP соединения
 	private handleConnection(socket: net.Socket) {
 		console.log("New streaming connection established");
 
 		let filename: string | null = null;
-		let expectedSize: number | null = null;
 		let headerReceived = false;
-		let fileBuffer = Buffer.alloc(0);
-		let isProcessing = false;
 
-		// Обрабатываем данные от клиента
+		// Первый пакет от клиента всегда содержит заголовок (filename, size)
 		socket.on("data", async (data) => {
-			console.log(`Received chunk: ${data.length} bytes`);
-
-			// Если хочешь видеть прогресс:
-			console.log(`Progress: ${fileBuffer.length}/${expectedSize ?? "?"} bytes`);
 			try {
 				if (!headerReceived) {
-					// Читаем заголовок с filename и размером
 					const dataStr = data.toString();
 					const newlineIndex = dataStr.indexOf("\n");
 
-					// Если заголовок найден
+					// ждём перевод строки — конец JSON-заголовка
 					if (newlineIndex !== -1) {
 						const headerStr = dataStr.substring(0, newlineIndex);
 						const header = JSON.parse(headerStr);
 						filename = header.filename;
-						expectedSize = header.size;
+						const size: number | undefined = header.size;
 						headerReceived = true;
 
-						console.log(`Starting stream for upload ${filename}, expected size: ${expectedSize}`);
+						console.log(`Starting stream for upload ${filename}`);
 
-						// Обрабатываем оставшиеся данные после заголовка
+						// Остаток данных после заголовка (первые байты файла)
 						const remainingData = data.slice(newlineIndex + 1);
+
+						// Передаём дальше на обработку файла
 						if (remainingData.length > 0) {
-							fileBuffer = Buffer.concat([fileBuffer, remainingData]);
+							//@ts-expect-error
+							await this.processStream(socket, filename, size, remainingData);
+						} else {
+							//@ts-expect-error
+							await this.processStream(socket, filename, size);
 						}
 					}
-				} else {
-					// Накапливаем данные файла в буфер
-					fileBuffer = Buffer.concat([fileBuffer, data]);
 				}
-
-				// Проверяем, получили ли мы весь файл
-				if (headerReceived && expectedSize && fileBuffer.length >= expectedSize && !isProcessing) {
-					isProcessing = true;
-					console.log(`File completely received: ${fileBuffer.length}/${expectedSize} bytes`);
-					//@ts-expect-error
-					await this.processFile(socket, filename, fileBuffer.slice(0, expectedSize));
-				}
-			} catch (error) {
-				console.error("Error processing stream data:", error);
-				if (!socket.destroyed && socket.writable) {
-					socket.write(JSON.stringify({ error: error.message }));
-					socket.end();
-				}
+			} catch (err) {
+				console.error("Error parsing header:", err);
+				// отправляем клиенту ошибку, если заголовок некорректный
+				socket.end(`${JSON.stringify({ error: "Invalid header" })}\n`);
 			}
 		});
 
-		socket.on("end", async () => {
-			// Обрабатываем файл, если он еще не был обработан
-			if (!isProcessing && filename && fileBuffer.length > 0) {
-				isProcessing = true;
-				console.log(`Stream ended for upload ${filename}, received ${fileBuffer.length} bytes`);
-				await this.processFile(socket, filename, fileBuffer);
-			}
+		socket.on("error", (err) => {
+			console.error("Socket error:", err);
 		});
 
-		// Обрабатываем ошибку соединения с клиентом
-		socket.on("error", async (error) => {
-			console.error("Socket error:", error);
-			if (filename) {
-				console.log("Error cleaning up upload");
-			}
-		});
-
-		// Обрабатываем закрытие соединения с клиентом
 		socket.on("close", () => {
 			console.log("Streaming connection closed");
 		});
 	}
 
-	// Обрабатываем файл, сжимаем его и загружаем в S3, возвращаем результат клиенту
-	private async processFile(socket: net.Socket, filename: string, fileBuffer: Buffer) {
+	// Обработка потока файла после получения заголовка
+	private async processStream(socket: net.Socket, filename: string, expectedSize?: number, firstChunk?: Buffer) {
 		try {
-			console.log("Processing file with Sharp...");
-			const image = await sharp(fileBuffer).resize(512, 512).webp().toBuffer();
-			await this.storageService.uploadFile(image, filename, "image/webp");
+			console.log(`[PROCESS] Start processing file stream: ${filename}`);
 
-			const result = {
+			// Sharp-трансформер: ресайз до 512x512 и конвертация в .webp
+			const transformer = sharp()
+				.resize(512, 512)
+				.webp()
+				.on("info", (info) => {
+					console.log(`[SHARP] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+				})
+				.on("error", (err) => {
+					console.error("[SHARP] Error:", err);
+				});
+
+			// PassThrough — прокси-поток для записи байтов файла
+			const passThrough = new PassThrough();
+			let received = 0;
+
+			// Если остались данные после заголовка — пишем их первыми
+			if (firstChunk && firstChunk.length > 0) {
+				console.log(`[STREAM] Writing first chunk (${firstChunk.length} bytes)`);
+				passThrough.write(firstChunk);
+				received += firstChunk.length;
+			}
+
+			// Приём бинарных данных из сокета
+			socket.on("data", (chunk) => {
+				console.log(`[STREAM] Received chunk (${chunk.length} bytes)`);
+				received += chunk.length;
+				console.log(`[STREAM] Total received so far: ${received} bytes`);
+
+				passThrough.write(chunk);
+
+				// Если знаем размер файла и получили все данные → закрываем поток
+				if (expectedSize && received >= expectedSize) {
+					console.log("[STREAM] Expected size reached, ending passThrough");
+					passThrough.end();
+				}
+			});
+
+			// Клиент закрыл соединение → закрываем поток
+			socket.on("end", () => {
+				console.log("[SOCKET] Socket stream ended, closing passThrough");
+				passThrough.end();
+			});
+
+			socket.on("close", () => {
+				console.log("[SOCKET] Socket closed, ending passThrough");
+				passThrough.end();
+			});
+
+			socket.on("error", (err) => {
+				console.error("[SOCKET] Socket error:", err);
+				passThrough.destroy(err);
+			});
+
+			// Передаём поток в S3 (через Sharp-трансформацию)
+			console.log("[UPLOAD] Starting upload to S3...");
+			await this.storageService.uploadFileStream(passThrough.pipe(transformer), filename, "image/webp");
+			console.log("[UPLOAD] Upload finished successfully!");
+
+			// Формируем успешный ответ клиенту
+			const result: UploadFileOutputDto = {
 				success: true,
-				filename: filename,
-				fileSize: fileBuffer.length,
+				filename,
 				message: "File uploaded successfully",
 			};
 
-			console.log("Sending response:", result);
-
 			if (!socket.destroyed && socket.writable) {
-				// biome-ignore lint/style/useTemplate: <explanation>
-				socket.write(JSON.stringify(result) + "\n", () => {
-					// Не закрываем соединение - пусть клиент сам закроет
-				});
-			} else {
-				console.log("Socket already closed, cannot send response");
+				console.log("[SOCKET] Sending success response to client");
+				socket.end(`${JSON.stringify(result)}\n`);
 			}
 		} catch (error) {
-			console.error("Error processing image:", error);
+			console.error("[PROCESS] Error processing stream:", error);
 
+			// Отправляем клиенту ошибку
 			if (!socket.destroyed && socket.writable) {
-				// biome-ignore lint/style/useTemplate: <explanation>
-				socket.write(JSON.stringify({ error: error.message }) + "\n");
+				console.log("[SOCKET] Sending error response to client");
+				socket.end(`${JSON.stringify({ error: (error as Error).message })}\n`);
 			}
 		}
 	}

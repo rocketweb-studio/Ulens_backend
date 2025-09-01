@@ -208,7 +208,7 @@ export class UserService {
 
 	async validateUser(payload: LoginDto): Promise<any> {
 		const user = await this.userCommandRepository.findUserByEmail(payload.email);
-		if (!user) {
+		if (!user || !user.passwordHash) {
 			return null;
 		}
 

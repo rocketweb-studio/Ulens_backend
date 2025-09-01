@@ -58,7 +58,7 @@ export class FilesClientService implements IFilesClientService {
 				const header = JSON.stringify({ filename, size: fileBuffer.length }) + "\n";
 				// отправляем заголовок с именем файла и размером
 				socket.write(header);
-				socket.write(fileBuffer);
+				socket.end(fileBuffer);
 			});
 
 			// событие при получении данных от файлового сервиса

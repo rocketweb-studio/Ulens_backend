@@ -6,6 +6,7 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
+import { UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class ProfileClientService {
@@ -20,7 +21,9 @@ export class ProfileClientService {
 		// todo транзакция?
 		//----------------------------
 		const fileResult = await this.filesClientService.uploadFile(file, filename);
-
+		if (!fileResult.success) {
+			throw new UnexpectedErrorRpcException("Failed to upload avatar");
+		}
 		await firstValueFrom(this.client.send({ cmd: MainMessages.AVATAR_UPLOAD }, { filename, userId }));
 		//----------------------------
 		return fileResult;

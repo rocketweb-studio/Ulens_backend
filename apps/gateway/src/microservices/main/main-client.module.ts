@@ -4,7 +4,6 @@ import { MainClientEnvConfig } from "@gateway/microservices/main/main-client.con
 import { Microservice } from "@libs/constants/microservices";
 import { JwtModule } from "@nestjs/jwt";
 import { FilesClientModule } from "../files/files-client.module";
-import { PostsClientController } from "./posts/posts-client.controller";
 import { PostsClientService } from "./posts/posts-client.service";
 @Module({
 	imports: [
@@ -31,7 +30,7 @@ import { PostsClientService } from "./posts/posts-client.service";
 		}),
 		FilesClientModule,
 	],
-	controllers: [PostsClientController],
+	controllers: [],
 	providers: [MainClientEnvConfig, PostsClientService],
 	exports: [],
 })

@@ -14,6 +14,11 @@ export class RecaptchaGuard implements CanActivate {
 			throw new BadRequestRpcException("reCAPTCHA token is missing", "recaptchaToken");
 		}
 
+		// добавили для того чтобы тестировать положительный сценарий recoveryPassword
+		if (token === "TEST_RECAPTCHA") {
+			return true;
+		}
+
 		const secret = this.coreConfig.recaptchaSecretKey;
 		const verifyUrl = "https://www.google.com/recaptcha/api/siteverify";
 

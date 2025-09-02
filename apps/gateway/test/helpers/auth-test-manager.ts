@@ -2,7 +2,7 @@ import { HttpStatus, INestApplication } from "@nestjs/common";
 import * as request from "supertest";
 import { AuthRouterPaths, RouterPrefix } from "@libs/constants/index";
 import type { Response } from "supertest";
-import { LoginDto, NewPasswordDto } from "@libs/contracts/index";
+import { LoginDto, NewPasswordDto, RecoveryPasswordDto } from "@libs/contracts/index";
 
 export class AuthTestManager {
 	private agent: ReturnType<typeof request.agent>;
@@ -18,6 +18,9 @@ export class AuthTestManager {
 		const req = request(server).post(url).send(payload);
 
 		const res = expectedBody !== undefined ? await req.expect(status, expectedBody) : await req.expect(status);
+
+		// const res = await request(server).post(url).send(payload).expect(status);
+		// console.log('Response--->', res.body);
 
 		return res.body;
 	}
@@ -40,11 +43,11 @@ export class AuthTestManager {
 		return res.body;
 	}
 
-	async passwordRecovery(email: string, status: HttpStatus): Promise<Response> {
+	async passwordRecovery(dto: RecoveryPasswordDto, status: HttpStatus): Promise<Response> {
 		const server = this.app.getHttpServer();
 		const url = `/${RouterPrefix.API_V1}/${AuthRouterPaths.AUTH}/${AuthRouterPaths.PASSWORD_RECOVERY}`;
 
-		const res = await request(server).post(url).send({ email }).expect(status);
+		const res = await request(server).post(url).send(dto).expect(status);
 
 		return res.body;
 	}

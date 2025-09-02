@@ -91,11 +91,11 @@ describe("AuthController", () => {
 		});
 
 		it("- POST failed password-recovery with incorrect email", async () => {
-			await authTestManager.passwordRecovery("incorrect.email.com", 400);
+			await authTestManager.passwordRecovery({ email: "incorrect.email.com", recaptchaToken: "TEST_RECAPTCHA" }, 400);
 		});
 
 		it("- POST successed password-recovery with correct email", async () => {
-			await authTestManager.passwordRecovery(email, 204);
+			await authTestManager.passwordRecovery({ email, recaptchaToken: "TEST_RECAPTCHA" }, 204);
 
 			const user = await prismaAuth.user.findUnique({ where: { email } });
 			expect(user).toBeTruthy();

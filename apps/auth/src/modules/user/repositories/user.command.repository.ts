@@ -122,7 +122,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async findUserByEmail(email: string): Promise<UserWithPassword | null> {
 		const user = await this.prisma.user.findUnique({
-			where: { email },
+			where: { email, deletedAt: null },
 			include: {
 				profile: true,
 			},
@@ -134,7 +134,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null> {
 		const user = await this.prisma.user.findFirst({
-			where: { OR: [{ email }, { profile: { userName } }] },
+			where: { OR: [{ email }, { profile: { userName } }], deletedAt: null },
 		});
 		if (!user) return null;
 		const field = user.email === email ? "email" : "userName";
@@ -147,6 +147,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			where: {
 				recoveryCode: recoveryCode,
 				recoveryCodeExpDate: { gte: new Date() },
+				deletedAt: null,
 			},
 			include: {
 				profile: true,
@@ -158,53 +159,12 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 	}
 
 	async deleteNotConfirmedUsers(): Promise<void> {
-		const users = await this.prisma.user.findMany({
+		const { count } = await this.prisma.user.deleteMany({
 			where: {
 				confirmationCodeConfirmed: false,
 			},
-			include: {
-				profile: true,
-				sessions: true,
-			},
 		});
 
-		const now = new Date();
-
-		const operations = users.map((user) =>
-			this.prisma.user.update({
-				where: {
-					id: user.id,
-					confirmationCodeConfirmed: false,
-				},
-				data: {
-					deletedAt: now,
-					profile: user.profile
-						? {
-								update: {
-									deletedAt: now,
-								},
-							}
-						: undefined,
-					sessions:
-						user.sessions.length > 0
-							? {
-									updateMany: {
-										where: {
-											deletedAt: null,
-										},
-										data: {
-											deletedAt: now,
-										},
-									},
-								}
-							: undefined,
-				},
-			}),
-		);
-
-		await this.prisma.$transaction(operations);
-
-		const deletedIds = users.map((user) => user.id);
-		console.log(`Deleted not confirmed users: [${deletedIds.join(", ")}]`);
+		console.log(`Deleted not confirmed users: [${count}]`);
 	}
 }

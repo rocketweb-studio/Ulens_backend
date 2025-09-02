@@ -13,6 +13,7 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		const user = await this.prisma.user.findFirst({
 			where: {
 				id: id,
+				deletedAt: null,
 			},
 			include: {
 				profile: true,
@@ -26,6 +27,7 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		const user = await this.prisma.user.findFirst({
 			where: {
 				id: dto.userId,
+				deletedAt: null,
 			},
 			include: {
 				profile: true,
@@ -36,6 +38,9 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 
 	async getUsers(): Promise<BaseUserView[]> {
 		const users = await this.prisma.user.findMany({
+			where: {
+				deletedAt: null,
+			},
 			include: {
 				profile: true,
 			},

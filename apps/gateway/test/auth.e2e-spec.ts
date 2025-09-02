@@ -1,13 +1,10 @@
 import { initSettings } from "./helpers/init-settings";
 import { AuthTestManager } from "./helpers/auth-test-manager";
-import { MainTestManager } from "./helpers/main-test-manager";
-import { getAuthPrisma } from "./helpers/get-auth-prisma";
 import { randomUUID } from "crypto";
+import { getPrismaClient } from "./helpers/get-prisma";
 
 describe("AuthController", () => {
 	let authTestManager: AuthTestManager;
-	let mainTestManager: MainTestManager;
-	let prismaAuth: ReturnType<typeof getAuthPrisma>;
 
 	// переменные используемые во время тестов
 	let confirmationCode: string;
@@ -19,19 +16,24 @@ describe("AuthController", () => {
 	let passwordHash: string;
 	let accessToken: string;
 	let newAccessToken: string;
+	let prismaAuth: any;
 
 	beforeAll(async () => {
 		const result = await initSettings();
 		authTestManager = result.authTestManger;
-		mainTestManager = result.mainTestManager;
 
-		prismaAuth = getAuthPrisma(); // используем для прямого обращения к тестовой БД во время выполнения тестов
-		await prismaAuth.$connect(); // подключаемся к БД перед началом выполнения тестов
+		prismaAuth = getPrismaClient("auth");
+		await prismaAuth.$connect();
 	});
 
 	afterAll(async () => {
-		await Promise.all([authTestManager.clearDatabase(), mainTestManager.clearDatabase()]);
-		await prismaAuth.$disconnect(); // отключаемся от БД после выполнения тестов
+		await prismaAuth.session.deleteMany();
+		await prismaAuth.tokensBlacklist.deleteMany();
+		await prismaAuth.profile.deleteMany();
+		await prismaAuth.user.deleteMany();
+		await prismaAuth.$disconnect();
+		// await Promise.all([authTestManager.clearDatabase(), mainTestManager.clearDatabase()]);
+		// await prismaAuth.$disconnect(); // отключаемся от БД после выполнения тестов
 	});
 
 	describe("RegistrationFlow", () => {

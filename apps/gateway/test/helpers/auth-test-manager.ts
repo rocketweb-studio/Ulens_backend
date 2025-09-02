@@ -1,6 +1,6 @@
 import { HttpStatus, INestApplication } from "@nestjs/common";
 import * as request from "supertest";
-import { AuthMessages, AuthRouterPaths, Microservice, RouterPrefix } from "@libs/constants/index";
+import { AuthRouterPaths, RouterPrefix } from "@libs/constants/index";
 import type { Response } from "supertest";
 import { LoginDto, NewPasswordDto } from "@libs/contracts/index";
 
@@ -99,10 +99,5 @@ export class AuthTestManager {
 		const res = await this.agent.post(url).send().expect(status); // используем agent для работы с куками в тестах
 
 		return res.body;
-	}
-
-	clearDatabase() {
-		const client = this.app.get(Microservice.AUTH);
-		return client.send(AuthMessages.CLEAR_AUTH_DATABASE, {}).toPromise();
 	}
 }

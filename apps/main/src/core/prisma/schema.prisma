@@ -16,19 +16,12 @@ datasource db {
 
 
 // Модель подписки - таблица в БД
-model Profile {
-  id String @id
-  userName String @unique
-  firstName String?
-  lastName String?
-  city String?
-  country String?
-  region String?
-  dateOfBirth DateTime?
-  aboutMe String?
-  avatarUrl String?
+model Post {
+  id String @id  @default(uuid())
+  userId String
+  description String
   createdAt DateTime @default(now())
-	deletedAt DateTime?
+  deletedAt DateTime?
 
-  @@map("profiles")
+  @@map("posts")
 }

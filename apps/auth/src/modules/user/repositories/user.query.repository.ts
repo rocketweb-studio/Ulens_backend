@@ -14,6 +14,9 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			where: {
 				id: id,
 			},
+			include: {
+				profile: true,
+			},
 		});
 
 		return user ? BaseUserView.mapToView(user) : null;
@@ -24,12 +27,19 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			where: {
 				id: dto.userId,
 			},
+			include: {
+				profile: true,
+			},
 		});
 		return MeUserViewDto.mapToView(user);
 	}
 
 	async getUsers(): Promise<BaseUserView[]> {
-		const users = await this.prisma.user.findMany();
+		const users = await this.prisma.user.findMany({
+			include: {
+				profile: true,
+			},
+		});
 		return users.map((user) => BaseUserView.mapToView(user));
 	}
 }

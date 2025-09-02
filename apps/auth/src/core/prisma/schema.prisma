@@ -16,9 +16,8 @@ datasource db {
 
 // Модель пользователя - таблица в БД
 model User {
-  id String @id
+  id String @id @default(uuid())
   email String  @unique
-	userName String @unique
   createdAt DateTime @default(now())
   passwordHash String?
   confirmationCode String? @unique
@@ -31,6 +30,8 @@ model User {
 	deletedAt DateTime?
 
   sessions Session[]  // обратная сторона связи
+	profile Profile?
+
   @@map("users")  
 }
 
@@ -53,7 +54,6 @@ model Session {
   deletedAt DateTime?
 	createdAt DateTime @default(now())
 
-
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
   @@map("sessions")
 }
@@ -65,4 +65,23 @@ model TokensBlacklist {
   createdAt DateTime @default(now())
 	expiredAt DateTime
   @@map("blacklist")
+}
+
+model Profile {
+  id String @id @default(uuid())
+  userId String @unique
+  userName String @unique
+  firstName String?
+  lastName String?
+  city String?
+  country String?
+  region String?
+  dateOfBirth DateTime?
+  aboutMe String?
+  createdAt DateTime @default(now())
+	deletedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
 }

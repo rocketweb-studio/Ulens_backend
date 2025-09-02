@@ -14,16 +14,36 @@ import { UserOauthDbInputDto } from "../dto/user-google-db-input.dto";
 export class PrismaUserCommandRepository implements IUserCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async createUser(userDto: UserDbInputDto): Promise<UserWithConfirmationCode> {
+	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserWithConfirmationCode> {
 		const user = await this.prisma.user.create({
-			data: userDto,
+			data: {
+				passwordHash: userDto.passwordHash,
+				email: userDto.email,
+				confirmationCode: userDto.confirmationCode,
+				confirmationCodeExpDate: userDto.confirmationCodeExpDate,
+				confirmationCodeConfirmed: userDto.confirmationCodeConfirmed,
+
+				profile: {
+					create: {
+						userName: userDto.userName,
+					},
+				},
+			},
 		});
 		return UserWithConfirmationCode.mapToView(user);
 	}
 
-	async createOauth2User(dto: UserOauthDbInputDto): Promise<UserWithPassword> {
+	async createOauth2UserAndProfile(dto: UserOauthDbInputDto): Promise<UserWithPassword> {
+		const { userName, ...rest } = dto;
 		const user = await this.prisma.user.create({
-			data: dto,
+			data: {
+				...rest,
+				profile: {
+					create: {
+						userName: userName,
+					},
+				},
+			},
 		});
 		return UserWithPassword.mapToView(user);
 	}
@@ -104,7 +124,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null> {
 		const user = await this.prisma.user.findFirst({
-			where: { OR: [{ email }, { userName }] },
+			where: { OR: [{ email }, { profile: { userName } }] },
 		});
 		if (!user) return null;
 		const field = user.email === email ? "email" : "userName";

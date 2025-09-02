@@ -13,7 +13,7 @@ export class MeUserViewDto {
 	static mapToView(model: any): MeUserViewDto {
 		return {
 			userId: model.id,
-			userName: model.userName,
+			userName: model.profile.userName,
 			email: model.email,
 		};
 	}

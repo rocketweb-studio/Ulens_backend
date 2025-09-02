@@ -31,6 +31,7 @@ import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
 import { BlacklistService } from "../blacklist/blacklist.service";
 import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
 import { Oauth2Providers } from "@libs/constants/auth-messages";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class UserService {
@@ -237,6 +238,12 @@ export class UserService {
 	async logout(dto: UserWithPayloadFromJwt): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteNotConfirmedUsers() {
+		console.log("deleteNotConfirmedUsers");
+		await this.userCommandRepository.deleteNotConfirmedUsers();
 	}
 
 	private async issueRefreshTokenAndCreateSession(

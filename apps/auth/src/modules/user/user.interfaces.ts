@@ -30,4 +30,5 @@ export abstract class IUserCommandRepository {
 	abstract findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null>;
 	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null>;
 	abstract setOauthUserId(email: string, payload: { [key: string]: string }): Promise<boolean>;
+	abstract deleteNotConfirmedUsers(): Promise<void>;
 }

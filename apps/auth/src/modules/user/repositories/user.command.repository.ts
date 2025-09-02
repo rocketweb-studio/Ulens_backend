@@ -143,4 +143,50 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 		return UserWithPassword.mapToView(user);
 	}
+
+	async deleteNotConfirmedUsers(): Promise<void> {
+		const users = await this.prisma.user.findMany({
+			where: {
+				confirmationCodeConfirmed: false,
+			},
+			include: {
+				profile: true,
+				sessions: true,
+			},
+		});
+
+		const now = new Date();
+
+		for (const user of users) {
+			await this.prisma.user.update({
+				where: {
+					id: user.id,
+					confirmationCodeConfirmed: false,
+				},
+				data: {
+					deletedAt: now,
+					profile: user.profile
+						? {
+								update: {
+									deletedAt: now,
+								},
+							}
+						: undefined,
+					sessions: user.sessions
+						? {
+								updateMany: {
+									where: {
+										deletedAt: null,
+									},
+									data: {
+										deletedAt: now,
+									},
+								},
+							}
+						: undefined,
+				},
+			});
+			console.log(`User deleted: ${user.id}`);
+		}
+	}
 }

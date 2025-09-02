@@ -1,8 +1,7 @@
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { UUID } from "crypto";
-import { ISessionCommandRepository } from "../session.interfaces";
-import { SessionInputRepoDto } from "../dto/session-input-repo.dto";
+import { ISessionCommandRepository } from "@auth/modules/session/session.interfaces";
+import { SessionInputRepoDto } from "@auth/modules/session/dto/session-repo.input.dto";
 
 @Injectable()
 export class PrismaSessionCommandRepository implements ISessionCommandRepository {
@@ -15,7 +14,7 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 		return;
 	}
 
-	async deleteSession(deviceId: UUID) {
+	async deleteSession(deviceId: string) {
 		const session = await this.prisma.session.update({
 			where: { deviceId },
 			data: { deletedAt: new Date() },
@@ -23,7 +22,7 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 		return session;
 	}
 
-	async updateSession(deviceId: UUID, payload: { exp: Date; iat: Date }) {
+	async updateSession(deviceId: string, payload: { exp: Date; iat: Date }) {
 		await this.prisma.session.update({
 			where: { deviceId },
 			data: payload,

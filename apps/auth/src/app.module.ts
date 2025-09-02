@@ -4,9 +4,10 @@ import { CoreModule } from "@auth/core/core.module";
 import { UserModule } from "@auth/modules/user/user.module";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
-	imports: [CoreModule, UserModule, SessionModule, BlacklistModule],
+	imports: [CoreModule, UserModule, SessionModule, BlacklistModule, ScheduleModule.forRoot()],
 	controllers: [],
 	providers: [],
 })
@@ -14,8 +15,6 @@ export class AppModule {
 	static forRoot(config: CoreEnvConfig): DynamicModule {
 		return {
 			module: AppModule,
-			imports: [CoreModule, UserModule, SessionModule, BlacklistModule],
-			controllers: [],
 			providers: [
 				{
 					provide: CoreEnvConfig,

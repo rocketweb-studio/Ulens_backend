@@ -1,8 +1,8 @@
 import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { Microservice } from "@libs/constants/microservices";
-import { NotificationsClientEnvConfig } from "./notifications-client.config";
-import { NotificationsClientService } from "./notifications-client.service";
+import { NotificationsClientEnvConfig } from "@gateway/microservices/notifications/notifications-client.config";
+import { NotificationsClientService } from "@gateway/microservices/notifications/notifications-client.service";
 
 @Module({
 	imports: [

@@ -1,12 +1,11 @@
-import { ConfirmCodeDto, BaseUserView } from "@libs/contracts/index";
-
-import { UserWithConfirmationCode, UserWithPassword, UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
-import { UserDbInputDto } from "./dto/user-db-input.dto";
-import { ConfirmationCodeInputRepoDto } from "./dto/confirm-input-repo.dto";
-import { RecoveryCodeInputRepoDto } from "./dto/recovery-input-repo.dto";
-import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
-import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
-import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
+import { ConfirmCodeDto, MeUserViewDto } from "@libs/contracts/index";
+import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
+import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
+import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
+import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
+import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
+import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
+import { RefreshTokenDto } from "@auth/modules/user/dto/refresh.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -14,21 +13,21 @@ import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
  */
 
 export abstract class IUserQueryRepository {
-	abstract findUserById(id: string): Promise<BaseUserView | null>;
-	abstract getMe(dto: UserWithPayloadFromJwt): Promise<MeUserViewDto>;
-	abstract getUsers(): Promise<BaseUserView[]>;
+	abstract findUserById(id: string): Promise<MeUserViewDto | null>;
+	abstract getMe(dto: RefreshTokenDto): Promise<MeUserViewDto>;
+	abstract getUsers(): Promise<MeUserViewDto[]>;
 }
 
 export abstract class IUserCommandRepository {
-	abstract createUserAndProfile(userDto: UserDbInputDto): Promise<UserWithConfirmationCode>;
-	abstract createOauth2UserAndProfile(dto: UserOauthDbInputDto): Promise<BaseUserView>;
+	abstract createUserAndProfile(userDto: UserDbInputDto): Promise<UserOutputRepoDto>;
+	abstract createOauth2UserAndProfile(dto: UserOauthDbInputDto): Promise<UserOutputRepoDto>;
 	abstract confirmEmail(dto: ConfirmCodeDto): Promise<boolean>;
 	abstract resendEmail(email: string, newConfirmationCodeBody: ConfirmationCodeInputRepoDto): Promise<string | null>;
 	abstract passwordRecovery(email: string, recoveryCodeBody: RecoveryCodeInputRepoDto): Promise<string | null>;
 	abstract setNewPassword(userId: string, newPasswordBody: NewPasswordInputRepoDto): Promise<boolean>;
-	abstract findUserByEmail(email: string): Promise<UserWithPassword | null>;
+	abstract findUserByEmail(email: string): Promise<UserOutputRepoDto | null>;
 	abstract findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null>;
-	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null>;
+	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null>;
 	abstract setOauthUserId(email: string, payload: { [key: string]: string }): Promise<boolean>;
 	abstract deleteNotConfirmedUsers(): Promise<void>;
 }

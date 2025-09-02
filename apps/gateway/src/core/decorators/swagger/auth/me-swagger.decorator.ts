@@ -1,4 +1,4 @@
-import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { MeUserViewDto } from "@libs/contracts/index";
 import { applyDecorators } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger";
 

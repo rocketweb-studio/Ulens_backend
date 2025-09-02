@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { IBlacklistCommandRepository } from "../blacklist.interface";
-import { TokenInputRepoDto } from "../dto/token-input-repo.dto";
+import { IBlacklistCommandRepository } from "@auth/modules/blacklist/blacklist.interface";
+import { TokenInputRepoDto } from "@auth/modules/blacklist/dto/token-repo.input.dto";
 
 @Injectable()
 export class PrismaBlacklistCommandRepository implements IBlacklistCommandRepository {
@@ -21,5 +21,14 @@ export class PrismaBlacklistCommandRepository implements IBlacklistCommandReposi
 			},
 		});
 		return !!tokenInBlacklist;
+	}
+
+	async deleteExpiredTokens() {
+		const { count } = await this.prisma.tokensBlacklist.deleteMany({
+			where: {
+				expiredAt: { lt: new Date() },
+			},
+		});
+		console.log(`Deleted expired tokens: [${count}]`);
 	}
 }

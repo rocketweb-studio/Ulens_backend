@@ -3,8 +3,8 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { MainClientEnvConfig } from "@gateway/microservices/main/main-client.config";
 import { Microservice } from "@libs/constants/microservices";
 import { JwtModule } from "@nestjs/jwt";
-import { FilesClientModule } from "../files/files-client.module";
-import { PostsClientService } from "./posts/posts-client.service";
+import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
+import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([

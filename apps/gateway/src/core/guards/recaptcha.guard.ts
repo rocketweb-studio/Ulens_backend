@@ -15,6 +15,7 @@ export class RecaptchaGuard implements CanActivate {
 		}
 
 		// добавили для того чтобы тестировать положительный сценарий recoveryPassword
+		// todo попробовать замокать в тестах
 		if (token === "TEST_RECAPTCHA") {
 			return true;
 		}

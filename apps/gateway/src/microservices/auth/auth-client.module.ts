@@ -11,7 +11,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
-import { AuthClientOAuthController } from "./contollers/oauth.auth-client.controller";
+import { AuthClientOAuthController } from "@gateway/microservices/auth/contollers/oauth.auth-client.controller";
 
 @Module({
 	imports: [

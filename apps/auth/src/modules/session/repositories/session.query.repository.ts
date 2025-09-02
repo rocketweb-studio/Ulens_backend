@@ -1,6 +1,6 @@
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { ISessionQueryRepository } from "../session.interfaces";
+import { ISessionQueryRepository } from "@auth/modules/session/session.interfaces";
 
 @Injectable()
 export class PrismaSessionQueryRepository implements ISessionQueryRepository {

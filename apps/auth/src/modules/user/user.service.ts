@@ -6,7 +6,6 @@ import {
 	NewPasswordDto,
 	LoginDto,
 	EmailDto,
-	BaseUserView,
 	RegistrationGoogleOutputDto,
 	CreateOauthUserDto,
 	SessionMetadataDto,
@@ -14,24 +13,25 @@ import {
 import { IUserCommandRepository } from "./user.interfaces";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
-import { UserEnvConfig } from "./user.config";
-import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
-import { LoginInputDto } from "./dto/login-input.dto";
-import { LoginOutputDto } from "./dto/login-output.dto";
+import { UserEnvConfig } from "@auth/modules/user/user.config";
+import { LoginInputDto } from "@auth/modules/user/dto/login.input.dto";
+import { LoginOutputDto } from "@auth/modules/user/dto/login.output.dto";
 import { randomUUID } from "crypto";
 import { SessionService } from "@auth/modules/session/session.service";
 import { add } from "date-fns";
 import { BadRequestRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
-import { RegistrationOutputDto } from "./dto/registration-output.dto";
-import { UserDbInputDto } from "./dto/user-db-input.dto";
-import { ConfirmationCodeInputRepoDto } from "./dto/confirm-input-repo.dto";
-import { RecoveryCodeInputRepoDto } from "./dto/recovery-input-repo.dto";
-import { CodeOutputDto } from "./dto/code-output.dto";
-import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
-import { BlacklistService } from "../blacklist/blacklist.service";
-import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
+import { RegistrationOutputDto } from "@auth/modules/user/dto/registration.output.dto";
+import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
+import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
+import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
+import { CodeOutputDto } from "@auth/modules/user/dto/code.output.dto";
+import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
+import { BlacklistService } from "@auth/modules/blacklist/blacklist.service";
+import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { Oauth2Providers } from "@libs/constants/auth-messages";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
+import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 
 @Injectable()
 export class UserService {
@@ -64,6 +64,11 @@ export class UserService {
 		};
 
 		const createdUser = await this.userCommandRepository.createUserAndProfile(newUser);
+
+		if (!createdUser || !createdUser.confirmationCode) {
+			throw new UnexpectedErrorRpcException("User was not created");
+		}
+
 		return {
 			email: createdUser.email,
 			confirmationCode: createdUser.confirmationCode,
@@ -72,7 +77,7 @@ export class UserService {
 
 	async registrationOauth2(dto: CreateOauthUserDto, metadata: any, provider: Oauth2Providers): Promise<RegistrationGoogleOutputDto> {
 		const { email, providerProfileId, userName } = dto;
-		let createdUser: BaseUserView | null = null;
+		let createdUser: UserOutputRepoDto | null = null;
 
 		const providerField = provider === Oauth2Providers.GOOGLE ? "googleUserId" : "githubUserId";
 
@@ -214,7 +219,7 @@ export class UserService {
 		return user;
 	}
 
-	async refreshTokens(dto: UserWithPayloadFromJwt): Promise<{ refreshToken: string; payloadForJwt: any }> {
+	async refreshTokens(dto: RefreshDecodedDto): Promise<{ refreshToken: string; payloadForJwt: any }> {
 		const { refreshToken: oldRefreshToken, deviceId, userId } = dto;
 		const payloadForJwt = {
 			userId,
@@ -235,12 +240,12 @@ export class UserService {
 		return { refreshToken, payloadForJwt };
 	}
 
-	async logout(dto: UserWithPayloadFromJwt): Promise<any> {
+	async logout(dto: RefreshDecodedDto): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
 	}
 
-	@Cron(CronExpression.EVERY_MINUTE)
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async deleteNotConfirmedUsers() {
 		console.log("Delete not confirmed users");
 		await this.userCommandRepository.deleteNotConfirmedUsers();

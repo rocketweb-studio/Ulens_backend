@@ -1,11 +1,5 @@
-import { INestApplication } from "@nestjs/common";
-import { MainMessages, Microservice } from "@libs/constants/index";
+// import { INestApplication } from "@nestjs/common";
 
-export class MainTestManager {
-	constructor(private app: INestApplication) {}
-
-	clearDatabase() {
-		const client = this.app.get(Microservice.MAIN);
-		return client.send(MainMessages.CLEAR_MAIN_DATABASE, {}).toPromise();
-	}
-}
+// export class MainTestManager {
+// 	constructor(private app: INestApplication) {}
+// }

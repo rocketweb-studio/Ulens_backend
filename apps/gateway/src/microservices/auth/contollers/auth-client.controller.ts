@@ -1,6 +1,16 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, BaseUserView, EmailDto } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	AccessTokenDto,
+	BaseUserView,
+	EmailDto,
+	RecoveryPasswordDto,
+} from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -56,7 +66,7 @@ export class AuthClientController {
 	@Post(AuthRouterPaths.PASSWORD_RECOVERY)
 	@UseGuards(RecaptchaGuard)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
-	async passwordRecovery(@Body() passwordRecoveryDto: ResendEmailDto): Promise<void> {
+	async passwordRecovery(@Body() passwordRecoveryDto: RecoveryPasswordDto): Promise<void> {
 		await this.authClientService.passwordRecovery(passwordRecoveryDto);
 		return;
 	}

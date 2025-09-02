@@ -12,7 +12,7 @@ export class BaseUserView {
 
 	constructor(model: any) {
 		this.id = model.id;
-		this.userName = model.userName;
+		this.userName = model.profile.userName;
 		this.email = model.email;
 		this.createdAt = model.createdAt;
 	}

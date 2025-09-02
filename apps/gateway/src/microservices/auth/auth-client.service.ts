@@ -19,7 +19,6 @@ import { JwtService } from "@nestjs/jwt";
 import { AuthClientEnvConfig } from "./auth-client.config";
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
 import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
-import { ProfileClientService } from "../main/profile/profile-client.service";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
@@ -28,13 +27,10 @@ export class AuthClientService implements IAuthClientService {
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
-		private readonly profileClientService: ProfileClientService,
 	) {}
 
 	async registration(createUserDto: CreateUserDto): Promise<void> {
-		const { userId, userName, email, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
-
-		await this.createProfileInMainService(userId, userName);
+		const { email, confirmationCode } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION }, createUserDto));
 
 		this.notificationsClientService
 			.sendRegistrationEmail({
@@ -49,11 +45,7 @@ export class AuthClientService implements IAuthClientService {
 	}
 
 	async registrationOauth2(registerDto: CreateOauthUserDto, metadata: SessionMetadataDto, provider: Oauth2Providers): Promise<{ refreshToken: string }> {
-		const { id, userName, existedUser, refreshToken } = await firstValueFrom(
-			this.client.send({ cmd: AuthMessages.REGISTRATION_OAUTH2 }, { registerDto, metadata, provider }),
-		);
-
-		if (!existedUser) await this.createProfileInMainService(userName, id);
+		const { refreshToken } = await firstValueFrom(this.client.send({ cmd: AuthMessages.REGISTRATION_OAUTH2 }, { registerDto, metadata, provider }));
 
 		return { refreshToken };
 	}
@@ -147,10 +139,10 @@ export class AuthClientService implements IAuthClientService {
 		return users;
 	}
 
-	private async createProfileInMainService(userId: string, userName: string): Promise<void> {
-		const ok = await this.profileClientService.createProfile({ id: userId, userName });
-		if (!ok) {
-			throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
-		}
-	}
+	// private async createProfileInMainService(userId: string, userName: string): Promise<void> {
+	// 	const ok = await this.profileClientService.createProfile({ id: userId, userName });
+	// 	if (!ok) {
+	// 		throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
+	// 	}
+	// }
 }

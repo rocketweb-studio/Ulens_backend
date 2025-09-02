@@ -29,4 +29,11 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 			data: payload,
 		});
 	}
+
+	async deleteSessions(userId: string) {
+		await this.prisma.session.updateMany({
+			where: { userId },
+			data: { deletedAt: new Date() },
+		});
+	}
 }

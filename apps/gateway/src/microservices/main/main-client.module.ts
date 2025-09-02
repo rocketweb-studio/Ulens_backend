@@ -3,9 +3,7 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
 import { MainClientEnvConfig } from "@gateway/microservices/main/main-client.config";
 import { Microservice } from "@libs/constants/microservices";
 import { JwtModule } from "@nestjs/jwt";
-import { ProfileClientController } from "./profile/profile-client.controller";
 import { FilesClientModule } from "../files/files-client.module";
-import { ProfileClientService } from "./profile/profile-client.service";
 import { PostsClientController } from "./posts/posts-client.controller";
 import { PostsClientService } from "./posts/posts-client.service";
 @Module({
@@ -33,8 +31,8 @@ import { PostsClientService } from "./posts/posts-client.service";
 		}),
 		FilesClientModule,
 	],
-	controllers: [ProfileClientController, PostsClientController],
-	providers: [MainClientEnvConfig, ProfileClientService, PostsClientService],
-	exports: [ProfileClientService],
+	controllers: [PostsClientController],
+	providers: [MainClientEnvConfig, PostsClientService],
+	exports: [],
 })
 export class MainClientModule {}

@@ -31,6 +31,7 @@ import { NewPasswordInputRepoDto } from "./dto/new-pass-input-repo.dto";
 import { BlacklistService } from "../blacklist/blacklist.service";
 import { UserOauthDbInputDto } from "./dto/user-google-db-input.dto";
 import { Oauth2Providers } from "@libs/constants/auth-messages";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class UserService {
@@ -54,19 +55,16 @@ export class UserService {
 		const passwordHash = await bcrypt.hash(password, 10);
 
 		const newUser: UserDbInputDto = {
-			id: randomUUID(),
-			userName,
 			passwordHash,
+			userName,
 			email,
 			confirmationCode: randomUUID(),
 			confirmationCodeExpDate: add(new Date(), { hours: 1 }).toISOString(),
 			confirmationCodeConfirmed: false,
 		};
 
-		const createdUser = await this.userCommandRepository.createUser(newUser);
+		const createdUser = await this.userCommandRepository.createUserAndProfile(newUser);
 		return {
-			userId: createdUser.id,
-			userName,
 			email: createdUser.email,
 			confirmationCode: createdUser.confirmationCode,
 		};
@@ -86,14 +84,13 @@ export class UserService {
 
 		if (!existedUser) {
 			const newUser: UserOauthDbInputDto = {
-				id: randomUUID(),
 				userName,
 				email,
 				[providerField]: providerProfileId,
 				confirmationCodeConfirmed: true,
 			};
 
-			createdUser = await this.userCommandRepository.createOauth2User(newUser);
+			createdUser = await this.userCommandRepository.createOauth2UserAndProfile(newUser);
 		}
 
 		const finalUser: any = existedUser ?? createdUser;
@@ -102,14 +99,10 @@ export class UserService {
 			throw new BadRequestRpcException("Attempt to login by Google was failed");
 		}
 
-		const { refreshToken, payloadForJwt } = await this.issueRefreshTokenAndCreateSession(finalUser.id, metadata);
+		const { refreshToken } = await this.issueRefreshTokenAndCreateSession(finalUser.id, metadata);
 
 		return {
-			id: finalUser.id,
-			userName: finalUser.userName,
-			existedUser: !!existedUser,
 			refreshToken,
-			payloadForJwt,
 		};
 	}
 
@@ -186,6 +179,7 @@ export class UserService {
 		if (!result) {
 			throw new BadRequestRpcException("New password was not set");
 		}
+		await this.sessionService.deleteSessions(user.id);
 
 		return true;
 	}
@@ -244,6 +238,12 @@ export class UserService {
 	async logout(dto: UserWithPayloadFromJwt): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteNotConfirmedUsers() {
+		console.log("deleteNotConfirmedUsers");
+		await this.userCommandRepository.deleteNotConfirmedUsers();
 	}
 
 	private async issueRefreshTokenAndCreateSession(

@@ -1,12 +1,11 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@main/core/core.module";
 import { CoreEnvConfig, Environments } from "@main/core/core.config";
-import { ProfileModule } from "./modules/profile/profile.module";
 import { TestingModule } from "./modules/testing/testing.module";
 
 @Module({
 	// 1
-	imports: [CoreModule, ProfileModule, TestingModule], // 2
+	imports: [CoreModule, TestingModule], // 2
 	controllers: [],
 	providers: [],
 })
@@ -20,7 +19,7 @@ export class AppModule {
 		}
 		return {
 			module: AppModule,
-			imports: [CoreModule, ProfileModule, ...testingModule],
+			imports: [CoreModule, ...testingModule],
 			providers: [
 				{
 					provide: CoreEnvConfig,

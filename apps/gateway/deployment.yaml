@@ -107,6 +107,16 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: RECAPTCHA_SECRET_KEY
+             - name: FILES_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_TCP_HOST
+             - name: FILES_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_TCP_PORT
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

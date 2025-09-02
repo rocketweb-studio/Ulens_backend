@@ -29,7 +29,11 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 					},
 				},
 			},
+			include: {
+				profile: true,
+			},
 		});
+
 		return UserWithConfirmationCode.mapToView(user);
 	}
 
@@ -43,6 +47,9 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 						userName: userName,
 					},
 				},
+			},
+			include: {
+				profile: true,
 			},
 		});
 		return UserWithPassword.mapToView(user);
@@ -116,6 +123,9 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 	async findUserByEmail(email: string): Promise<UserWithPassword | null> {
 		const user = await this.prisma.user.findUnique({
 			where: { email },
+			include: {
+				profile: true,
+			},
 		});
 		if (!user) return null;
 
@@ -137,6 +147,9 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			where: {
 				recoveryCode: recoveryCode,
 				recoveryCodeExpDate: { gte: new Date() },
+			},
+			include: {
+				profile: true,
 			},
 		});
 		if (!user) return null;

@@ -1,5 +1,5 @@
-import { PrismaService } from "@main/core/prisma/prisma.service";
-import { MainMessages } from "@libs/constants/index";
+import { PrismaService } from "@auth/core/prisma/prisma.service";
+import { AuthMessages } from "@libs/constants/index";
 import { Controller } from "@nestjs/common";
 import { MessagePattern } from "@nestjs/microservices";
 
@@ -7,9 +7,9 @@ import { MessagePattern } from "@nestjs/microservices";
 export class TestingController {
 	constructor(private readonly prisma: PrismaService) {}
 
-	@MessagePattern(MainMessages.CLEAR_MAIN_DATABASE)
+	@MessagePattern(AuthMessages.CLEAR_AUTH_DATABASE)
 	async clearDatabase() {
-		await this.prisma.post.deleteMany();
+		await this.prisma.user.deleteMany();
 		return "clear database";
 	}
 }

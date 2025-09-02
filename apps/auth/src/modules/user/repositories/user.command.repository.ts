@@ -157,8 +157,8 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 		const now = new Date();
 
-		for (const user of users) {
-			await this.prisma.user.update({
+		const operations = users.map((user) =>
+			this.prisma.user.update({
 				where: {
 					id: user.id,
 					confirmationCodeConfirmed: false,
@@ -172,21 +172,26 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 								},
 							}
 						: undefined,
-					sessions: user.sessions
-						? {
-								updateMany: {
-									where: {
-										deletedAt: null,
+					sessions:
+						user.sessions.length > 0
+							? {
+									updateMany: {
+										where: {
+											deletedAt: null,
+										},
+										data: {
+											deletedAt: now,
+										},
 									},
-									data: {
-										deletedAt: now,
-									},
-								},
-							}
-						: undefined,
+								}
+							: undefined,
 				},
-			});
-			console.log(`User deleted: ${user.id}`);
-		}
+			}),
+		);
+
+		await this.prisma.$transaction(operations);
+
+		const deletedIds = users.map((user) => user.id);
+		console.log(`Deleted not confirmed users: [${deletedIds.join(", ")}]`);
 	}
 }

@@ -240,9 +240,9 @@ export class UserService {
 		return session;
 	}
 
-	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	@Cron(CronExpression.EVERY_MINUTE)
 	async deleteNotConfirmedUsers() {
-		console.log("deleteNotConfirmedUsers");
+		console.log("Delete not confirmed users");
 		await this.userCommandRepository.deleteNotConfirmedUsers();
 	}
 

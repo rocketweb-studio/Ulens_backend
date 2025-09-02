@@ -45,4 +45,7 @@ export class SessionService {
 	async deleteSession(deviceId: UUID): Promise<any> {
 		return await this.sessionCommandRepository.deleteSession(deviceId);
 	}
+	async deleteSessions(userId: string): Promise<any> {
+		return await this.sessionCommandRepository.deleteSessions(userId);
+	}
 }

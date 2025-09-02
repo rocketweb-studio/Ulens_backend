@@ -2,6 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { IBlacklistCommandRepository } from "./blacklist.interface";
 import { JwtPayloadDto } from "./dto/jwt-payload.dto";
 import { TokenInputRepoDto } from "./dto/token-input-repo.dto";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class BlacklistService {
@@ -19,5 +20,10 @@ export class BlacklistService {
 
 	async findTokenInBlacklist(token: string): Promise<boolean> {
 		return await this.blacklistCommandRepository.findTokenInBlacklist(token);
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteExpiredTokens() {
+		await this.blacklistCommandRepository.deleteExpiredTokens();
 	}
 }

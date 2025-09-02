@@ -5,9 +5,10 @@ import { UserModule } from "@auth/modules/user/user.module";
 import { TestingModule } from "@auth/modules/testing/testing.module";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
-	imports: [CoreModule, UserModule, TestingModule, SessionModule, BlacklistModule],
+	imports: [CoreModule, UserModule, TestingModule, SessionModule, BlacklistModule, ScheduleModule.forRoot()],
 	controllers: [],
 	providers: [],
 })

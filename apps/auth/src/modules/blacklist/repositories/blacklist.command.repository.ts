@@ -22,4 +22,13 @@ export class PrismaBlacklistCommandRepository implements IBlacklistCommandReposi
 		});
 		return !!tokenInBlacklist;
 	}
+
+	async deleteExpiredTokens() {
+		const { count } = await this.prisma.tokensBlacklist.deleteMany({
+			where: {
+				expiredAt: { lt: new Date() },
+			},
+		});
+		console.log(`Deleted expired tokens: [${count}]`);
+	}
 }

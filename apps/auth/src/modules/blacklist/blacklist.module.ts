@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
-import { BlacklistService } from "./blacklist.service";
-import { PrismaBlacklistCommandRepository } from "./repositories/blacklist.command.repository";
-import { IBlacklistCommandRepository } from "./blacklist.interface";
+import { BlacklistService } from "@auth/modules/blacklist/blacklist.service";
+import { PrismaBlacklistCommandRepository } from "@auth/modules/blacklist/repositories/blacklist.command.repository";
+import { IBlacklistCommandRepository } from "@auth/modules/blacklist/blacklist.interface";
 
 @Module({
 	imports: [],

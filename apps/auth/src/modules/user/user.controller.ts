@@ -2,17 +2,16 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "@auth/modules/user/user.service";
 import { AuthMessages } from "@libs/constants/auth-messages";
-import { BaseUserView, ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto, RegistrationGoogleOutputDto } from "@libs/contracts/index";
+import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto, RegistrationGoogleOutputDto, MeUserViewDto } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
-import { UserWithPayloadFromJwt } from "@auth/modules/user/dto/user.dto";
-import { LoginInputDto } from "./dto/login-input.dto";
-import { LoginOutputDto, RefreshOutputDto } from "./dto/login-output.dto";
-import { RegistrationOutputDto } from "./dto/registration-output.dto";
-import { CodeOutputDto } from "./dto/code-output.dto";
-import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
-import { IUserQueryRepository } from "./user.interfaces";
-import { OauthInputDto } from "./dto/oauth-input.dto";
+import { LoginInputDto } from "@auth/modules/user/dto/login.input.dto";
+import { LoginOutputDto, RefreshOutputDto } from "@auth/modules/user/dto/login.output.dto";
+import { RegistrationOutputDto } from "@auth/modules/user/dto/registration.output.dto";
+import { CodeOutputDto } from "@auth/modules/user/dto/code.output.dto";
+import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
+import { OauthInputDto } from "@auth/modules/user/dto/oauth.input.dto";
+import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 
 @Controller()
 export class UserController {
@@ -59,7 +58,6 @@ export class UserController {
 		return response;
 	}
 
-	// таже история что и с emailConfirmation, если оставить просто return падает 500 ошибка
 	@MessagePattern({ cmd: AuthMessages.NEW_PASSWORD })
 	async newPassword(@Payload() newPasswordDto: NewPasswordDto): Promise<boolean> {
 		await this.userService.setNewPassword(newPasswordDto);
@@ -75,27 +73,27 @@ export class UserController {
 
 	@UseGuards(JwtRefreshAuthGuard)
 	@MessagePattern({ cmd: AuthMessages.REFRESH_TOKENS })
-	async refreshTokens(@Payload() dto: UserWithPayloadFromJwt): Promise<RefreshOutputDto> {
+	async refreshTokens(@Payload() dto: RefreshDecodedDto): Promise<RefreshOutputDto> {
 		const response = await this.userService.refreshTokens(dto);
 		return response;
 	}
 
 	@UseGuards(JwtRefreshAuthGuard)
 	@MessagePattern({ cmd: AuthMessages.LOGOUT })
-	async logout(@Payload() dto: UserWithPayloadFromJwt): Promise<any> {
+	async logout(@Payload() dto: RefreshDecodedDto): Promise<any> {
 		const response = await this.userService.logout(dto);
 		return response;
 	}
 
 	@UseGuards(JwtRefreshAuthGuard)
 	@MessagePattern({ cmd: AuthMessages.ME })
-	async me(@Payload() dto: UserWithPayloadFromJwt): Promise<MeUserViewDto> {
+	async me(@Payload() dto: RefreshDecodedDto): Promise<MeUserViewDto> {
 		const response = await this.userQueryRepository.getMe(dto);
 		return response;
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_USERS })
-	async getUsers(): Promise<BaseUserView[]> {
+	async getUsers(): Promise<MeUserViewDto[]> {
 		const response = await this.userQueryRepository.getUsers();
 		return response;
 	}

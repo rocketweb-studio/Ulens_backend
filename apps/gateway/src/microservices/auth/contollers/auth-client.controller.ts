@@ -1,16 +1,6 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import {
-	CreateUserDto,
-	ConfirmCodeDto,
-	ResendEmailDto,
-	NewPasswordDto,
-	LoginDto,
-	AccessTokenDto,
-	BaseUserView,
-	EmailDto,
-	RecoveryPasswordDto,
-} from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, EmailDto, RecoveryPasswordDto } from "@libs/contracts/index";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -24,11 +14,11 @@ import { RegistrationEmailResendingSwagger } from "@gateway/core/decorators/swag
 import { RegistrationConfirmationSwagger } from "@gateway/core/decorators/swagger/auth/registration-confirm-swagger.decorator";
 import { RegistrationSwagger } from "@gateway/core/decorators/swagger/auth/registration-swagger.decorator";
 import { MeSwagger } from "@gateway/core/decorators/swagger/auth/me-swagger.decorator";
-import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { MeUserViewDto } from "@libs/contracts/index";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/check-recovery-code.decorator";
 import { ThrottlerGuard } from "@nestjs/throttler";
-import { Environments } from "../../../core/core.config";
+import { Environments } from "@gateway/core/core.config";
 import { RecaptchaGuard } from "@gateway/core/guards/recaptcha.guard";
 
 @ApiTags(ApiTagsNames.AUTH)
@@ -140,7 +130,7 @@ export class AuthClientController {
 	}
 
 	@ApiOperation({ summary: "Get users - TEST ENDPOINT" })
-	@ApiOkResponse({ description: "Successfully received users", type: [BaseUserView] })
+	@ApiOkResponse({ description: "Successfully received users", type: [MeUserViewDto] })
 	@ApiUnauthorizedResponse({
 		description: "If the access token is wrong or expired",
 	})
@@ -148,7 +138,7 @@ export class AuthClientController {
 	@UseGuards(JwtAccessAuthGuard)
 	@Get(AuthRouterPaths.USERS)
 	@HttpCode(HttpStatus.OK)
-	async getUsers(): Promise<BaseUserView[]> {
+	async getUsers(): Promise<MeUserViewDto[]> {
 		const users = await this.authClientService.getUsers();
 		return users;
 	}

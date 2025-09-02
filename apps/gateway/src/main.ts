@@ -1,7 +1,7 @@
 import { NestFactory } from "@nestjs/core";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { initGatewayModule } from "@gateway/init-app";
-import { configApp } from "./gateway.setup";
+import { configApp } from "@gateway/gateway.setup";
 
 async function bootstrap() {
 	const dynamicAppModule = await initGatewayModule();

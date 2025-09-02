@@ -2,13 +2,13 @@ import { Module } from "@nestjs/common";
 import { CoreModule } from "@auth/core/core.module";
 import { UserController } from "@auth/modules/user/user.controller";
 import { UserService } from "@auth/modules/user/user.service";
-import { IUserCommandRepository, IUserQueryRepository } from "./user.interfaces";
-import { PrismaUserCommandRepository } from "./repositories/user.command.repository";
-import { PrismaUserQueryRepository } from "./repositories/user.query.repository";
-import { UserEnvConfig } from "./user.config";
+import { IUserCommandRepository, IUserQueryRepository } from "@auth/modules/user/user.interfaces";
+import { PrismaUserCommandRepository } from "@auth/modules/user/repositories/user.command.repository";
+import { PrismaUserQueryRepository } from "@auth/modules/user/repositories/user.query.repository";
+import { UserEnvConfig } from "@auth/modules/user/user.config";
 import { JwtModule } from "@nestjs/jwt";
-import { SessionModule } from "../session/session.module";
-import { BlacklistModule } from "../blacklist/blacklist.module";
+import { SessionModule } from "@auth/modules/session/session.module";
+import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 
 /**
  * { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository}

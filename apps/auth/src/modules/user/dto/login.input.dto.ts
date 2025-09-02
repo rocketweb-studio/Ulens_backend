@@ -1,7 +1,7 @@
 import { SessionMetadataDto } from "@libs/contracts/index";
-import { UserWithPassword } from "./user.dto";
+import { UserOutputRepoDto } from "./user-repo.ouptut.dto";
 
 export class LoginInputDto {
 	metadata: SessionMetadataDto;
-	loginDto: UserWithPassword;
+	loginDto: UserOutputRepoDto;
 }

@@ -1,24 +1,15 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import {
-	CreateUserDto,
-	ConfirmCodeDto,
-	ResendEmailDto,
-	NewPasswordDto,
-	LoginDto,
-	SessionMetadataDto,
-	BaseUserView,
-	CreateOauthUserDto,
-} from "@libs/contracts/index";
+import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, SessionMetadataDto, CreateOauthUserDto } from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages, Oauth2Providers } from "@libs/constants/auth-messages";
 import { UnauthorizedRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { NotificationsClientService } from "../notifications/notifications-client.service";
 import { JwtService } from "@nestjs/jwt";
-import { AuthClientEnvConfig } from "./auth-client.config";
+import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
-import { MeUserViewDto } from "@libs/contracts/auth-contracts/output/me-user-view.dto";
+import { MeUserViewDto } from "@libs/contracts/index";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
@@ -134,15 +125,8 @@ export class AuthClientService implements IAuthClientService {
 		return userInfo;
 	}
 
-	async getUsers(): Promise<BaseUserView[]> {
+	async getUsers(): Promise<MeUserViewDto[]> {
 		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
 		return users;
 	}
-
-	// private async createProfileInMainService(userId: string, userName: string): Promise<void> {
-	// 	const ok = await this.profileClientService.createProfile({ id: userId, userName });
-	// 	if (!ok) {
-	// 		throw new UnexpectedErrorRpcException("Profile creation failed, REVERT");
-	// 	}
-	// }
 }

@@ -1,20 +1,25 @@
 import { Injectable } from "@nestjs/common";
-import { IUserCommandRepository } from "../user.interfaces";
+import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { ConfirmCodeDto } from "@libs/contracts/index";
 import { BaseRpcException } from "@libs/exeption/index";
-import { UserWithConfirmationCode, UserWithPassword } from "@auth/modules/user/dto/user.dto";
-import { UserDbInputDto } from "../dto/user-db-input.dto";
-import { ConfirmationCodeInputRepoDto } from "../dto/confirm-input-repo.dto";
-import { RecoveryCodeInputRepoDto } from "../dto/recovery-input-repo.dto";
-import { NewPasswordInputRepoDto } from "../dto/new-pass-input-repo.dto";
-import { UserOauthDbInputDto } from "../dto/user-google-db-input.dto";
+import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
+import { ConfirmationCodeInputRepoDto } from "../dto/confirm-repo.input.dto";
+import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
+import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
+import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
+import { Prisma } from "@auth/core/prisma/generated/client";
+import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
+
+type UserWithProfile = Prisma.UserGetPayload<{
+	include: { profile: true };
+}>;
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserWithConfirmationCode> {
+	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserOutputRepoDto> {
 		const user = await this.prisma.user.create({
 			data: {
 				passwordHash: userDto.passwordHash,
@@ -34,10 +39,10 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			},
 		});
 
-		return UserWithConfirmationCode.mapToView(user);
+		return this._mapToUse(user);
 	}
 
-	async createOauth2UserAndProfile(dto: UserOauthDbInputDto): Promise<UserWithPassword> {
+	async createOauth2UserAndProfile(dto: UserOauthDbInputDto): Promise<UserOutputRepoDto> {
 		const { userName, ...rest } = dto;
 		const user = await this.prisma.user.create({
 			data: {
@@ -52,7 +57,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 				profile: true,
 			},
 		});
-		return UserWithPassword.mapToView(user);
+		return this._mapToUse(user);
 	}
 
 	async confirmEmail(dto: ConfirmCodeDto): Promise<boolean> {
@@ -120,7 +125,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		throw new BaseRpcException(400, "Vailed attempt to login by Google");
 	}
 
-	async findUserByEmail(email: string): Promise<UserWithPassword | null> {
+	async findUserByEmail(email: string): Promise<UserOutputRepoDto | null> {
 		const user = await this.prisma.user.findUnique({
 			where: { email, deletedAt: null },
 			include: {
@@ -129,7 +134,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		});
 		if (!user) return null;
 
-		return UserWithPassword.mapToView(user);
+		return this._mapToUse(user);
 	}
 
 	async findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null> {
@@ -142,7 +147,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		return { field };
 	}
 
-	async findUserByRecoveryCode(recoveryCode: string): Promise<UserWithPassword | null> {
+	async findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null> {
 		const user = await this.prisma.user.findUnique({
 			where: {
 				recoveryCode: recoveryCode,
@@ -155,7 +160,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		});
 		if (!user) return null;
 
-		return UserWithPassword.mapToView(user);
+		return this._mapToUse(user);
 	}
 
 	async deleteNotConfirmedUsers(): Promise<void> {
@@ -166,5 +171,23 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		});
 
 		console.log(`Deleted not confirmed users: [${count}]`);
+	}
+
+	private _mapToUse(user: UserWithProfile): UserOutputRepoDto {
+		return {
+			id: user.id,
+			email: user.email,
+			passwordHash: user.passwordHash,
+			profile: {
+				userName: user.profile?.userName || null,
+			},
+			confirmationCode: user.confirmationCode,
+			confirmationCodeExpDate: user.confirmationCodeExpDate,
+			confirmationCodeConfirmed: user.confirmationCodeConfirmed,
+			recoveryCode: user.recoveryCode,
+			recoveryCodeExpDate: user.recoveryCodeExpDate,
+			googleUserId: user.googleUserId,
+			githubUserId: user.githubUserId,
+		};
 	}
 }

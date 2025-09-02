@@ -1,8 +1,7 @@
 import { Injectable, Inject } from "@nestjs/common";
-import { ISessionCommandRepository } from "./session.interfaces";
-import { UUID } from "crypto";
+import { ISessionCommandRepository } from "@auth/modules/session/session.interfaces";
 import { SessionMetadataDto } from "@libs/contracts/index";
-import { SessionInputRepoDto } from "./dto/session-input-repo.dto";
+import { SessionInputRepoDto } from "@auth/modules/session/dto/session-repo.input.dto";
 
 @Injectable()
 export class SessionService {
@@ -34,7 +33,7 @@ export class SessionService {
 		return;
 	}
 
-	async updateSession(deviceId: UUID, payloadFromJwt: any) {
+	async updateSession(deviceId: string, payloadFromJwt: any) {
 		const updatedSession = {
 			exp: new Date(payloadFromJwt.exp * 1000),
 			iat: new Date(payloadFromJwt.iat * 1000),
@@ -42,7 +41,7 @@ export class SessionService {
 		await this.sessionCommandRepository.updateSession(deviceId, updatedSession);
 	}
 
-	async deleteSession(deviceId: UUID): Promise<any> {
+	async deleteSession(deviceId: string): Promise<any> {
 		return await this.sessionCommandRepository.deleteSession(deviceId);
 	}
 	async deleteSessions(userId: string): Promise<any> {

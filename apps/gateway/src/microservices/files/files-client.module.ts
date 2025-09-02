@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { Microservice } from "@libs/constants/microservices";
 import { ThrottlerModule } from "@nestjs/throttler";
-import { FilesClientEnvConfig } from "./files-client.config";
-import { FilesClientService } from "./files-client.service";
+import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
+import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 
 @Module({
 	imports: [

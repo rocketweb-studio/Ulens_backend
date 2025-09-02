@@ -2,10 +2,10 @@ import { Controller, Get, UseGuards, HttpCode, HttpStatus, Req, Res } from "@nes
 import { ApiTags, ApiExcludeEndpoint } from "@nestjs/swagger";
 import { ApiTagsNames, AuthRouterPaths, Oauth2Providers } from "@libs/constants/index";
 import { CreateOauthUserDto } from "@libs/contracts/index";
-import { CoreEnvConfig, Environments } from "../../../core/core.config";
+import { CoreEnvConfig, Environments } from "@gateway/core/core.config";
 import { GoogleGuard } from "@gateway/core/guards/google/google.guard";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
-import { AuthClientService } from "../auth-client.service";
+import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { Response, Request } from "express";
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { GoogleOathSwagger } from "@gateway/core/decorators/swagger/auth/google-oauth-registration.decorator";

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import * as net from "net";
 import { IFilesClientService } from "@libs/contracts/files-contracts/files.contract";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
-import { FilesClientEnvConfig } from "./files-client.config";
+import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
 
 // Сервис отвечает за загрузку файлов в файловый сервис
 @Injectable()

@@ -15,8 +15,6 @@ export class AppModule {
 	static forRoot(config: CoreEnvConfig): DynamicModule {
 		return {
 			module: AppModule,
-			imports: [CoreModule, UserModule, SessionModule, BlacklistModule],
-			controllers: [],
 			providers: [
 				{
 					provide: CoreEnvConfig,

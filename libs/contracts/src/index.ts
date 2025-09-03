@@ -16,3 +16,4 @@ export * from "./main-contracts/input/create-profile.dto";
 export * from "./auth-contracts/auth.contract";
 export * from "./files-contracts/files.contract";
 export * from "./files-contracts/output/upload-file.output.dto";
+export * from "./rabbit-contracts/envelope";

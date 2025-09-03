@@ -143,9 +143,13 @@ export class AuthClientController {
 		return users;
 	}
 
+	// тестовый эндпоинт для публикации сообщения
 	@Get("ping-rabbit")
 	async pingRabbit() {
-		await this.authClientService.publishTestEvent();
+		// использовали для отладки, это рабочий метод
+		// await this.authClientService.publishTestEvent();
+
+		await this.authClientService.publishUserRegisteredEvent();
 		return { ok: true };
 	}
 }

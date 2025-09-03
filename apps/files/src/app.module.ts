@@ -1,7 +1,7 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@files/core/core.module";
 import { CoreEnvConfig } from "@files/core/core.config";
-import { FilesModule } from "./modules/files/files.module";
+import { FilesModule } from "@files/modules/files/files.module";
 
 @Module({
 	imports: [CoreModule, FilesModule],

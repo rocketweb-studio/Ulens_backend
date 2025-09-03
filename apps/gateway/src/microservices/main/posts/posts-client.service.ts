@@ -1,25 +1,27 @@
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
-import { MainMessages } from "@libs/constants/main-messages";
-import { Microservice } from "@libs/constants/microservices";
-import { Inject, Injectable } from "@nestjs/common";
-import { ClientProxy } from "@nestjs/microservices";
-import { randomUUID } from "node:crypto";
-import { firstValueFrom } from "rxjs";
+import { Injectable } from "@nestjs/common";
+import { FileUploadConfigs } from "@gateway/microservices/files/upload-config/file-upload-configs";
+import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
+import { StreamClientService } from "@gateway/microservices/files/stream-client.service";
+import { Request } from "express";
 
 @Injectable()
 export class PostsClientService {
 	constructor(
-		@Inject(Microservice.MAIN) private readonly client: ClientProxy,
+		private readonly streamClientService: StreamClientService,
 		private readonly filesClientService: FilesClientService,
 	) {}
 
-	async createPost(userId: string, files: any[], description: string): Promise<any> {
-		const postId = randomUUID();
+	async uploadPostImages(postId: string, req: Request): Promise<any> {
+		const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.POST_IMAGES);
 
-		const filenamesArray = await this.filesClientService.uploadFiles(files, `posts/${postId}`);
+		if (!uploadResult.success) {
+			throw new BadRequestRpcException(uploadResult.errors?.join(", ") || "Images upload failed");
+		}
 
-		const res = await firstValueFrom(this.client.send({ cmd: MainMessages.CREATE_POST }, { filenamesArray, userId, description }));
-		console.log("Post created successfully", res);
-		return { message: "Post created successfully" };
+		// Сохраняем информацию о всех изображениях в БД
+		const dbResults = await Promise.all(uploadResult.files.map((file) => this.filesClientService.savePostImagesToDB(postId, file)));
+
+		return dbResults[0];
 	}
 }

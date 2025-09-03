@@ -5,6 +5,7 @@ import { Microservice } from "@libs/constants/microservices";
 import { JwtModule } from "@nestjs/jwt";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
+import { PostsClientController } from "@gateway/microservices/main/posts/posts-client.controller";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -30,7 +31,7 @@ import { PostsClientService } from "@gateway/microservices/main/posts/posts-clie
 		}),
 		FilesClientModule,
 	],
-	controllers: [],
+	controllers: [PostsClientController],
 	providers: [MainClientEnvConfig, PostsClientService],
 	exports: [],
 })

@@ -1,35 +1,23 @@
-import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
-import { Body, Controller, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
-import { FilesInterceptor } from "@nestjs/platform-express";
+import { Controller, HttpCode, HttpStatus, Param, Post, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { PostsClientService } from "./posts-client.service";
-import { CreatePostDto } from "@libs/contracts/main-contracts/input/create-post.input.dto";
-import { ApiOperation, ApiConsumes, ApiBody, ApiResponse } from "@nestjs/swagger";
+import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-file.interceptor";
+import { UploadPostImagesSwagger } from "@gateway/core/decorators/swagger/post/upload-post-images.decorator";
+import { MainRouterPaths } from "@libs/constants/index";
+import { Request } from "express";
 
 // контроллер отвечает за запросы к сервису постов
-@Controller("posts")
+@Controller(MainRouterPaths.POSTS)
 export class PostsClientController {
 	constructor(private readonly postsClientService: PostsClientService) {}
 
-	// todo вынести сваггер в отдельный файл и доработаь
-	@ApiOperation({ summary: "Create a new post with images" })
-	@ApiConsumes("multipart/form-data") // This tells Swagger to use form-data
-	@ApiBody({
-		description: "Post data with images",
-		type: CreatePostDto,
-	})
-	@ApiResponse({
-		status: 201,
-		description: "Post created successfully",
-	})
-	@Post()
+	@UploadPostImagesSwagger()
+	@Post(MainRouterPaths.IMAGES)
 	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(JwtAccessAuthGuard)
-	@UseInterceptors(FilesInterceptor("images", 10))
-	async createPost(@UploadedFiles() files: any[], @ExtractUserFromRequest() user: any, @Body() body: CreatePostDto): Promise<any> {
-		// в случае если передаем и данные то достаем их через , @Body() body: any,
-		const userId = user.userId;
-
-		return await this.postsClientService.createPost(userId, files, body.description);
+	@UseInterceptors(StreamingFileInterceptor)
+	async uploadPostImages(@Param("postId") postId: string, @Req() req: Request): Promise<any> {
+		const result = await this.postsClientService.uploadPostImages(postId, req);
+		return result;
 	}
 }

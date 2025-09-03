@@ -3,11 +3,12 @@ import { Module } from "@nestjs/common";
 import { CoreEnvConfig } from "@auth/core/core.config";
 import { PrismaModule } from "@auth/core/prisma/prisma.module";
 import { TestConsumer } from "./rabbit/test.consumer";
+import { AuthEventsPublisher } from "./rabbit/events.publisher";
 
 @Module({
 	imports: [configModule, PrismaModule],
 	controllers: [],
-	providers: [CoreEnvConfig, TestConsumer],
-	exports: [CoreEnvConfig],
+	providers: [CoreEnvConfig, TestConsumer, AuthEventsPublisher],
+	exports: [CoreEnvConfig, AuthEventsPublisher],
 })
 export class CoreModule {}

@@ -1,6 +1,7 @@
+import { PayloadFromRequestDto } from "@libs/contracts/index";
 import { createParamDecorator, ExecutionContext } from "@nestjs/common";
 
-export const ExtractUserFromRequest = createParamDecorator((data: unknown, context: ExecutionContext): any => {
+export const ExtractUserFromRequest = createParamDecorator((data: unknown, context: ExecutionContext): PayloadFromRequestDto => {
 	const request = context.switchToHttp().getRequest();
 
 	const user = request.user;

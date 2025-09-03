@@ -1,5 +1,9 @@
 export class UploadFileOutputDto {
 	readonly success: boolean;
-	readonly filename: string;
-	readonly message: string;
+	readonly versions: {
+		url: string;
+		width: number;
+		height: number;
+		fileSize: number;
+	}[];
 }

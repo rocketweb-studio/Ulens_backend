@@ -3,39 +3,56 @@ import * as net from "net";
 import { IFilesClientService } from "@libs/contracts/files-contracts/files.contract";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
+import { firstValueFrom } from "rxjs";
+import { Microservice } from "@libs/constants/microservices";
+import { Inject } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
+import { FilesMessages } from "@libs/constants/files-messages";
+import { UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 
 // Сервис отвечает за загрузку файлов в файловый сервис
 @Injectable()
 export class FilesClientService implements IFilesClientService {
-	constructor(private readonly filesClientConfig: FilesClientEnvConfig) {}
+	constructor(
+		private readonly filesClientConfig: FilesClientEnvConfig,
+		@Inject(Microservice.FILES) private readonly client: ClientProxy,
+	) {}
 	// загрузка одного файла по TCP
-	async uploadFile(file: any, filename: string): Promise<UploadFileOutputDto> {
+	async uploadFile(file: any, folder: string, originalname: string): Promise<UploadFileOutputDto> {
 		try {
-			const fileResult = await this.streamFileToService(file.buffer, filename);
+			const fileResult = await this.streamFileToService(file.buffer, folder, originalname);
+			if (!fileResult.success) {
+				throw new UnexpectedErrorRpcException("Something went wrong while uploading file");
+			}
 			return fileResult;
 		} catch (error) {
 			console.error("Error uploading file:", error);
 			throw error;
 		}
 	}
-	// загрузка нескольких файлов по TCP и возвращает массив имен файлов для сохранения в базу данных
-	async uploadFiles(files: any[], path: string): Promise<Array<string>> {
-		try {
-			const filenamesArray: string[] = [];
-			files.map(async (file, index) => {
-				const filename = `${path}__${index}.webp`;
-				filenamesArray.push(filename);
-				this.streamFileToService(file.buffer, filename);
-			});
-			return filenamesArray;
-		} catch (error) {
-			console.error("Error uploading files:", error);
-			throw error;
-		}
+
+	async saveAvatarToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<any> {
+		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.AVATAR_UPLOAD }, { userId, versions: uploadResult.versions }));
+		return fileResult;
 	}
+	// загрузка нескольких файлов по TCP и возвращает массив имен файлов для сохранения в базу данных
+	// async uploadFiles(files: any[], path: string): Promise<Array<string>> {
+	// 	try {
+	// 		const filenamesArray: string[] = [];
+	// 		files.map(async (file, index) => {
+	// 			const filename = `${path}__${index}.webp`;
+	// 			filenamesArray.push(filename);
+	// 			this.streamFileToService(file.buffer, filename, originalname);
+	// 		});
+	// 		return filenamesArray;
+	// 	} catch (error) {
+	// 		console.error("Error uploading files:", error);
+	// 		throw error;
+	// 	}
+	// }
 
 	// загрузка файла по TCP и возвращает объект с информацией о загрузке
-	private streamFileToService(fileBuffer: Buffer, filename: string): Promise<UploadFileOutputDto> {
+	private streamFileToService(fileBuffer: Buffer, folder: string, originalname: string): Promise<UploadFileOutputDto> {
 		return new Promise((resolve, reject) => {
 			// соединяемся с файловым сервисом по порту и хосту по отдельному TCP соединению
 			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientHost);
@@ -51,11 +68,11 @@ export class FilesClientService implements IFilesClientService {
 
 			// событие при соединении с файловым сервисом
 			socket.on("connect", () => {
-				console.log(`Connected to files service for upload ${filename}`);
+				console.log(`Connected to files service for upload ${originalname}`);
 
 				// может отправлять доп данные например опции для обработки файла
 				// biome-ignore lint/style/useTemplate: <explanation>
-				const header = JSON.stringify({ filename, size: fileBuffer.length }) + "\n";
+				const header = JSON.stringify({ originalname, folder, size: fileBuffer.length }) + "\n";
 				// отправляем заголовок с именем файла и размером
 				socket.write(header);
 				socket.end(fileBuffer);
@@ -89,7 +106,7 @@ export class FilesClientService implements IFilesClientService {
 			// событие при ошибке соединения с файловым сервисом
 			socket.on("error", (error) => {
 				clearTimeout(timeout);
-				console.error(`Socket error for upload ${filename}:`, error);
+				console.error(`Socket error for upload ${originalname}:`, error);
 				reject(error);
 			});
 

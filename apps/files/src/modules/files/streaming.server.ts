@@ -1,15 +1,16 @@
-import { StorageService } from "@files/core/storage/storage.service";
+import { StorageAdapter } from "@files/core/storage/storage.adapter";
 import * as net from "net";
 import * as sharp from "sharp";
 import { PassThrough } from "stream";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
+import { randomUUID } from "crypto";
 
 // TCP сервер для потоковой загрузки файлов
 export class StreamingServer {
 	private server: net.Server;
 
 	constructor(
-		private readonly storageService: StorageService, // сервис для загрузки файлов в S3
+		private readonly storageService: StorageAdapter, // сервис для загрузки файлов в S3
 		private readonly port: number, // порт, на котором будет слушать сервер
 	) {
 		this.port = port;
@@ -51,7 +52,8 @@ export class StreamingServer {
 	private handleConnection(socket: net.Socket) {
 		console.log("New streaming connection established");
 
-		let filename: string | null = null;
+		let originalname: string | null = null;
+		let folder: string | null = null;
 		let headerReceived = false;
 
 		// Первый пакет от клиента всегда содержит заголовок (filename, size)
@@ -65,11 +67,12 @@ export class StreamingServer {
 					if (newlineIndex !== -1) {
 						const headerStr = dataStr.substring(0, newlineIndex);
 						const header = JSON.parse(headerStr);
-						filename = header.filename;
+						originalname = header.originalname;
+						folder = header.folder;
 						const size: number | undefined = header.size;
 						headerReceived = true;
 
-						console.log(`Starting stream for upload ${filename}`);
+						console.log(`Starting stream for upload ${originalname}`);
 
 						// Остаток данных после заголовка (первые байты файла)
 						const remainingData = data.slice(newlineIndex + 1);
@@ -77,10 +80,10 @@ export class StreamingServer {
 						// Передаём дальше на обработку файла
 						if (remainingData.length > 0) {
 							//@ts-expect-error
-							await this.processStream(socket, filename, size, remainingData);
+							await this.processStream(socket, folder, size, remainingData);
 						} else {
 							//@ts-expect-error
-							await this.processStream(socket, filename, size);
+							await this.processStream(socket, folder, size);
 						}
 					}
 				}
@@ -100,20 +103,45 @@ export class StreamingServer {
 		});
 	}
 
-	// Обработка потока файла после получения заголовка
-	private async processStream(socket: net.Socket, filename: string, expectedSize?: number, firstChunk?: Buffer) {
-		try {
-			console.log(`[PROCESS] Start processing file stream: ${filename}`);
+	//todo поправить
+	// Генерация имени файла с суффиксом размера
+	private generateFilename(folder: string, size: string): string {
+		const uniqueId = randomUUID();
 
-			// Sharp-трансформер: ресайз до 512x512 и конвертация в .webp
-			const transformer = sharp()
-				.resize(512, 512)
+		return `${folder}/${uniqueId}_${size}.webp`;
+	}
+
+	// Обработка потока файла после получения заголовка
+	private async processStream(socket: net.Socket, folder: string, expectedSize?: number, firstChunk?: Buffer) {
+		try {
+			// Генерируем имена файлов для разных размеров
+			const filename192 = this.generateFilename(folder, "192x192");
+			const filename45 = this.generateFilename(folder, "45x45");
+			let fileSize192: number = 0;
+			let fileSize45: number = 0;
+			console.log(`[PROCESS] Start processing file stream: ${filename192} and ${filename45}`);
+
+			// Создаем два трансформера Sharp для разных размеров
+			const transformer192 = sharp()
+				.resize(192, 192)
 				.webp()
 				.on("info", (info) => {
-					console.log(`[SHARP] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+					console.log(`[SHARP-192] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+					fileSize192 = info.size;
 				})
 				.on("error", (err) => {
-					console.error("[SHARP] Error:", err);
+					console.error("[SHARP-192] Error:", err);
+				});
+
+			const transformer45 = sharp()
+				.resize(45, 45)
+				.webp()
+				.on("info", (info) => {
+					console.log(`[SHARP-45] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+					fileSize45 = info.size;
+				})
+				.on("error", (err) => {
+					console.error("[SHARP-45] Error:", err);
 				});
 
 			// PassThrough — прокси-поток для записи байтов файла
@@ -158,16 +186,55 @@ export class StreamingServer {
 				passThrough.destroy(err);
 			});
 
-			// Передаём поток в S3 (через Sharp-трансформацию)
-			console.log("[UPLOAD] Starting upload to S3...");
-			await this.storageService.uploadFileStream(passThrough.pipe(transformer), filename, "image/webp");
-			console.log("[UPLOAD] Upload finished successfully!");
+			// Создаем отдельные потоки для каждого трансформера
+			const stream192 = new PassThrough();
+			const stream45 = new PassThrough();
 
-			// Формируем успешный ответ клиенту
+			// Дублируем данные из основного потока в два отдельных
+			passThrough.on("data", (chunk) => {
+				stream192.write(chunk);
+				stream45.write(chunk);
+			});
+
+			passThrough.on("end", () => {
+				stream192.end();
+				stream45.end();
+			});
+
+			passThrough.on("error", (err) => {
+				stream192.destroy(err);
+				stream45.destroy(err);
+			});
+
+			// Загружаем обе версии параллельно
+			console.log("[UPLOAD] Starting parallel uploads to S3...");
+
+			await Promise.all([
+				this.storageService.uploadFileStream(stream192.pipe(transformer192), filename192, "image/webp"),
+				this.storageService.uploadFileStream(stream45.pipe(transformer45), filename45, "image/webp"),
+			]);
+
+			console.log("[UPLOAD] Both uploads finished successfully!");
+			console.log(`[UPLOAD] 192x192 version: ${filename192}`);
+			console.log(`[UPLOAD] 45x45 version: ${filename45}`);
+
+			// Формируем успешный ответ клиенту с информацией об обеих версиях
 			const result: UploadFileOutputDto = {
 				success: true,
-				filename,
-				message: "File uploaded successfully",
+				versions: [
+					{
+						url: filename192,
+						width: 192,
+						height: 192,
+						fileSize: fileSize192,
+					},
+					{
+						url: filename45,
+						width: 45,
+						height: 45,
+						fileSize: fileSize45,
+					},
+				],
 			};
 
 			if (!socket.destroyed && socket.writable) {

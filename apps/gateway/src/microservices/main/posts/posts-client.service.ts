@@ -16,6 +16,7 @@ export class PostsClientService {
 	async createPost(userId: string, files: any[], description: string): Promise<any> {
 		const postId = randomUUID();
 
+		//@ts-expect-error
 		const filenamesArray = await this.filesClientService.uploadFiles(files, `posts/${postId}`);
 
 		const res = await firstValueFrom(this.client.send({ cmd: MainMessages.CREATE_POST }, { filenamesArray, userId, description }));

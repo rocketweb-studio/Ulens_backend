@@ -1,10 +1,10 @@
-import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { Body, Controller, HttpCode, HttpStatus, Post, UploadedFiles, UseGuards, UseInterceptors } from "@nestjs/common";
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { PostsClientService } from "./posts-client.service";
 import { CreatePostDto } from "@libs/contracts/main-contracts/input/create-post.input.dto";
 import { ApiOperation, ApiConsumes, ApiBody, ApiResponse } from "@nestjs/swagger";
+import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 
 // контроллер отвечает за запросы к сервису постов
 @Controller("posts")

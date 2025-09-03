@@ -1,7 +1,11 @@
 import { Controller, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
-import { StreamingServer } from "./streaming.server";
-import { StorageService } from "@files/core/storage/storage.service";
-import { FilesConfig } from "./files.config";
+import { StreamingServer } from "@files/modules/files/streaming.server";
+import { StorageAdapter } from "@files/core/storage/storage.adapter";
+import { FilesConfig } from "@files/modules/files/files.config";
+import { FilesMessages } from "@libs/constants/files-messages";
+import { MessagePattern, Payload } from "@nestjs/microservices";
+import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
+import { FilesService } from "@files/modules/files/files.service";
 
 @Controller()
 // Контроллер для файлового сервиса
@@ -9,8 +13,9 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 	private streamingServer: StreamingServer;
 
 	constructor(
-		private readonly storageService: StorageService,
+		private readonly storageService: StorageAdapter,
 		private readonly filesConfig: FilesConfig,
+		private readonly filesService: FilesService,
 	) {}
 
 	// Запускаем TCP сервер для streaming
@@ -28,17 +33,8 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		}
 	}
 
-	//! этот метод нужен только если у нас есть своя БД у файлового сервиса
-	//! получается что если у нас нет свой БД то нам не нужно вообще TCP соединение у NestJs
-	// @MessagePattern(FilesMessages.FILE_UPLOAD)
-	// async initUpload(data: any) {
-	// 	console.log(`Initializing upload ${data}`);
-
-	// 	// await this.filesService.initUpload(data);
-
-	// 	return {
-	// 		success: true,
-	// 		uploadId: 1
-	// 	};
-	// }
+	@MessagePattern({ cmd: FilesMessages.AVATAR_UPLOAD })
+	async saveAvatar(@Payload() data: AvatarInputDto): Promise<boolean> {
+		return await this.filesService.saveAvatar(data);
+	}
 }

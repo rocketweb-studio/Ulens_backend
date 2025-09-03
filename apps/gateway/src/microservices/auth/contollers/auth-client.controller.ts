@@ -142,4 +142,10 @@ export class AuthClientController {
 		const users = await this.authClientService.getUsers();
 		return users;
 	}
+
+	@Get("ping-rabbit")
+	async pingRabbit() {
+		await this.authClientService.publishTestEvent();
+		return { ok: true };
+	}
 }

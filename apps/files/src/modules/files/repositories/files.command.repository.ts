@@ -2,12 +2,13 @@ import { Injectable } from "@nestjs/common";
 import { IFilesCommandRepository } from "@files/modules/files/files.interfaces";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { PrismaService } from "@files/core/prisma/prisma.service";
+import { Prisma } from "@files/core/prisma/generated/client";
 
 @Injectable()
 export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async saveAvatar(data: AvatarInputDto): Promise<boolean> {
+	async saveAvatar(data: AvatarInputDto): Promise<string[] | null> {
 		const oldAvatars = await this.prisma.avatar.findMany({
 			where: {
 				parentId: data.userId,
@@ -32,9 +33,9 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 					},
 				},
 			});
-			return true;
+			return oldAvatars.map((avatar) => this._mapToViewDto(avatar));
 		}
-		return false;
+		return null;
 	}
 
 	async savePostImages(data: any): Promise<boolean> {
@@ -51,5 +52,9 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 			return true;
 		}
 		return false;
+	}
+	// biome-ignore lint/complexity/noBannedTypes: <no data transfer object>
+	private _mapToViewDto(avatar: Prisma.AvatarGetPayload<{}>): string {
+		return avatar.url;
 	}
 }

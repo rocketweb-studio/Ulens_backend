@@ -12,6 +12,6 @@ export abstract class IFilesQueryRepository {
 }
 
 export abstract class IFilesCommandRepository {
-	abstract saveAvatar(data: AvatarInputDto): Promise<boolean>;
+	abstract saveAvatar(data: AvatarInputDto): Promise<string[] | null>;
 	abstract savePostImages(data: any): Promise<boolean>;
 }

@@ -184,7 +184,7 @@ export class StreamingServer {
 			});
 
 			// Создаем отдельные потоки для каждого трансформера
-			const streams = imagesParams.map((fs) => new PassThrough());
+			const streams = imagesParams.map(() => new PassThrough());
 
 			// Дублируем данные из основного потока в два отдельных
 			passThrough.on("data", (chunk) => {

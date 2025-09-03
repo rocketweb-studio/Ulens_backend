@@ -178,7 +178,7 @@ export class StreamClientService {
 						reject(new Error(response.error || "Upload failed"));
 					}
 				} catch (e) {
-					// JSON еще не полный
+					console.error(`Error parsing response: ${e.message}`);
 				}
 			});
 
@@ -193,7 +193,7 @@ export class StreamClientService {
 							reject(new Error(response.error || "Upload failed"));
 						}
 					} catch (e) {
-						reject(new Error(`Invalid response: ${responseBuffer}`));
+						reject(new Error(`Invalid response: ${responseBuffer}, message: ${e.message}`));
 					}
 				} else {
 					reject(new Error("No response from files service"));

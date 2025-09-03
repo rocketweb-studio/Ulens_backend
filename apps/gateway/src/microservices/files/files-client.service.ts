@@ -6,7 +6,9 @@ import { Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { FilesMessages } from "@libs/constants/files-messages";
 
-// Сервис отвечает за загрузку файлов в файловый сервис
+/**
+ * *Сервис отвечает за загрузку файлов в файловый сервис по основному nestjs порту для работы с MessgePattern
+ */
 @Injectable()
 export class FilesClientService {
 	constructor(@Inject(Microservice.FILES) private readonly client: ClientProxy) {}

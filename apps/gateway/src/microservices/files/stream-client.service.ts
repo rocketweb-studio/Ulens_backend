@@ -13,7 +13,9 @@ interface StreamUploadResult {
 	errors?: string[];
 }
 
-// Сервис отвечает за загрузку файлов в файловый сервис через TCP поток
+/**
+ * *Сервис отвечает за загрузку файлов в файловый сервис через TCP поток по отдельному порту
+ */
 @Injectable()
 export class StreamClientService {
 	constructor(private readonly filesClientConfig: FilesClientEnvConfig) {}
@@ -68,7 +70,7 @@ export class StreamClientService {
 				expectedFiles++;
 
 				try {
-					const uploadResult = await this.streamSingleFile(file, info.filename, config.folder, info.mimeType);
+					const uploadResult = await this.streamSingleFile(file, info.filename, config.folder, info.mimeType, config.fileSizes);
 
 					results.push(uploadResult);
 				} catch (error) {
@@ -118,7 +120,13 @@ export class StreamClientService {
 	}
 
 	// Метод для загрузки одного файла через TCP поток
-	private streamSingleFile(fileStream: NodeJS.ReadableStream, filename: string, folder: string, mimeType: string): Promise<UploadFileOutputDto> {
+	private streamSingleFile(
+		fileStream: NodeJS.ReadableStream,
+		filename: string,
+		folder: string,
+		mimeType: string,
+		fileSizes: string[],
+	): Promise<UploadFileOutputDto> {
 		return new Promise((resolve, reject) => {
 			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientHost);
 
@@ -133,12 +141,13 @@ export class StreamClientService {
 			socket.on("connect", () => {
 				console.log(`Connected to files service for: ${filename}`);
 
-				// biome-ignore lint/style/useTemplate: <explanation>
+				// biome-ignore lint/style/useTemplate: <serializing>
 				const header =
 					JSON.stringify({
 						originalname: filename,
 						folder: folder,
 						mimeType: mimeType,
+						fileSizes: fileSizes,
 					}) + "\n";
 
 				socket.write(header);

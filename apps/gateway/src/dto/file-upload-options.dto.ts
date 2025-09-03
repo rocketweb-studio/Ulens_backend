@@ -4,4 +4,5 @@ export class FileUploadOptionsDto {
 	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
 	allowedTypes: string[]; // Разрешенные MIME типы
 	maxSize: number; // Максимальный размер файла в байтах
+	fileSizes: string[]; // Размеры файлов
 }

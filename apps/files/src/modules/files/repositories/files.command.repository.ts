@@ -18,6 +18,11 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 			})),
 		});
 		if (result.count > 0) {
+			await this.prisma.avatar.deleteMany({
+				where: {
+					parentId: data.userId,
+				},
+			});
 			return true;
 		}
 		return false;

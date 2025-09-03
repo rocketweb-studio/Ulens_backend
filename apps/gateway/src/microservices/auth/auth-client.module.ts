@@ -12,7 +12,7 @@ import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
 import { AuthClientOAuthController } from "@gateway/microservices/auth/contollers/oauth.auth-client.controller";
 import { ProfileAuthClientController } from "./profile/profile-auth-client.controller";
-import { ProfileAuthClientService } from "./profile/profile-auth-client.service";
+import { ProfileAuthClientService } from "./profile/profile-auth-clien.service";
 import { FilesClientModule } from "../files/files-client.module";
 @Module({
 	imports: [

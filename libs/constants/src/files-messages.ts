@@ -1,4 +1,4 @@
 export enum FilesMessages {
-	FILE_UPLOAD = "file_upload",
 	AVATAR_UPLOAD = "avatar_upload",
+	POST_IMAGES_UPLOAD = "post_images_upload",
 }

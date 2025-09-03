@@ -26,7 +26,8 @@ export enum AuthRouterPaths {
 }
 
 export enum MainRouterPaths {
-	MAIN = "main",
+	POSTS = "posts",
+	IMAGES = ":postId/images",
 }
 
 export enum ApiTagsNames {

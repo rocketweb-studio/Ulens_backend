@@ -14,4 +14,12 @@ export class FilesService {
 		}
 		return isSaved;
 	}
+
+	async savePostImages(data: any): Promise<boolean> {
+		const isSaved = await this.filesCommandRepository.savePostImages(data);
+		if (!isSaved) {
+			throw new UnexpectedErrorRpcException("Something went wrong while saving post images");
+		}
+		return isSaved;
+	}
 }

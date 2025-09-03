@@ -8,6 +8,12 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
 	async saveAvatar(data: AvatarInputDto): Promise<boolean> {
+		const oldAvatars = await this.prisma.avatar.findMany({
+			where: {
+				parentId: data.userId,
+			},
+		});
+
 		const result = await this.prisma.avatar.createMany({
 			data: data.versions.map((version) => ({
 				parentId: data.userId,
@@ -21,8 +27,27 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 			await this.prisma.avatar.deleteMany({
 				where: {
 					parentId: data.userId,
+					id: {
+						in: oldAvatars.map((avatar) => avatar.id),
+					},
 				},
 			});
+			return true;
+		}
+		return false;
+	}
+
+	async savePostImages(data: any): Promise<boolean> {
+		const result = await this.prisma.post.createMany({
+			data: data.versions.map((version) => ({
+				parentId: data.userId,
+				url: version.url,
+				width: version.width,
+				height: version.height,
+				fileSize: version.fileSize,
+			})),
+		});
+		if (result.count > 0) {
 			return true;
 		}
 		return false;

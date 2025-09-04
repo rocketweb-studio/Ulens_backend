@@ -65,4 +65,5 @@ report.[0-9]*.[0-9]*.[0-9]*.[0-9]*.json
 /generated
 /apps/auth/src/core/prisma/generated
 /apps/main/src/core/prisma/generated
+/apps/files/src/core/prisma/generated
 

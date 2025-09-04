@@ -21,14 +21,18 @@ export enum AuthRouterPaths {
 	GITHUB_LOGIN = "github-login",
 	GITHUB_CALLBACK = "github-callback",
 	FILES = "files",
+	PROFILE = "profile",
+	AVATAR = "avatar",
 }
 
 export enum MainRouterPaths {
-	MAIN = "main",
+	POSTS = "posts",
+	IMAGES = ":postId/images",
 }
 
 export enum ApiTagsNames {
 	AUTH = "Auth",
+	PROFILE = "Profile",
 	OAuth2 = "OAuth2",
 	FILES = "Files",
 }

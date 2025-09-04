@@ -1,11 +1,11 @@
 import { Global, Module } from "@nestjs/common";
 import { StorageConfig } from "@files/core/storage/storage.confg";
-import { StorageService } from "@files/core/storage/storage.service";
+import { StorageAdapter } from "@files/core/storage/storage.adapter";
 
 @Global()
 @Module({
-	providers: [StorageService, StorageConfig],
+	providers: [StorageAdapter, StorageConfig],
 	controllers: [],
-	exports: [StorageService],
+	exports: [StorageAdapter],
 })
 export class StorageModule {}

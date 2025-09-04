@@ -142,4 +142,14 @@ export class AuthClientController {
 		const users = await this.authClientService.getUsers();
 		return users;
 	}
+
+	// тестовый эндпоинт для публикации сообщения
+	@Get("ping-rabbit")
+	async pingRabbit() {
+		// использовали для отладки, это рабочий метод
+		// await this.authClientService.publishTestEvent();
+
+		await this.authClientService.publishUserRegisteredEvent();
+		return { ok: true };
+	}
 }

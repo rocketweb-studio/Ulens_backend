@@ -10,11 +10,15 @@ import { JwtService } from "@nestjs/jwt";
 import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
 import { MeUserViewDto } from "@libs/contracts/index";
+import * as amqp from "amqplib";
+import { EventEnvelope } from "@libs/contracts/index";
+import { randomUUID } from "crypto";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
+		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
@@ -128,5 +132,42 @@ export class AuthClientService implements IAuthClientService {
 	async getUsers(): Promise<MeUserViewDto[]> {
 		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
 		return users;
+	}
+
+	// тестовый метод для публикации сообщения
+	async publishTestEvent() {
+		const event = {
+			messageId: Date.now().toString(),
+			type: "test.event",
+			payload: { hello: "world" },
+		};
+
+		this.ch.publish(
+			"app.events", // exchange
+			"test.event", // routing key
+			Buffer.from(JSON.stringify(event)),
+			{ persistent: true, contentType: "application/json" },
+		);
+		console.log("[RMQ] Published test.event:", event);
+	}
+
+	// тестовый метод с "реальным" событием
+	async publishUserRegisteredEvent() {
+		const event: EventEnvelope<{ userId: string; email: string }> = {
+			messageId: randomUUID(),
+			traceId: randomUUID(),
+			type: "auth.user.registered.v1", // ← новый тип
+			occurredAt: new Date().toISOString(),
+			producer: "gateway", // пока публикуем из gateway
+			payload: { userId: "demo-user-id", email: "demo@example.com" },
+		};
+
+		this.ch.publish(
+			"app.events", // общий topic exchange
+			"auth.user.registered.v1", // ← routing key в тему события
+			Buffer.from(JSON.stringify(event)),
+			{ persistent: true, contentType: "application/json" },
+		);
+		console.log("[RMQ] Published auth.user.registered.v1:", event);
 	}
 }

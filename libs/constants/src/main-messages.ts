@@ -1,5 +1,7 @@
 export enum MainMessages {
-	CLEAR_MAIN_DATABASE = "clear_main_database",
 	AVATAR_UPLOAD = "avatar_upload",
 	CREATE_POST = "create_post",
+	DELETE_POST = "delete_post",
+	UPDATE_POST = "update_post",
+	GET_USER_POSTS = "get_user_posts",
 }

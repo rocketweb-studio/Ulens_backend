@@ -1,6 +1,7 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@main/core/core.module";
 import { CoreEnvConfig } from "@main/core/core.config";
+import { PostModule } from "./modules/post/post.module";
 
 @Module({
 	// 1
@@ -13,7 +14,7 @@ export class AppModule {
 		// 3
 		return {
 			module: AppModule,
-			imports: [CoreModule],
+			imports: [CoreModule, PostModule],
 			providers: [
 				{
 					provide: CoreEnvConfig,

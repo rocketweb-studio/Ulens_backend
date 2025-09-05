@@ -36,6 +36,6 @@
     { "path": "../../libs/exeption/tsconfig.lib.json" },
     { "path": "../../libs/rabbit/tsconfig.lib.json" },
   ],
-  "include": ["src/**/*"],
+  "include": ["src/**/*", "../../libs/contracts/src/main-contracts/input/update-post.input.dto.ts"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
 }

@@ -30,6 +30,11 @@ export enum MainRouterPaths {
 	IMAGES = ":postId/images",
 }
 
+export enum RouteParams {
+	POST_ID = ":postId",
+	USER_ID = ":userId",
+}
+
 export enum ApiTagsNames {
 	AUTH = "Auth",
 	PROFILE = "Profile",

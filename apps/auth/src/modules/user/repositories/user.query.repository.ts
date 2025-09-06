@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { MeUserViewDto } from "@libs/contracts/index";
+import { MeUserViewDto, ProfilePostsDto } from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
@@ -56,6 +56,23 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			},
 		});
 		return users.map((user) => this._mapToView(user));
+	}
+
+	async getProfileForPosts(userId: string): Promise<ProfilePostsDto | null> {
+		const profile = await this.prisma.profile.findUnique({
+			where: { userId },
+			select: {
+				userName: true,
+				firstName: true,
+				lastName: true,
+				city: true,
+				country: true,
+				region: true,
+			},
+		});
+		if (!profile) return null;
+
+		return profile;
 	}
 
 	private _mapToView(user: UserWithProfile): MeUserViewDto {

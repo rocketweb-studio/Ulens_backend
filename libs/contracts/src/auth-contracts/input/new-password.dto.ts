@@ -13,7 +13,7 @@ export class NewPasswordDto {
 	@Trim()
 	@IsString()
 	@Length(6, 20)
-	@Matches(/^[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\]\\^_{|}~]+$/, {
+	@Matches(/^(?=.*[A-Z])(?=.*[a-z])(?=.*\d)[0-9A-Za-z!"#$%&'()*+,\-./:;<=>?@[\]\\^_{|}~]{6,20}$/, {
 		message: "Allowed characters: 0-9, A-Z, a-z and special symbols ! \" # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~",
 	})
 	newPassword: string;

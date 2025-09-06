@@ -12,6 +12,7 @@ import { CodeOutputDto } from "@auth/modules/user/dto/code.output.dto";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { OauthInputDto } from "@auth/modules/user/dto/oauth.input.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
+import { ProfilePostsDto } from "@libs/contracts/index";
 
 @Controller()
 export class UserController {
@@ -95,6 +96,12 @@ export class UserController {
 	@MessagePattern({ cmd: AuthMessages.GET_USERS })
 	async getUsers(): Promise<MeUserViewDto[]> {
 		const response = await this.userQueryRepository.getUsers();
+		return response;
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS })
+	async getProfileForPosts(id: string): Promise<ProfilePostsDto | null> {
+		const response = await this.userQueryRepository.getProfileForPosts(id);
 		return response;
 	}
 }

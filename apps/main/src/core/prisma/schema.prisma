@@ -21,7 +21,9 @@ model Post {
   userId String
   description String
   createdAt DateTime @default(now())
-  deletedAt DateTime?
+	updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
 
+	@@unique([createdAt, id], name: "createdAt_id") // составной уникальный индекс для реализации пагинации с курсором
   @@map("posts")
 }

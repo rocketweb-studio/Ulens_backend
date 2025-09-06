@@ -13,6 +13,7 @@ export enum AuthMessages {
 	REFRESH_TOKENS = "refresh_tokens",
 	LOGOUT = "logout",
 	ME = "me",
+	GET_PROFILE_FOR_POSTS = "get_profile_for_posts",
 }
 
 export enum Oauth2Providers {

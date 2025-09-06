@@ -7,7 +7,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { FilesService } from "@files/modules/files/files.service";
 import { IFilesQueryRepository } from "./files.interfaces";
-import { ImageOutputDto } from "@libs/contracts/index";
+import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
 
 @Controller()
 // Контроллер для файлового сервиса
@@ -48,5 +48,17 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		await this.filesService.savePostImages(data);
 		const newPostImages = await this.filesQueryRepository.findPostImagesByPostId(data.postId);
 		return newPostImages;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.GET_USER_AVATAR_URL })
+	async getProfileForPosts(id: string): Promise<{ url: string } | null> {
+		const response = await this.filesQueryRepository.getAvatarUrlByUserId(id);
+		return response;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.GET_USER_POST_IMAGES })
+	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]> {
+		const response = await this.filesQueryRepository.getImagesByPostIds(postIds);
+		return response;
 	}
 }

@@ -6,6 +6,7 @@ import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.in
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshTokenDto } from "@auth/modules/user/dto/refresh.dto";
+import { ProfilePostsDto } from "@libs/contracts/index";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -16,6 +17,7 @@ export abstract class IUserQueryRepository {
 	abstract findUserById(id: string): Promise<MeUserViewDto | null>;
 	abstract getMe(dto: RefreshTokenDto): Promise<MeUserViewDto>;
 	abstract getUsers(): Promise<MeUserViewDto[]>;
+	abstract getProfileForPosts(id: string): Promise<ProfilePostsDto | null>;
 }
 
 export abstract class IUserCommandRepository {

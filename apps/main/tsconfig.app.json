@@ -26,7 +26,7 @@
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],
       "@libs/exeption/*": ["../../libs/exeption/src/*"],
-      "@libs/rabbit/*": ["../../libs/rabbit/src/*"],
+      "@libs/rabbit/*": ["../../libs/rabbit/src/*"]
     }
   },
   "references": [
@@ -36,6 +36,6 @@
     { "path": "../../libs/exeption/tsconfig.lib.json" },
     { "path": "../../libs/rabbit/tsconfig.lib.json" },
   ],
-  "include": ["src/**/*", "../../libs/contracts/src/main-contracts/input/update-post.input.dto.ts"],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
 }

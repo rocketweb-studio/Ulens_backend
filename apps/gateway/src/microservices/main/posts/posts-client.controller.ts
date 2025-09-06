@@ -11,6 +11,7 @@ import { CreatePostSwagger } from "@gateway/core/decorators/swagger/main/create-
 import { DeletePostSwagger } from "@gateway/core/decorators/swagger/main/delete-post-swagger.decorator";
 import { UpdatePostSwagger } from "@gateway/core/decorators/swagger/main/update-post-swagger.decorator";
 import { GetUserPostsSwagger } from "@gateway/core/decorators/swagger/main/get-user-posts-swagger.decorator";
+import { UserPostsOutputDto } from "@gateway/dto/user-posts-output.dto";
 
 // контроллер отвечает за запросы к сервису постов
 @Controller(MainRouterPaths.POSTS)
@@ -56,7 +57,7 @@ export class PostsClientController {
 	@Get(RouteParams.USER_ID)
 	@HttpCode(HttpStatus.OK)
 	@UseGuards(JwtAccessAuthGuard)
-	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<any> {
+	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
 		return await this.postsClientService.getUserPosts(userId, query);
 	}
 }

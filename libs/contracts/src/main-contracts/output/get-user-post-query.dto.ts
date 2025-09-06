@@ -24,15 +24,20 @@ export class GetUserPostsQueryDto {
 	@IsUUID("4")
 	endCursorPostId?: string;
 
-	@ApiPropertyOptional({ description: "Sort by parameters", example: "createdAt" })
+	@ApiPropertyOptional({
+		description: "Sort by parameters (deprecated, ignored by server)",
+		example: "createdAt",
+		deprecated: true,
+	})
 	@IsOptional()
 	@IsString()
 	sortBy?: string;
 
 	@ApiPropertyOptional({
-		description: "Sort by desc or asc",
+		description: "Sort by desc or asc (deprecated, ignored by server)",
 		enum: SortDirection,
 		default: SortDirection.DESC,
+		deprecated: true,
 	})
 	@IsOptional()
 	@IsEnum(SortDirection)

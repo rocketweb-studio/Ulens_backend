@@ -53,14 +53,16 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 	 * Отдаём одной транзакцией для логической консистентности totalCount и данных.
 	 */
 	private async getFirstPage(where: Prisma.PostWhereInput, pageSize: number): Promise<[number, Row[]]> {
-		//@ts-expect-error
+		// biome-ignore lint/suspicious/noTsIgnore: <temporary>
+		//@ts-ignore
 		return this.prisma.$transaction([
 			this.prisma.post.count({ where }),
 			this.prisma.post.findMany({
 				where,
 				orderBy: this.getOrderBy(),
 				take: pageSize,
-				//@ts-expect-error
+				// biome-ignore lint/suspicious/noTsIgnore: <temporary>
+				//@ts-ignore
 				select: { id: true, description: true, createdAt: true, updatedAt: true },
 			}),
 		]);
@@ -81,17 +83,20 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 	 * skip: 1 — чтобы не возвращать сам элемент-курсор.
 	 */
 	private async getPageAfterCursor(where: Prisma.PostWhereInput, cursor: { createdAt: Date; id: string }, pageSize: number): Promise<[number, Row[]]> {
-		//@ts-expect-error
+		// biome-ignore lint/suspicious/noTsIgnore: <temporary>
+		//@ts-ignore
 		return this.prisma.$transaction([
 			this.prisma.post.count({ where }),
 			this.prisma.post.findMany({
 				where,
 				orderBy: this.getOrderBy(),
-				//@ts-expect-error
+				// biome-ignore lint/suspicious/noTsIgnore: <temporary>
+				//@ts-ignore
 				cursor: { createdAt_id: { createdAt: cursor.createdAt, id: cursor.id } },
 				skip: 1,
 				take: pageSize,
-				//@ts-expect-error
+				// biome-ignore lint/suspicious/noTsIgnore: <temporary>
+				//@ts-ignore
 				select: { id: true, description: true, createdAt: true, updatedAt: true },
 			}),
 		]);

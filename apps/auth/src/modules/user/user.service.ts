@@ -271,12 +271,16 @@ export class UserService {
 			deviceId,
 		};
 
-		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt));
+		// проверка на работоспособность redis
+		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt), "EX", 60 * 60 * 1000);
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
 			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
 			secret: this.userEnvConfig.refreshTokenSecret,
 		});
+
+		// проверка на существование deviceId в redis
+		console.log("Saved session in redis: ", await this.redisService.get(deviceId));
 
 		const payloadFromJwt = this.jwtService.decode(refreshToken); // string | object | null
 		await this.sessionService.createSession(userId, deviceId, metadata, payloadFromJwt);

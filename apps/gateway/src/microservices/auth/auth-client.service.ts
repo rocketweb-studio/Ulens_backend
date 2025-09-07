@@ -1,7 +1,16 @@
 import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, SessionMetadataDto, CreateOauthUserDto } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	SessionMetadataDto,
+	CreateOauthUserDto,
+	UserConfirmationOutputDto,
+} from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages, Oauth2Providers } from "@libs/constants/auth-messages";
 import { UnauthorizedRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
@@ -16,9 +25,13 @@ import { randomUUID } from "crypto";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
+	// rabbitmq заглушка(закомментировать)
+	private readonly ch: amqp.Channel;
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
-		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+		// rabbitmq заглушка
+		// @Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
@@ -132,6 +145,11 @@ export class AuthClientService implements IAuthClientService {
 	async getUsers(): Promise<MeUserViewDto[]> {
 		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
 		return users;
+	}
+
+	async getUserConfirmation(email: string): Promise<UserConfirmationOutputDto> {
+		const user = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USER_CONFIRMATION_BY_EMAIL }, { email }));
+		return user;
 	}
 
 	// тестовый метод для публикации сообщения

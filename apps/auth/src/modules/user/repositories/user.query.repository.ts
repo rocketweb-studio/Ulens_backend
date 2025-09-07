@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { MeUserViewDto, ProfilePostsDto } from "@libs/contracts/index";
+import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto } from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
@@ -80,6 +80,18 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			id: user.id,
 			userName: user.profile?.userName || "",
 			email: user.email,
+		};
+	}
+
+	async getUserConfirmation(email: string): Promise<UserConfirmationOutputDto> {
+		const user = await this.prisma.user.findUnique({
+			where: { email },
+			select: {
+				confirmationCodeConfirmed: true,
+			},
+		});
+		return {
+			confirmationCodeConfirmed: user?.confirmationCodeConfirmed || false,
 		};
 	}
 }

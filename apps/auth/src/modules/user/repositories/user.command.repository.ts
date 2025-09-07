@@ -179,7 +179,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			email: user.email,
 			passwordHash: user.passwordHash,
 			profile: {
-				userName: user.profile?.userName || null,
+				userName: user.profile?.userName || "",
 			},
 			confirmationCode: user.confirmationCode,
 			confirmationCodeExpDate: user.confirmationCodeExpDate,

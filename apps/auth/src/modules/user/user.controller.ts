@@ -2,7 +2,16 @@ import { Controller, UseGuards } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { UserService } from "@auth/modules/user/user.service";
 import { AuthMessages } from "@libs/constants/auth-messages";
-import { ConfirmCodeDto, CreateUserDto, NewPasswordDto, ResendEmailDto, EmailDto, RegistrationGoogleOutputDto, MeUserViewDto } from "@libs/contracts/index";
+import {
+	ConfirmCodeDto,
+	CreateUserDto,
+	NewPasswordDto,
+	ResendEmailDto,
+	EmailDto,
+	RegistrationGoogleOutputDto,
+	MeUserViewDto,
+	UserConfirmationOutputDto,
+} from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
 import { LoginInputDto } from "@auth/modules/user/dto/login.input.dto";
@@ -102,6 +111,12 @@ export class UserController {
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS })
 	async getProfileForPosts(id: string): Promise<ProfilePostsDto | null> {
 		const response = await this.userQueryRepository.getProfileForPosts(id);
+		return response;
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_USER_CONFIRMATION_BY_EMAIL })
+	async getUserConfirmation(@Payload() email: string): Promise<UserConfirmationOutputDto> {
+		const response = await this.userQueryRepository.getUserConfirmation(email);
 		return response;
 	}
 }

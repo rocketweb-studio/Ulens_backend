@@ -3,7 +3,7 @@ export type UserOutputRepoDto = {
 	email: string;
 	passwordHash: string | null;
 	profile: {
-		userName: string | null;
+		userName: string;
 	};
 	confirmationCode: string | null;
 	confirmationCodeExpDate: Date | null;

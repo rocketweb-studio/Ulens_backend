@@ -8,6 +8,7 @@ import * as amqp from "amqplib";
 			// Подключение к RabbitMQ (одно соединение на всё приложение)
 			provide: "RMQ_CONNECTION",
 			useFactory: async () => {
+				// todo переменные не читаются
 				const url = process.env.RMQ_URL || "amqp://guest:guest@localhost:5672/";
 				const conn = await amqp.connect(url);
 				conn.on("error", (e) => console.error("[RMQ] connection error:", e.message));

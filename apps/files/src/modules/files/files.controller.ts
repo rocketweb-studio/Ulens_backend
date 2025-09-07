@@ -50,6 +50,13 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		return newPostImages;
 	}
 
+	@MessagePattern({ cmd: FilesMessages.GET_USER_AVATARS })
+	async getUserAvatars(id: string): Promise<ImageOutputDto[] | null> {
+		const response = await this.filesQueryRepository.getAvatarsByUserId(id);
+		return response;
+	}
+
+	// todo я бы убрал этот метод, и использовал тот что выше - getUserAvatars
 	@MessagePattern({ cmd: FilesMessages.GET_USER_AVATAR_URL })
 	async getProfileForPosts(id: string): Promise<{ url: string } | null> {
 		const response = await this.filesQueryRepository.getAvatarUrlByUserId(id);
@@ -60,5 +67,11 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]> {
 		const response = await this.filesQueryRepository.getImagesByPostIds(postIds);
 		return response;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.DELETE_USER_AVATAR })
+	async deleteAvatarsByUserId(userId: string): Promise<boolean> {
+		const avatars = await this.filesQueryRepository.getAvatarsByUserId(userId);
+		return this.filesService.deleteAvatarsByUserId(userId, avatars);
 	}
 }

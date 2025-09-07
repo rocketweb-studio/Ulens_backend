@@ -4,7 +4,7 @@ import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/uplo
 import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
 import * as busboy from "busboy";
 import { Request } from "express";
-import { FileUploadOptionsDto } from "@gateway/dto/file-upload-options.dto";
+import { FileUploadOptionsDto } from "@gateway/microservices/files/upload-config/file-upload-configs";
 
 // Интерфейс для результата загрузки
 interface StreamUploadResult {
@@ -142,13 +142,12 @@ export class StreamClientService {
 				console.log(`Connected to files service for: ${filename}`);
 
 				// biome-ignore lint/style/useTemplate: <serializing>
-				const header =
-					JSON.stringify({
-						originalname: filename,
-						folder: folder,
-						mimeType: mimeType,
-						fileSizes: fileSizes,
-					}) + "\n";
+				const header = `${JSON.stringify({
+					originalname: filename,
+					folder: folder,
+					mimeType: mimeType,
+					fileSizes: fileSizes,
+				})}\n`;
 
 				socket.write(header);
 				fileStream.pipe(socket, { end: false });

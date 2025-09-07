@@ -1,4 +1,4 @@
-import { ConfirmCodeDto, MeUserViewDto } from "@libs/contracts/index";
+import { ConfirmCodeDto, MeUserViewDto, UserConfirmationOutputDto } from "@libs/contracts/index";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
 import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
@@ -18,6 +18,7 @@ export abstract class IUserQueryRepository {
 	abstract getMe(dto: RefreshTokenDto): Promise<MeUserViewDto>;
 	abstract getUsers(): Promise<MeUserViewDto[]>;
 	abstract getProfileForPosts(id: string): Promise<ProfilePostsDto | null>;
+	abstract getUserConfirmation(email: string): Promise<UserConfirmationOutputDto>;
 }
 
 export abstract class IUserCommandRepository {

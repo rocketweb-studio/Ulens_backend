@@ -32,7 +32,9 @@ import { Oauth2Providers } from "@libs/constants/auth-messages";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
-import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
+// rabbitmq заглушка
+// import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
+import { RedisService } from "@libs/redis/redis.service";
 
 @Injectable()
 export class UserService {
@@ -42,7 +44,9 @@ export class UserService {
 		private readonly userEnvConfig: UserEnvConfig,
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
-		private readonly authEventsPublisher: AuthEventsPublisher,
+		// rabbitmq заглушка
+		// private readonly authEventsPublisher: AuthEventsPublisher,
+		private readonly redisService: RedisService,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -71,7 +75,8 @@ export class UserService {
 			throw new UnexpectedErrorRpcException("User was not created");
 		}
 
-		await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
+		// rabbitmq заглушка
+		// await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
 
 		return {
 			email: createdUser.email,
@@ -265,6 +270,8 @@ export class UserService {
 			userId,
 			deviceId,
 		};
+
+		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt));
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
 			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,

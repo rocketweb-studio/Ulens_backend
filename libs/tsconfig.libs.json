@@ -6,5 +6,6 @@
     { "path": "./contracts/tsconfig.lib.json" },
     { "path": "./exeption/tsconfig.lib.json" },
     { "path": "./rabbit/tsconfig.lib.json" },
+    { "path": "./redis/tsconfig.lib.json" },
   ]
 }

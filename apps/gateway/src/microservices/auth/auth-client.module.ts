@@ -48,5 +48,6 @@ import { FilesClientModule } from "../files/files-client.module";
 	],
 	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController],
 	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService],
+	exports: [ProfileAuthClientService],
 })
 export class AuthClientModule {}

@@ -15,19 +15,14 @@ ENV RABBITMQ_DEFAULT_VHOST=/
 # Создаем директорию для конфигурации RabbitMQ
 RUN mkdir -p /etc/rabbitmq
 
-# Включаем management plugin
-RUN rabbitmq-plugins enable --offline rabbitmq_management
-
-# Создаем базовую конфигурацию RabbitMQ
+# Создаем базовую конфигурацию RabbitMQ (без management plugin)
 RUN echo "# RabbitMQ configuration" > /etc/rabbitmq/rabbitmq.conf && \
     echo "listeners.tcp.default = 0.0.0.0:5672" >> /etc/rabbitmq/rabbitmq.conf && \
-    echo "management.tcp.port = 15672" >> /etc/rabbitmq/rabbitmq.conf && \
-    echo "management.tcp.ip = 0.0.0.0" >> /etc/rabbitmq/rabbitmq.conf && \
     echo "loopback_users = none" >> /etc/rabbitmq/rabbitmq.conf && \
     echo "log.console = true" >> /etc/rabbitmq/rabbitmq.conf
 
-# Открываем порты
-EXPOSE ${port} 15672
+# Открываем только основной порт
+EXPOSE ${port}
 
 # Создаем скрипт запуска который использует переменную PORT
 RUN echo '#!/bin/sh' > /start-rabbitmq.sh && \

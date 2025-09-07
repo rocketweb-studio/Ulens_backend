@@ -1,35 +1,34 @@
-# Check out https://hub.docker.com/_/node to select a new base image
-FROM node:20.11-alpine
+# Используем официальный образ Redis
+FROM redis:7.2-alpine
+
+# Переменные окружения (оставляем для совместимости с системой)
 ARG port
 ARG service
 ENV SERVICE=$service
 ENV PORT=$port
-# Set to a non-root built-in user `node`
 
-USER node
+# Создаем директорию для конфигурации Redis
+RUN mkdir -p /usr/local/etc/redis
 
-# Create app directory (with user `node`)
-RUN mkdir -p /home/node/dist/${SERVICE}
+# Создаем пользователя redis (если не существует)
+RUN addgroup -g 999 redis && adduser -D -u 999 -G redis redis || true
 
-WORKDIR /home/node/dist/${SERVICE}
+# Устанавливаем владельца для директории
+RUN chown -R redis:redis /usr/local/etc/redis /data
 
-# Install app dependencies
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
-# where available (npm@5+)
+# Переключаемся на пользователя redis
+USER redis
 
+# ИСПРАВЛЕНО: Не создаем конфигурацию с портом во время сборки
+RUN echo "# Redis configuration" > /usr/local/etc/redis/redis.conf && \
+    echo "bind 0.0.0.0" >> /usr/local/etc/redis/redis.conf && \
+    echo "dir /data" >> /usr/local/etc/redis/redis.conf && \
+    echo "save 900 1" >> /usr/local/etc/redis/redis.conf && \
+    echo "save 300 10" >> /usr/local/etc/redis/redis.conf && \
+    echo "save 60 10000" >> /usr/local/etc/redis/redis.conf
 
+# Открываем порт (используем ARG для времени сборки)
+EXPOSE ${port}
 
-COPY --chown=node package*.json ./
-
-RUN npm install
-
-# Bundle app source code
-COPY --chown=node . .
-
-RUN npm run build:${SERVICE}
-
-# Bind to all network interfaces so that it can be mapped to the host OS
-
-EXPOSE ${PORT}
-
-CMD npm run 'start:redis'
+# КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Используем переменную окружения в CMD
+CMD ["sh", "-c", "redis-server --bind 0.0.0.0 --port ${PORT:-6379} --dir /data --save '900 1' --save '300 10' --save '60 10000'"]

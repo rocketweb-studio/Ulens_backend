@@ -3,13 +3,13 @@ pipeline {
     agent any
     environment {
         ENV_TYPE = "production"
-        PORT = 4003
+        PORT = 4009
         NAMESPACE = "ulens-org"
         REGISTRY_HOSTNAME = "rocketwebstudio"
-        PROJECT = "ulens-backend-redis"
-        SERVICE="redis"
+        PROJECT = "ulens-backend-rabbit"
+        SERVICE="rabbit"
         REGISTRY = "registry.hub.docker.com"
-        DEPLOYMENT_NAME = "ulens-backend-redis-deployment"
+        DEPLOYMENT_NAME = "ulens-backend-rabbit-deployment"
         IMAGE_NAME = "${env.BUILD_ID}_${env.ENV_TYPE}_${env.GIT_COMMIT}"
         DOCKER_BUILD_NAME = "${env.REGISTRY_HOSTNAME}/${env.PROJECT}:${env.IMAGE_NAME}"
     }

@@ -1,5 +1,5 @@
-# Используем официальный образ Redis
-FROM redis:7.2-alpine
+# Используем официальный образ RabbitMQ
+FROM rabbitmq:3.12-alpine
 
 # Переменные окружения (оставляем для совместимости с системой)
 ARG port
@@ -7,28 +7,34 @@ ARG service
 ENV SERVICE=$service
 ENV PORT=$port
 
-# Создаем директорию для конфигурации Redis
-RUN mkdir -p /usr/local/etc/redis
+# Устанавливаем стандартные переменные RabbitMQ
+ENV RABBITMQ_DEFAULT_USER=admin
+ENV RABBITMQ_DEFAULT_PASS=admin123
+ENV RABBITMQ_DEFAULT_VHOST=/
 
-# Создаем пользователя redis (если не существует)
-RUN addgroup -g 999 redis && adduser -D -u 999 -G redis redis || true
+# Создаем директорию для конфигурации RabbitMQ
+RUN mkdir -p /etc/rabbitmq
 
-# Устанавливаем владельца для директории
-RUN chown -R redis:redis /usr/local/etc/redis /data
+# Включаем management plugin
+RUN rabbitmq-plugins enable --offline rabbitmq_management
 
-# Переключаемся на пользователя redis
-USER redis
+# Создаем базовую конфигурацию RabbitMQ
+RUN echo "# RabbitMQ configuration" > /etc/rabbitmq/rabbitmq.conf && \
+    echo "listeners.tcp.default = 0.0.0.0:5672" >> /etc/rabbitmq/rabbitmq.conf && \
+    echo "management.tcp.port = 15672" >> /etc/rabbitmq/rabbitmq.conf && \
+    echo "management.tcp.ip = 0.0.0.0" >> /etc/rabbitmq/rabbitmq.conf && \
+    echo "loopback_users = none" >> /etc/rabbitmq/rabbitmq.conf && \
+    echo "log.console = true" >> /etc/rabbitmq/rabbitmq.conf
 
-# ИСПРАВЛЕНО: Не создаем конфигурацию с портом во время сборки
-RUN echo "# Redis configuration" > /usr/local/etc/redis/redis.conf && \
-    echo "bind 0.0.0.0" >> /usr/local/etc/redis/redis.conf && \
-    echo "dir /data" >> /usr/local/etc/redis/redis.conf && \
-    echo "save 900 1" >> /usr/local/etc/redis/redis.conf && \
-    echo "save 300 10" >> /usr/local/etc/redis/redis.conf && \
-    echo "save 60 10000" >> /usr/local/etc/redis/redis.conf
+# Открываем порты
+EXPOSE ${port} 15672
 
-# Открываем порт (используем ARG для времени сборки)
-EXPOSE ${port}
+# Создаем скрипт запуска который использует переменную PORT
+RUN echo '#!/bin/sh' > /start-rabbitmq.sh && \
+    echo 'export RABBITMQ_NODE_PORT=${PORT:-5672}' >> /start-rabbitmq.sh && \
+    echo 'echo "Starting RabbitMQ on port $RABBITMQ_NODE_PORT"' >> /start-rabbitmq.sh && \
+    echo 'rabbitmq-server' >> /start-rabbitmq.sh && \
+    chmod +x /start-rabbitmq.sh
 
-# КЛЮЧЕВОЕ ИСПРАВЛЕНИЕ: Используем переменную окружения в CMD
-CMD ["sh", "-c", "redis-server --bind 0.0.0.0 --port ${PORT:-6379} --dir /data --save '900 1' --save '300 10' --save '60 10000'"]
+# Запускаем RabbitMQ с кастомным портом
+CMD ["sh", "-c", "export RABBITMQ_NODE_PORT=${PORT:-5672} && echo 'Starting RabbitMQ on port '$RABBITMQ_NODE_PORT && rabbitmq-server"]

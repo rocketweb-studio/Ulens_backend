@@ -1,8 +1,6 @@
 import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { MockTestManager } from "./mock-test-manager";
 import { AppModule } from "../../src/app.module";
-import { CoreEnvConfig } from "../../src/core/core.config";
-import { configApp } from "../../src/app.setup";
 
 /**
  * initSettings служит для создания отдельного инстэнса нашего приложения и выполнения в нем тестов
@@ -25,17 +23,11 @@ export const initSettings = async (
 	const testingAppModule = await testingModuleBuilder.compile();
 
 	const app = testingAppModule.createNestApplication();
-	const coreConfig = app.get<CoreEnvConfig>(CoreEnvConfig);
-
-	configApp(app, coreConfig);
 
 	await app.init();
 
 	const httpServer = app.getHttpServer();
 	const mockTestManger = new MockTestManager(app);
-
-	// TODO: delete all data from database for testing
-	// await deleteAllData(app);
 
 	return {
 		app,

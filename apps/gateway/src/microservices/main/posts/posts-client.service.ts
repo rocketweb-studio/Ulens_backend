@@ -54,6 +54,7 @@ export class PostsClientService {
 	async getUserPosts(userId: string, query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
 		// все независимые запросы
 		const postsPromise = firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query }));
+		// todo лучше заменить эти 2 метода на один из ProfileAuthClientService - getProfile - таким образом - this.profileAuthClientService.getProfile(userId);
 		const profilePromise = firstValueFrom(this.authClient.send({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS }, userId));
 		const avatarPromise = firstValueFrom(this.filesClient.send({ cmd: FilesMessages.GET_USER_AVATAR_URL }, userId));
 

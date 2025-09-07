@@ -4,9 +4,11 @@ import { CoreEnvConfig } from "@auth/core/core.config";
 import { PrismaModule } from "@auth/core/prisma/prisma.module";
 import { TestConsumer } from "./rabbit/test.consumer";
 import { AuthEventsPublisher } from "./rabbit/events.publisher";
+import { RabbitModule } from "@libs/rabbit/index";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
-	imports: [configModule, PrismaModule],
+	imports: [configModule, PrismaModule, RabbitModule, ScheduleModule.forRoot()],
 	controllers: [],
 	providers: [CoreEnvConfig, TestConsumer, AuthEventsPublisher],
 	exports: [CoreEnvConfig, AuthEventsPublisher],

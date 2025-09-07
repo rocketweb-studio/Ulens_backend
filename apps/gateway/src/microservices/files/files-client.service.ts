@@ -5,6 +5,7 @@ import { Microservice } from "@libs/constants/microservices";
 import { Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { FilesMessages } from "@libs/constants/files-messages";
+import { ImageOutputDto } from "@libs/contracts/index";
 
 /**
  * *Сервис отвечает за загрузку файлов в файловый сервис по основному nestjs порту для работы с MessgePattern
@@ -21,5 +22,15 @@ export class FilesClientService {
 	async savePostImagesToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<any> {
 		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.POST_IMAGES_UPLOAD }, { userId, versions: uploadResult.versions }));
 		return fileResult;
+	}
+
+	async getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]> {
+		const avatars = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_AVATARS }, userId));
+		return avatars;
+	}
+
+	async deleteAvatarsByUserId(userId: string): Promise<void> {
+		await firstValueFrom(this.client.send({ cmd: FilesMessages.DELETE_USER_AVATAR }, userId));
+		return;
 	}
 }

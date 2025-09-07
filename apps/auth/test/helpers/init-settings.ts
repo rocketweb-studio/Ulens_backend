@@ -1,7 +1,5 @@
 import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { UserTestManager } from "./user-test-manager";
-import { CoreEnvConfig } from "../../src/core/core.config";
-import { configApp } from "../../src/app.setup";
 import { AppModule } from "../../src/app.module";
 
 /**
@@ -25,17 +23,11 @@ export const initSettings = async (
 	const testingAppModule = await testingModuleBuilder.compile();
 
 	const app = testingAppModule.createNestApplication();
-	const coreConfig = app.get<CoreEnvConfig>(CoreEnvConfig);
-
-	configApp(app, coreConfig);
 
 	await app.init();
 
 	const httpServer = app.getHttpServer();
 	const userTestManger = new UserTestManager(app);
-
-	// TODO: delete all data from database for testing
-	// await deleteAllData(app);
 
 	return {
 		app,

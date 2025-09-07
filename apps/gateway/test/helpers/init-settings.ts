@@ -40,9 +40,6 @@ export const initSettings = async (
 	const httpServer = app.getHttpServer();
 	const authTestManger = new AuthTestManager(app);
 
-	// TODO: delete all data from database for testing
-	// await deleteAllData(app);
-
 	return {
 		app,
 		httpServer,

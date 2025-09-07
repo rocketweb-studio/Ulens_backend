@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@files/core/prisma/prisma.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
-import { Prisma } from "@files/core/prisma/generated/client";
+import { Avatar } from "@files/core/prisma/generated/client";
 import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
 
 @Injectable()
@@ -26,6 +26,15 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return postImages.map((postImage) => this._mapAvatarToViewDto(postImage));
 	}
 
+	async getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]> {
+		const avatars = await this.prisma.avatar.findMany({
+			where: { parentId: userId },
+		});
+
+		return avatars.map((avatar) => this._mapAvatarToViewDto(avatar));
+	}
+
+	// todo я бы убрал этот метод, и использовал тот что выше - getUserAvatars
 	async getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null> {
 		const avatarUrl = await this.prisma.avatar.findFirst({
 			where: { parentId: userId },
@@ -53,8 +62,7 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return postImages;
 	}
 
-	// biome-ignore lint/complexity/noBannedTypes: <no data transfer object>
-	private _mapAvatarToViewDto(avatar: Prisma.AvatarGetPayload<{}>): ImageOutputDto {
+	private _mapAvatarToViewDto(avatar: Avatar): ImageOutputDto {
 		return {
 			url: avatar.url,
 			width: avatar.width,

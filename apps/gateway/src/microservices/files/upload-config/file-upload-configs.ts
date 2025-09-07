@@ -1,4 +1,11 @@
-import { FileUploadOptionsDto } from "@gateway/dto/file-upload-options.dto";
+export class FileUploadOptionsDto {
+	fieldName: string; // Имя поля в form-data (avatar, images, etc.)
+	folder: string; // Папка для сохранения в s3
+	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
+	allowedTypes: string[]; // Разрешенные MIME типы
+	maxSize: number; // Максимальный размер файла в байтах
+	fileSizes: string[]; // Размеры файлов
+}
 
 export class FileUploadConfigs {
 	static readonly AVATAR: FileUploadOptionsDto = {

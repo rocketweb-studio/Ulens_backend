@@ -35,7 +35,7 @@ export const UploadAvatarSwagger = () => {
 			description: "If the avatar is not uploaded or has an unsupported type or max size is exceeded",
 		}),
 		ApiUnauthorizedResponse({
-			description: "If the user is not authorized",
+			description: "Unauthorized",
 		}),
 	];
 

@@ -9,11 +9,13 @@ import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
 export abstract class IFilesQueryRepository {
 	abstract findAvatarByUserId(userId: string): Promise<ImageOutputDto[]>;
 	abstract findPostImagesByPostId(postId: string): Promise<ImageOutputDto[]>;
-	abstract getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null>;
+	abstract getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]>;
 	abstract getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]>;
+	abstract getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null>;
 }
 
 export abstract class IFilesCommandRepository {
 	abstract saveAvatar(data: AvatarInputDto): Promise<string[] | null>;
 	abstract savePostImages(data: any): Promise<boolean>;
+	abstract deleteAvatarsByUserId(userId: string): Promise<boolean>;
 }

@@ -3,7 +3,7 @@ import { Body, Controller, Delete, Get, HttpCode, HttpStatus, Param, Post, Put, 
 import { PostsClientService } from "./posts-client.service";
 import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-file.interceptor";
 import { UploadPostImagesSwagger } from "@gateway/core/decorators/swagger/post/upload-post-images.decorator";
-import { MainRouterPaths, RouteParams } from "@libs/constants/index";
+import { ApiTagsNames, MainRouterPaths, RouteParams } from "@libs/constants/index";
 import { Request } from "express";
 import { CreatePostDto, CreatePostOutputDto, GetUserPostsQueryDto, PayloadFromRequestDto, PostIdParamDto, UserIdParamDto } from "@libs/contracts/index";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
@@ -12,8 +12,10 @@ import { DeletePostSwagger } from "@gateway/core/decorators/swagger/main/delete-
 import { UpdatePostSwagger } from "@gateway/core/decorators/swagger/main/update-post-swagger.decorator";
 import { GetUserPostsSwagger } from "@gateway/core/decorators/swagger/main/get-user-posts-swagger.decorator";
 import { UserPostsOutputDto } from "@gateway/dto/user-posts-output.dto";
+import { ApiTags } from "@nestjs/swagger";
 
 // контроллер отвечает за запросы к сервису постов
+@ApiTags(ApiTagsNames.POSTS)
 @Controller(MainRouterPaths.POSTS)
 export class PostsClientController {
 	constructor(private readonly postsClientService: PostsClientService) {}

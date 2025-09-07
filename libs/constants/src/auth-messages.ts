@@ -14,6 +14,9 @@ export enum AuthMessages {
 	LOGOUT = "logout",
 	ME = "me",
 	GET_PROFILE_FOR_POSTS = "get_profile_for_posts",
+	GET_PROFILE = "get_profile",
+	UPDATE_PROFILE = "update_profile",
+	DELETE_PROFILE = "delete_profile",
 }
 
 export enum Oauth2Providers {

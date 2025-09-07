@@ -42,6 +42,11 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-auth-production-config-secret
                    key: REFRESH_EXPIRES_IN
+             - name: REDIS_URI
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-auth-production-config-secret
+                   key: REDIS_URI
              - name: AUTH_TCP_PORT
                valueFrom:
                  secretKeyRef:

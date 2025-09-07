@@ -1,20 +1,22 @@
 import { Global, Module, OnModuleDestroy, Optional } from "@nestjs/common";
 import * as amqp from "amqplib";
+import { ConfigModule, ConfigService } from "@nestjs/config";
 
 @Global() // модуль глобальный - доступен во всех сервисах без доп. импортов
 @Module({
+	imports: [ConfigModule],
 	providers: [
 		{
 			// Подключение к RabbitMQ (одно соединение на всё приложение)
 			provide: "RMQ_CONNECTION",
-			useFactory: async () => {
-				// todo переменные не читаются
-				const url = process.env.RMQ_URL || "amqp://guest:guest@localhost:5672/";
+			useFactory: async (configService: ConfigService) => {
+				const url = configService.getOrThrow<string>("RMQ_URL");
 				const conn = await amqp.connect(url);
 				conn.on("error", (e) => console.error("[RMQ] connection error:", e.message));
 				conn.on("close", () => console.error("[RMQ] connection closed"));
 				return conn;
 			},
+			inject: [ConfigService],
 		},
 		{
 			// Канал RabbitMQ (используется для publish/consume)

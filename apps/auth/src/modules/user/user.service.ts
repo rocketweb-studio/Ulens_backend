@@ -33,7 +33,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 // rabbitmq заглушка
-// import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
+import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
 import { RedisService } from "@libs/redis/redis.service";
 
 @Injectable()
@@ -45,7 +45,7 @@ export class UserService {
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
 		// rabbitmq заглушка
-		// private readonly authEventsPublisher: AuthEventsPublisher,
+		private readonly authEventsPublisher: AuthEventsPublisher,
 		private readonly redisService: RedisService,
 	) {}
 
@@ -76,7 +76,7 @@ export class UserService {
 		}
 
 		// rabbitmq заглушка
-		// await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
+		await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
 
 		return {
 			email: createdUser.email,

@@ -6,7 +6,7 @@ import { MainClientModule } from "@gateway/microservices/main/main-client.module
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 // rabbitmq заглушка
-// import { RabbitModule } from "@libs/rabbit/index";
+import { RabbitModule } from "@libs/rabbit/index";
 
 @Module({
 	imports: [
@@ -16,7 +16,7 @@ import { FilesClientModule } from "@gateway/microservices/files/files-client.mod
 		NotificationsClientModule,
 		FilesClientModule,
 		// rabbitmq заглушка
-		// RabbitModule
+		RabbitModule,
 	],
 	controllers: [],
 	providers: [],

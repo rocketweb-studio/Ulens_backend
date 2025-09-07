@@ -25,9 +25,13 @@ import { randomUUID } from "crypto";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
+	// rabbitmq заглушка(закомментировать)
+	private readonly ch: amqp.Channel;
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
-		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+		// rabbitmq заглушка
+		// @Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,

@@ -20,6 +20,15 @@
     "noFallthroughCasesInSwitch": false,
     "composite": true,
     "paths": {
+      "@auth/*": [
+        "apps/auth/src/*"
+      ],
+      "@files/*": [
+        "apps/files/src/*"
+      ],
+      "@gateway/*": [
+        "apps/gateway/src/*"
+      ],
       "@libs/constants/*": [
         "libs/constants/src/*"
       ],
@@ -29,26 +38,20 @@
       "@libs/exeption/*": [
         "libs/exeption/src/*"
       ],
-      "@libs/utils/*": [
-        "libs/utils/src/*"
-      ],
-			"@libs/rabbit/*": [
+      "@libs/rabbit/*": [
         "libs/rabbit/src/*"
       ],
-      "@gateway/*": [
-        "apps/gateway/src/*"
+      "@libs/redis/*": [
+        "libs/redis/src/*"
       ],
-      "@auth/*": [
-        "apps/auth/src/*"
+      "@libs/utils/*": [
+        "libs/utils/src/*"
       ],
       "@main/*": [
         "apps/main/src/*"
       ],
       "@notifications/*": [
         "apps/notifications/src/*"
-      ],
-      "@files/*": [
-        "apps/files/src/*"
       ]
     }
   },
@@ -80,8 +83,11 @@
     {
       "path": "./libs/exeption/tsconfig.lib.json"
     },
-		{
+    {
       "path": "./libs/rabbit/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/redis/tsconfig.lib.json"
     }
   ]
 }

@@ -10,7 +10,8 @@
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],
       "@libs/exeption/*": ["../../libs/exeption/src/*"],
-      "@libs/rabbit/*": ["../../libs/rabbit/src/*"]
+      "@libs/rabbit/*": ["../../libs/rabbit/src/*"],
+      "@libs/redis/*": ["../../libs/redis/src/*"]
     }
   },
   "references": [
@@ -18,7 +19,8 @@
     { "path": "../../libs/utils/tsconfig.lib.json" },
     { "path": "../../libs/contracts/tsconfig.lib.json" },
     { "path": "../../libs/exeption/tsconfig.lib.json" },
-    { "path": "../../libs/rabbit/tsconfig.lib.json" }
+    { "path": "../../libs/rabbit/tsconfig.lib.json" },
+    { "path": "../../libs/redis/tsconfig.lib.json" }
   ],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]

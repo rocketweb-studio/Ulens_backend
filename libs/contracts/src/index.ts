@@ -30,3 +30,4 @@ export * from "./auth-contracts/output/image.ouptut.dto";
 export * from "./auth-contracts/output/profile-posts.output.dto";
 export * from "./auth-contracts/input/profile.input.dto";
 export * from "./auth-contracts/output/profile.output.dto";
+export * from "./auth-contracts/output/user-confirmation.output.dto";

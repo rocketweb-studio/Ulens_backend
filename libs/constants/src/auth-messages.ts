@@ -17,6 +17,7 @@ export enum AuthMessages {
 	GET_PROFILE = "get_profile",
 	UPDATE_PROFILE = "update_profile",
 	DELETE_PROFILE = "delete_profile",
+	GET_USER_CONFIRMATION_BY_EMAIL = "get_user_confirmation_by_email",
 }
 
 export enum Oauth2Providers {

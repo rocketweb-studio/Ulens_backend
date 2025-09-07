@@ -34,11 +34,18 @@ export class CoreEnvConfig {
 	})
 	env: string;
 
+	@IsString()
+	@IsNotEmpty({
+		message: "Set Env variable REDIS_URI, example: redis://localhost:6379",
+	})
+	redisUri: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.databaseUrl = this.configService.get<string>("AUTH_POSTGRES_URL");
 		this.tcpHost = this.configService.get<string>("AUTH_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("AUTH_TCP_PORT");
+		this.redisUri = this.configService.get<string>("REDIS_URI");
 
 		configValidationUtility.validateConfig(this);
 	}

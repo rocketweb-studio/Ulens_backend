@@ -7,6 +7,8 @@
   "license": "MIT",
   "scripts": {
 		"start:dev:redis": "cross-env NODE_ENV=development nest start redis --watch",
+		"build:redis": "nest build redis",
+		"start:redis": "cross-env NODE_ENV=production node dist/apps/redis/main",
     "build": "nest build",
     "lint": "biome check .",
     "format": "biome format . --write",

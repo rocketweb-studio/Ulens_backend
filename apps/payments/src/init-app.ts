@@ -1,12 +1,24 @@
-import { NestFactory } from "@nestjs/core";
-import { PaymentsModule } from "@/payments.module";
-import { CoreEnvConfig } from "@/core/core-env.config";
+import { AppModule } from "@payments/app.module";
+import { CoreEnvConfig } from "@payments/core/core-env.config";
 import { DynamicModule } from "@nestjs/common";
+import { NestFactory } from "@nestjs/core";
 
-export const initAppModule = async (): Promise<DynamicModule> => {
-	const appContext = await NestFactory.createApplicationContext(PaymentsModule);
+export const initAppModule = async (): Promise<{
+	dynamicModule: DynamicModule;
+	config: CoreEnvConfig;
+}> => {
+	// Создаем временный контекст приложения для получения конфигурации
+	const appContext = await NestFactory.createApplicationContext(AppModule);
+
+	// Извлекаем экземпляр конфигурации из контейнера зависимостей
 	const config = appContext.get<CoreEnvConfig>(CoreEnvConfig);
+
+	// Закрываем временный контекст приложения
 	await appContext.close();
 
-	return PaymentsModule.forRoot(config);
+	// Возвращаем динамический модуль с конфигурацией и саму конфигурацию
+	return {
+		dynamicModule: AppModule.forRoot(config), // Создаем модуль с предустановленной конфигурацией
+		config, // Возвращаем конфигурацию для использования в main.ts
+	};
 };

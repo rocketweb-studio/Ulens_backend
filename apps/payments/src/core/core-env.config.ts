@@ -1,4 +1,4 @@
-import { configValidationUtility } from "@/utils/env-validation.utility";
+import { configValidationUtility } from "@libs/utils/env-validation.utility";
 import { Injectable } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { IsNotEmpty } from "class-validator";
@@ -15,12 +15,24 @@ export enum Environments {
 @Injectable()
 export class CoreEnvConfig {
 	@IsNotEmpty({
-		message: "Set Env variable PORT, example: 3000",
+		message: "Set Env variable PAYMENTS_TCP_HOST, example: 0.0.0.0",
 	})
-	applicationPort: number;
+	tcpHost: string;
+
+	@IsNotEmpty({
+		message: "Set Env variable PAYMENTS_TCP_PORT, example: 3001",
+	})
+	tcpPort: number;
+
+	@IsNotEmpty({
+		message: "Set Env variable RMQ_URL, example: amqp://localhost:5672",
+	})
+	rmqUrl: string;
 
 	constructor(private configService: ConfigService<any, true>) {
-		this.applicationPort = this.configService.get<number>("PORT");
+		this.tcpHost = this.configService.get<string>("PAYMENTS_TCP_HOST");
+		this.tcpPort = this.configService.get<number>("PAYMENTS_TCP_PORT");
+		this.rmqUrl = this.configService.get<string>("RMQ_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

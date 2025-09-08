@@ -1,18 +1,17 @@
 import { DynamicModule, Module } from "@nestjs/common";
-import { PaymentsController } from "@/payments.controller";
-import { PaymentsService } from "@/payments.service";
-import { CoreEnvConfig } from "@/core/core-env.config";
+import { PaymentsController } from "@payments/payments.controller";
+import { CoreEnvConfig } from "@payments/core/core-env.config";
 import { CoreModule } from "./core/core.module";
-
+import { RabbitModule } from "@libs/rabbit/index";
 @Module({
-	imports: [CoreModule],
+	imports: [CoreModule, RabbitModule],
 	controllers: [PaymentsController],
-	providers: [PaymentsService],
+	providers: [],
 })
-export class PaymentsModule {
+export class AppModule {
 	static forRoot(config: CoreEnvConfig): DynamicModule {
 		return {
-			module: PaymentsModule,
+			module: AppModule,
 			providers: [
 				{
 					provide: CoreEnvConfig,

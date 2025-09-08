@@ -2,6 +2,7 @@
 import * as amqp from "amqplib";
 
 (async () => {
+	console.log("RMQ PING UTILITY");
 	const url = process.env.RMQ_URL ?? "amqp://guest:guest@localhost:5672/";
 	const conn = await amqp.connect(url); // type: amqp.Connection
 	const ch = await conn.createConfirmChannel(); // or createChannel()

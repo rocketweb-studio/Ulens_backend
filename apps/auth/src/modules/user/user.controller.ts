@@ -115,7 +115,7 @@ export class UserController {
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_USER_CONFIRMATION_BY_EMAIL })
-	async getUserConfirmation(@Payload() email: string): Promise<UserConfirmationOutputDto> {
+	async getUserConfirmation(@Payload() { email }: { email: string }): Promise<UserConfirmationOutputDto> {
 		const response = await this.userQueryRepository.getUserConfirmation(email);
 		return response;
 	}

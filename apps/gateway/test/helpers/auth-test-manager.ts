@@ -11,7 +11,7 @@ export class AuthTestManager {
 		this.agent = request.agent(app.getHttpServer()); // для работы с cookies
 	}
 
-	async registration(payload: any, status: HttpStatus, expectedBody?: unknown): Promise<Response> {
+	async registration(payload: any, status: HttpStatus = HttpStatus.NO_CONTENT, expectedBody?: unknown): Promise<Response> {
 		const server = this.app.getHttpServer();
 		const url = `/${RouterPrefix.API_V1}/${AuthRouterPaths.AUTH}/${AuthRouterPaths.REGISTRATION}`;
 

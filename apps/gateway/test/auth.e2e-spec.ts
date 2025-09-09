@@ -10,9 +10,9 @@ describe("AuthController", () => {
 	let confirmationCode: string;
 	let recoveryCode: string;
 	const randomCode: string = randomUUID();
-	const password: string = "123456";
+	const password: string = "Pass123456";
 	const email: string = "joseph.biden.dev@gmail.com";
-	const newPassword: string = "123457";
+	const newPassword: string = "Pass123457";
 	let passwordHash: string;
 	let accessToken: string;
 	let newAccessToken: string;
@@ -48,6 +48,17 @@ describe("AuthController", () => {
 						message: "The email must match the format example@example.com; Received value: cat2021gmail.com",
 						field: "email",
 					},
+					{
+						message: "password must be longer than or equal to 6 characters; Received value: 12345",
+						field: "password",
+					},
+				],
+			});
+		});
+
+		it("- POST failed registration with weak password", async () => {
+			await authTestManager.registration({ userName: "Joseph", email, password: "12345" }, 400, {
+				errorsMessages: [
 					{
 						message: "password must be longer than or equal to 6 characters; Received value: 12345",
 						field: "password",
@@ -114,6 +125,10 @@ describe("AuthController", () => {
 
 		it("- POST failed new-password with incorrect recovery code", async () => {
 			await authTestManager.newPassword({ newPassword, recoveryCode: randomCode }, 400);
+		});
+
+		it("- POST failed new-password with weak password", async () => {
+			await authTestManager.newPassword({ newPassword: "pass12345", recoveryCode: randomCode }, 400);
 		});
 
 		it("+ POST successed new-password with correct recovery code", async () => {

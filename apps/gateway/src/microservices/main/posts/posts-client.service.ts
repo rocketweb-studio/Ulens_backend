@@ -11,7 +11,7 @@ import { CreatePostOutputDto, GetUserPostsQueryDto, PostImagesOutputDto, UpdateP
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
 import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
-import { UserPostsOutputDto } from "@gateway/dto/user-posts-output.dto";
+import { UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 
 @Injectable()
 export class PostsClientService {
@@ -55,6 +55,9 @@ export class PostsClientService {
 		// все независимые запросы
 		const postsPromise = firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query }));
 		// todo лучше заменить эти 2 метода на один из ProfileAuthClientService - getProfile - таким образом - this.profileAuthClientService.getProfile(userId);
+		/* если бы profileAuthClientService.getProfile был написан раньше, использовали бы его,
+				но сейчас переписывать маппер, dto и и удалять все старые методы такое. Возможно в будующем когда 
+				будет много времени */
 		const profilePromise = firstValueFrom(this.authClient.send({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS }, userId));
 		const avatarPromise = firstValueFrom(this.filesClient.send({ cmd: FilesMessages.GET_USER_AVATAR_URL }, userId));
 

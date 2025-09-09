@@ -1,7 +1,7 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, EmailDto, RecoveryPasswordDto } from "@libs/contracts/index";
-import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
@@ -144,6 +144,7 @@ export class AuthClientController {
 	}
 
 	// тестовый эндпоинт для публикации сообщения
+	@ApiExcludeEndpoint()
 	@Get("ping-rabbit")
 	async pingRabbit() {
 		// использовали для отладки, это рабочий метод

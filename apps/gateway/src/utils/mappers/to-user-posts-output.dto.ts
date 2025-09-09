@@ -1,6 +1,6 @@
 import { PostImagesOutputDto, ProfilePostsDto } from "@libs/contracts/index";
 import { UserPostsPageDto } from "@libs/contracts/index";
-import { UserPostsOutputDto } from "../../dto/user-posts-output.dto";
+import { UserPostsOutputDto } from "@libs/contracts/index";
 
 export function mapToUserPostsOutput(
 	postsPage: UserPostsPageDto,

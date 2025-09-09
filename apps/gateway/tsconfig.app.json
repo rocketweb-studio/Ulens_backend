@@ -8,6 +8,7 @@
       "@gateway/*": ["src/*"],
       "@auth/*": ["../auth/src/*"],
       "@main/*": ["../main/src/*"],
+      "@files/*": ["../files/src/*"],
       "@notifications/*": ["../notifications/src/*"],
       "@libs/constants/*": ["../../libs/constants/src/*"],
       "@libs/utils/*": ["../../libs/utils/src/*"],

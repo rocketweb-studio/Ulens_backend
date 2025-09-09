@@ -7,6 +7,7 @@ import { startMicroserviceForTest } from "./startMicroserviceForTest";
 import { RedisService } from "../../../../libs/redis/src/redis.service";
 import { mockRedisService } from "./mocks/redis";
 import { mockRabbitConnection, mockRabbitChannel } from "./mocks/rabbit";
+import { PostsTestManager } from "./posts-test-manager";
 
 /**
  * initSettings служит для создания отдельного инстэнса нашего приложения и выполнения в нем тестов
@@ -39,21 +40,24 @@ export const initSettings = async (
 
 	configApp(app, coreConfig);
 
-	//  Запускаем микросервис auth
+	//  Запускаем микросервисы
 	const authMicroservice = await startMicroserviceForTest("auth");
-	// Запускаем микросервис main
 	const mainMicroservice = await startMicroserviceForTest("main");
+	const filesMicroservice = await startMicroserviceForTest("files");
 
 	await app.init();
 
 	const httpServer = app.getHttpServer();
 	const authTestManger = new AuthTestManager(app);
+	const postsTestManger = new PostsTestManager(app);
 
 	return {
 		app,
 		httpServer,
 		authTestManger,
+		postsTestManger,
 		authMicroservice,
 		mainMicroservice,
+		filesMicroservice,
 	};
 };

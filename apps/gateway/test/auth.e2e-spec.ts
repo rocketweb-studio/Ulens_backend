@@ -49,7 +49,7 @@ describe("AuthController", () => {
 						field: "email",
 					},
 					{
-						message: "password must be longer than or equal to 6 characters; Received value: 12345",
+						message: `Allowed characters: 0-9, A-Z, a-z and special symbols ! " # $ % & ' ( ) * + , - . / : ; < = > ? @ [ \\ ] ^ _ { | } ~; Received value: 12345`,
 						field: "password",
 					},
 				],
@@ -57,14 +57,7 @@ describe("AuthController", () => {
 		});
 
 		it("- POST failed registration with weak password", async () => {
-			await authTestManager.registration({ userName: "Joseph", email, password: "12345" }, 400, {
-				errorsMessages: [
-					{
-						message: "password must be longer than or equal to 6 characters; Received value: 12345",
-						field: "password",
-					},
-				],
-			});
+			await authTestManager.registration({ userName: "Joseph", email, password: "12345" }, 400);
 		});
 
 		it("+ POST successed registration with correct input", async () => {

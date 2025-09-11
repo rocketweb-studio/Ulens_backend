@@ -1,0 +1,36 @@
+# Минимальный локальный брокер Redpanda для разработки.
+# Важно: здесь два "advertised" адреса для одного брокера:
+# - redpanda:9092 — так к брокеру обращаются КОНТЕЙНЕРЫ внутри docker-сети (DNS-имя "redpanda")
+# - localhost:9094 — так к брокеру обращаются ПРОЦЕССЫ на хост-машине (Node-скрипты, тесты)
+# Это снимает типичные проблемы с доступностью брокера изнутри/снаружи контейнера.
+
+version: "3.8"
+
+services:
+  redpanda:
+    image: redpandadata/redpanda:latest       # Официальный образ Redpanda
+    command:
+      - redpanda start                        
+      - --overprovisioned                     
+      - --smp 1             
+      - --memory 1G
+      - --reserve-memory 0M
+      - --node-id 0
+      - --check=false
+      - --rpc-addr 0.0.0.0:33145                   # RPC-листенер Redpanda (внутренние сервисные вызовы)
+      - --advertise-rpc-addr redpanda:33145        # Как этот RPC виден другим контейнерам (DNS "redpanda")
+          # два ИМЕННЫХ listeners
+          # internal -> для контейнеров в сети docker (redpanda:9092)
+          # external -> для процессов на хосте (localhost:9094) — ЭТОМУ адресу будет следовать клиент
+      - --kafka-addr internal://0.0.0.0:9092,external://0.0.0.0:9094   
+      - --advertise-kafka-addr internal://redpanda:9092,external://localhost:9094
+          # Что брокер РЕКЛАМИРУЕТ клиентам:
+          # 1) контейнеры ходят по адресу redpanda:9092 2) хостовые процессы — по localhost:9094
+      - --advertise-kafka-addr redpanda:9092,localhost:9094
+    ports:
+      - "9094:9094"   # Открываем Kafka для хоста: подключаться из Node к localhost:9094
+      - "9644:9644"   # Admin API Redpanda (health/status: /v1/status/ready)
+    networks: [knet]  # Отдельная docker-сеть для чистых DNS-имён/изоляции
+
+networks:
+  knet: {}             # Создаёт bridge-сеть "knet" (Compose сам всё настроит)

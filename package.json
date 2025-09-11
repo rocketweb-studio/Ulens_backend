@@ -79,6 +79,7 @@
     "device-detector-js": "^3.0.3",
     "geoip-lite": "^1.4.10",
     "ioredis": "^5.7.0",
+    "kafkajs": "^2.2.4",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
     "passport": "^0.7.0",

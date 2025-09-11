@@ -95,10 +95,9 @@ export class UserController {
 		return response;
 	}
 
-	@UseGuards(JwtRefreshAuthGuard)
 	@MessagePattern({ cmd: AuthMessages.ME })
-	async me(@Payload() dto: RefreshDecodedDto): Promise<MeUserViewDto> {
-		const response = await this.userQueryRepository.getMe(dto);
+	async me(@Payload() dto: { userId: string }): Promise<MeUserViewDto> {
+		const response = await this.userQueryRepository.getMe(dto.userId);
 		return response;
 	}
 

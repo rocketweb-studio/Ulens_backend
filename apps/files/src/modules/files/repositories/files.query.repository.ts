@@ -34,19 +34,6 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return avatars.map((avatar) => this._mapAvatarToViewDto(avatar));
 	}
 
-	// todo я бы убрал этот метод, и использовал тот что выше - getUserAvatars
-	/*они уже были написаны, а эти замены это переписывание dto и тд + этим методом мы получаем
-		только то что нам нужно и не гоняем лишние данные*/
-	async getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null> {
-		const avatarUrl = await this.prisma.avatar.findFirst({
-			where: { parentId: userId },
-			select: { url: true },
-		});
-		if (!avatarUrl) return null;
-
-		return avatarUrl;
-	}
-
 	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]> {
 		const postImages = await this.prisma.post.findMany({
 			where: { parentId: { in: postIds }, deletedAt: null },

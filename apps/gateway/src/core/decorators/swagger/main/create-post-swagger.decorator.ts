@@ -1,5 +1,5 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiCreatedResponse, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { BadRequestResponse } from "../common/BadRequestResponse";
 import { CreatePostOutputDto } from "@libs/contracts/index";
 
@@ -16,6 +16,7 @@ export const CreatePostSwagger = () => {
 			description: "The post has been successfully created. The response body contains the post data",
 			type: CreatePostOutputDto,
 		}),
+		ApiBearerAuth(),
 		ApiResponse(BadRequestResponse),
 		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
 	];

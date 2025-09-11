@@ -5,7 +5,6 @@ import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.i
 import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
-import { RefreshTokenDto } from "@auth/modules/user/dto/refresh.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
 
 /**
@@ -15,7 +14,7 @@ import { ProfilePostsDto } from "@libs/contracts/index";
 
 export abstract class IUserQueryRepository {
 	abstract findUserById(id: string): Promise<MeUserViewDto | null>;
-	abstract getMe(dto: RefreshTokenDto): Promise<MeUserViewDto>;
+	abstract getMe(userId: string): Promise<MeUserViewDto>;
 	abstract getUsers(): Promise<MeUserViewDto[]>;
 	abstract getProfileForPosts(id: string): Promise<ProfilePostsDto | null>;
 	abstract getUserConfirmation(email: string): Promise<UserConfirmationOutputDto>;

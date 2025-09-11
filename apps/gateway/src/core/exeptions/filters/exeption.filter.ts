@@ -4,10 +4,7 @@ import { CoreEnvConfig } from "@gateway/core/core.config";
 import { HttpStatuses } from "@libs/constants/http-statuses";
 import { DefaultErrorResponse } from "@libs/constants/errors";
 import { RpcException } from "@nestjs/microservices";
-
-type ValidationErrorResponse = {
-	errorsMessages: Array<{ field: string; message: string }>;
-};
+import { ValidationErrorDto } from "@libs/contracts/index";
 
 @Catch() // ловит все ошибки и передает в обработчик
 export class GatewayExceptionFilter implements ExceptionFilter {
@@ -27,7 +24,7 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 				const responseBody: any = exception.getResponse();
 
 				if (responseBody?.error && Array.isArray(responseBody?.message)) {
-					const errorResponse: ValidationErrorResponse = {
+					const errorResponse: ValidationErrorDto = {
 						errorsMessages: [],
 					};
 					responseBody.message.forEach((m: any) => {
@@ -51,7 +48,7 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 		if (this.isRpcException(exception) || exception instanceof RpcException) {
 			const status = (exception as any)?.statusCode ?? (exception as any).error?.statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
 			if (status === HttpStatuses.BAD_REQUEST_400) {
-				const responseBody: any = {
+				const responseBody: ValidationErrorDto = {
 					errorsMessages: [
 						{
 							field: (exception as any)?.field,

@@ -8,6 +8,7 @@ import { AuthMessages, Microservice } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
 import { ProfileInputDto, ProfileOutputDto, ProfileOutputWithAvatarDto } from "@libs/contracts/index";
+import { MainMessages } from "@libs/constants/index";
 
 @Injectable()
 export class ProfileAuthClientService {
@@ -15,14 +16,20 @@ export class ProfileAuthClientService {
 		private readonly filesClientService: FilesClientService,
 		private readonly streamClientService: StreamClientService,
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
+		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 	) {}
 
 	async getProfile(userId: string): Promise<ProfileOutputWithAvatarDto> {
 		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId }));
 		const avatars = await this.filesClientService.getAvatarsByUserId(userId);
+		const posts = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, pageSize: 8 }));
+
 		return {
 			...profile,
 			avatars,
+			publicationsCount: posts.totalCount,
+			followers: 0,
+			following: 0,
 		};
 	}
 

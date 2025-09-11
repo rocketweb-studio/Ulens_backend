@@ -77,10 +77,6 @@ describe("PostsController (upload images)", () => {
 		await postsTestManager.createPost(long, 400, accessToken);
 	});
 
-	it("- GET user posts without auth -> 401", async () => {
-		await postsTestManager.getUserPosts(userId, {}, 401, undefined);
-	});
-
 	// 200 пустой список (у нового юзера ещё нет постов)
 	it("+ GET user posts (empty) -> 200", async () => {
 		const body = await postsTestManager.getUserPosts<{

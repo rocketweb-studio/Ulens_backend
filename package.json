@@ -37,6 +37,7 @@
     "test:e2e": "cross-env NODE_ENV=testing jest --config ./apps/files/test/jest-e2e.json",
     "test:e2e:gateway": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json",
 		"test:e2e:posts": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/posts.e2e-spec.ts",
+		"test:e2e:profile": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/profile.e2e-spec.ts",
 		"test:e2e:auth": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/auth.e2e-spec.ts",
     "prisma:studio:auth": "dotenv -e .env.development.local -- npx prisma studio --schema=./apps/auth/src/core/prisma/schema.prisma",
     "prisma:push:auth": "dotenv -e .env.development.local -- npx prisma db push --schema=./apps/auth/src/core/prisma/schema.prisma",

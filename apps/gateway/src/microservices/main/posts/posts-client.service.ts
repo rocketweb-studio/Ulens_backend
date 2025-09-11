@@ -5,13 +5,14 @@ import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 import { StreamClientService } from "@gateway/microservices/files/stream-client.service";
 import { Request } from "express";
 import { firstValueFrom } from "rxjs";
-import { MainMessages, Microservice, AuthMessages, FilesMessages } from "@libs/constants/index";
+import { MainMessages, Microservice } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
-import { CreatePostOutputDto, GetUserPostsQueryDto, PostImagesOutputDto, UpdatePostDto } from "@libs/contracts/index";
+import { CreatePostOutputDto, GetUserPostsQueryDto, PostImagesOutputDto, ProfileOutputWithAvatarDto, UpdatePostDto } from "@libs/contracts/index";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
 import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
 import { UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
+import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 
 @Injectable()
 export class PostsClientService {
@@ -19,8 +20,7 @@ export class PostsClientService {
 		private readonly streamClientService: StreamClientService,
 		private readonly filesClientService: FilesClientService,
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
-		@Inject(Microservice.AUTH) private readonly authClient: ClientProxy,
-		@Inject(Microservice.FILES) private readonly filesClient: ClientProxy,
+		private readonly profileClientService: ProfileAuthClientService,
 	) {}
 
 	async uploadPostImages(postId: string, req: Request): Promise<any> {
@@ -52,27 +52,12 @@ export class PostsClientService {
 	}
 
 	async getUserPosts(userId: string, query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
-		// все независимые запросы
-		const postsPromise = firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query }));
-		// todo лучше заменить эти 2 метода на один из ProfileAuthClientService - getProfile - таким образом - this.profileAuthClientService.getProfile(userId);
-		/* если бы profileAuthClientService.getProfile был написан раньше, использовали бы его,
-				но сейчас переписывать маппер, dto и и удалять все старые методы такое. Возможно в будующем когда 
-				будет много времени */
-		const profilePromise = firstValueFrom(this.authClient.send({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS }, userId));
-		const avatarPromise = firstValueFrom(this.filesClient.send({ cmd: FilesMessages.GET_USER_AVATAR_URL }, userId));
-
-		// ждем только посты, чтобы получить postId[]
-		const posts: UserPostsPageDto = await postsPromise;
+		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query }));
+		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(userId);
 		const postIds = toPostIdArray(posts);
 
-		// картинки: если постов нет - сразу пустой массив
-		const imagesPromise = postIds.length
-			? firstValueFrom(this.filesClient.send({ cmd: FilesMessages.GET_USER_POST_IMAGES }, postIds))
-			: Promise.resolve([] as PostImagesOutputDto[]);
+		const postsImages: PostImagesOutputDto[] = await this.filesClientService.getPostImages(postIds);
 
-		// остальное дожидаемся параллельно
-		const [profile, avatar, images] = await Promise.all([profilePromise, avatarPromise, imagesPromise]);
-
-		return mapToUserPostsOutput(posts, profile, avatar, userId, images);
+		return mapToUserPostsOutput(posts, profile, postsImages);
 	}
 }

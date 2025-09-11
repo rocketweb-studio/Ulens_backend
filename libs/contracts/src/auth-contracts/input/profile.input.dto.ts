@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString, Matches, MaxLength, MinLength, IsNotEmpty, ValidationArguments, registerDecorator, IsDate } from "class-validator";
+import { IsOptional, IsString, Matches, MaxLength, MinLength, IsNotEmpty, ValidationArguments, registerDecorator } from "class-validator";
 
 export class ProfileInputDto {
 	@ApiProperty({ description: "User name", example: "John Doe" })
@@ -38,11 +38,11 @@ export class ProfileInputDto {
 	@IsString()
 	@IsOptional()
 	region: string;
-	@ApiProperty({ description: "Date of birth", example: "2020-08-28T13:28:13.024Z" })
+	@ApiProperty({ description: "Date of birth", example: "2020-08-28" })
 	@MinLength(1)
 	@MaxLength(50)
-	@IsDate()
 	@IsOptional()
+	@IsString()
 	@(
 		(() => (object: any, propertyName: string) => {
 			registerDecorator({
@@ -52,10 +52,13 @@ export class ProfileInputDto {
 				options: { message: "A user under 13 cannot create a profile." },
 				validator: {
 					validate(value: any, _args: ValidationArguments) {
-						if (!(value instanceof Date)) return false;
+						const birthDate = new Date(value); // формат YYYY-MM-DD
 						const today = new Date();
+
+						// Дата 13 лет назад от сегодняшнего дня
 						const thirteenYearsAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
-						return value <= thirteenYearsAgo;
+
+						return birthDate <= thirteenYearsAgo;
 					},
 				},
 			});

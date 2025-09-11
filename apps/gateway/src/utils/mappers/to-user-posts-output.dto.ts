@@ -1,14 +1,8 @@
-import { PostImagesOutputDto, ProfilePostsDto } from "@libs/contracts/index";
+import { PostImagesOutputDto, ProfileOutputWithAvatarDto } from "@libs/contracts/index";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { UserPostsOutputDto } from "@libs/contracts/index";
 
-export function mapToUserPostsOutput(
-	postsPage: UserPostsPageDto,
-	profile: ProfilePostsDto,
-	avatar: { url: string } | null,
-	userId: string,
-	postImages: PostImagesOutputDto[],
-): UserPostsOutputDto {
+export function mapToUserPostsOutput(postsPage: UserPostsPageDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputDto[]): UserPostsOutputDto {
 	const ts = (d: Date | string) => (typeof d === "string" ? Date.parse(d) : d.getTime());
 
 	// группируем по postId (parentId)
@@ -48,8 +42,8 @@ export function mapToUserPostsOutput(
 			})),
 			createdAt: p.createdAt, //  ISO
 			updatedAt: p.updatedAt, //  ISO
-			ownerId: userId,
-			avatarOwner: avatar?.url ?? null,
+			ownerId: profile.id,
+			avatarOwner: profile.avatars.find((avatar) => avatar.width === 45)?.url ?? null,
 			owner: {
 				firstName: profile.firstName,
 				lastName: profile.lastName,

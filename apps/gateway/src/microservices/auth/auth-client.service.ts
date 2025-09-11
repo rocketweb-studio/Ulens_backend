@@ -133,8 +133,8 @@ export class AuthClientService implements IAuthClientService {
 		return session;
 	}
 
-	async me(refreshTokenFromCookie: string): Promise<MeUserViewDto> {
-		const userInfo = await firstValueFrom(this.client.send({ cmd: AuthMessages.ME }, { refreshToken: refreshTokenFromCookie }));
+	async me(userId: string): Promise<MeUserViewDto> {
+		const userInfo = await firstValueFrom(this.client.send({ cmd: AuthMessages.ME }, { userId }));
 		return userInfo;
 	}
 

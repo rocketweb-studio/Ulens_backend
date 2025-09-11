@@ -3,6 +3,8 @@ import { ApiProperty } from "@nestjs/swagger";
 export class ProfileOutputDto {
 	@ApiProperty({ description: "User name", example: "John Doe" })
 	userName: string;
+	@ApiProperty({ description: "User ID", example: "123e4567-e89b-12d3-a456-426614174000" })
+	id: string;
 	@ApiProperty({ description: "First name", example: "John" })
 	firstName: string | null;
 	@ApiProperty({ description: "Last name", example: "Doe" })
@@ -36,5 +38,11 @@ export class AvatarOutputDto {
 
 export class ProfileOutputWithAvatarDto extends ProfileOutputDto {
 	@ApiProperty({ description: "Avatars" })
-	avatars: AvatarOutputDto;
+	avatars: AvatarOutputDto[];
+	@ApiProperty({ description: "Publications count", example: 10 })
+	publicationsCount: number;
+	@ApiProperty({ description: "Followers count", example: 10 })
+	followers: number;
+	@ApiProperty({ description: "Following count", example: 10 })
+	following: number;
 }

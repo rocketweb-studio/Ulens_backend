@@ -56,15 +56,6 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		return response;
 	}
 
-	// todo я бы убрал этот метод, и использовал тот что выше - getUserAvatars
-	/*они уже были написаны, а эти замены это переписывание dto и тд + этим методом мы получаем
-		только то что нам нужно и не гоняем лишние данные*/
-	@MessagePattern({ cmd: FilesMessages.GET_USER_AVATAR_URL })
-	async getProfileForPosts(id: string): Promise<{ url: string } | null> {
-		const response = await this.filesQueryRepository.getAvatarUrlByUserId(id);
-		return response;
-	}
-
 	@MessagePattern({ cmd: FilesMessages.GET_USER_POST_IMAGES })
 	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]> {
 		const response = await this.filesQueryRepository.getImagesByPostIds(postIds);

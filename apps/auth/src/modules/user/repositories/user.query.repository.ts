@@ -4,7 +4,6 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto } from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
-import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -28,10 +27,10 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		return user ? this._mapToView(user) : null;
 	}
 
-	async getMe(dto: RefreshDecodedDto): Promise<MeUserViewDto> {
+	async getMe(userId: string): Promise<MeUserViewDto> {
 		const user = await this.prisma.user.findFirst({
 			where: {
-				id: dto.userId,
+				id: userId,
 				deletedAt: null,
 			},
 			include: {

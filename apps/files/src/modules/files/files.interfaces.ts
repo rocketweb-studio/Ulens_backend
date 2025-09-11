@@ -11,7 +11,6 @@ export abstract class IFilesQueryRepository {
 	abstract findPostImagesByPostId(postId: string): Promise<ImageOutputDto[]>;
 	abstract getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]>;
 	abstract getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]>;
-	abstract getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null>;
 }
 
 export abstract class IFilesCommandRepository {

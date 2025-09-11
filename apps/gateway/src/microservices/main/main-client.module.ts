@@ -6,26 +6,11 @@ import { JwtModule } from "@nestjs/jwt";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { PostsClientController } from "@gateway/microservices/main/posts/posts-client.controller";
-import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
-import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
+import { AuthClientModule } from "../auth/auth-client.module";
 
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
-			// AUTH microservice
-			{
-				name: Microservice.AUTH,
-				useFactory: (config: AuthClientEnvConfig) => ({
-					transport: Transport.TCP,
-					options: {
-						host: config.authClientHost,
-						port: config.authClientPort,
-					},
-				}),
-				inject: [AuthClientEnvConfig],
-				extraProviders: [AuthClientEnvConfig],
-			},
-			// MAIN microservice
 			{
 				name: Microservice.MAIN,
 				useFactory: (config: MainClientEnvConfig) => ({
@@ -38,19 +23,6 @@ import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.
 				inject: [MainClientEnvConfig],
 				extraProviders: [MainClientEnvConfig],
 			},
-			// FILES microservice
-			{
-				name: Microservice.FILES,
-				useFactory: (config: FilesClientEnvConfig) => ({
-					transport: Transport.TCP,
-					options: {
-						host: config.filesClientHost,
-						port: config.filesClientPort,
-					},
-				}),
-				inject: [FilesClientEnvConfig],
-				extraProviders: [FilesClientEnvConfig],
-			},
 		]),
 		JwtModule.registerAsync({
 			useFactory: (mainEnvConfig: MainClientEnvConfig) => ({
@@ -60,9 +32,10 @@ import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.
 			extraProviders: [MainClientEnvConfig],
 		}),
 		FilesClientModule,
+		AuthClientModule,
 	],
 	controllers: [PostsClientController],
 	providers: [MainClientEnvConfig, PostsClientService],
-	exports: [],
+	exports: [PostsClientService],
 })
 export class MainClientModule {}

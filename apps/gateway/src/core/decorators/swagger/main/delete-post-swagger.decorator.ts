@@ -1,5 +1,13 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiParam, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {
+	ApiBearerAuth,
+	ApiForbiddenResponse,
+	ApiNoContentResponse,
+	ApiNotFoundResponse,
+	ApiOperation,
+	ApiParam,
+	ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 
 /**
  * @swagger
@@ -12,6 +20,7 @@ export const DeletePostSwagger = () => {
 	const decorators = [
 		ApiOperation({ summary: "Delete post" }),
 		ApiParam({ name: "postId", type: "string", format: "uuid" }),
+		ApiBearerAuth(),
 		ApiNoContentResponse({ description: "The post has been successfully deleted" }),
 		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
 		ApiForbiddenResponse({ description: "You are not allowed to delete this post" }),

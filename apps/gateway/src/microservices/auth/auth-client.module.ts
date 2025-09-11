@@ -14,6 +14,7 @@ import { AuthClientOAuthController } from "@gateway/microservices/auth/contoller
 import { ProfileAuthClientController } from "./profile/profile-auth-client.controller";
 import { ProfileAuthClientService } from "./profile/profile-auth-clien.service";
 import { FilesClientModule } from "../files/files-client.module";
+import { MainClientEnvConfig } from "../main/main-client.config";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -28,6 +29,18 @@ import { FilesClientModule } from "../files/files-client.module";
 				}),
 				inject: [AuthClientEnvConfig],
 				extraProviders: [AuthClientEnvConfig],
+			},
+			{
+				name: Microservice.MAIN,
+				useFactory: (config: MainClientEnvConfig) => ({
+					transport: Transport.TCP,
+					options: {
+						host: config.mainClientHost,
+						port: config.mainClientPort,
+					},
+				}),
+				inject: [MainClientEnvConfig],
+				extraProviders: [MainClientEnvConfig],
 			},
 		]),
 		ThrottlerModule.forRoot([

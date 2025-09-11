@@ -1,5 +1,14 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiForbiddenResponse, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation, ApiParam, ApiResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import {
+	ApiBearerAuth,
+	ApiForbiddenResponse,
+	ApiNoContentResponse,
+	ApiNotFoundResponse,
+	ApiOperation,
+	ApiParam,
+	ApiResponse,
+	ApiUnauthorizedResponse,
+} from "@nestjs/swagger";
 import { BadRequestResponse } from "../common/BadRequestResponse";
 
 /**
@@ -16,6 +25,7 @@ export const UpdatePostSwagger = () => {
 		ApiParam({ name: "postId", type: "string", format: "uuid" }),
 		ApiNoContentResponse({ description: "The post has been successfully updated" }),
 		ApiResponse(BadRequestResponse),
+		ApiBearerAuth(),
 		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
 		ApiForbiddenResponse({ description: "You are not allowed to update this post" }),
 		ApiNotFoundResponse({ description: "The post has not been found" }),

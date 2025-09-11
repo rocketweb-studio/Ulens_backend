@@ -1,4 +1,4 @@
-import { Controller, HttpCode, HttpStatus, Post, Req, UseGuards, UseInterceptors, Get, Put, Body, Delete } from "@nestjs/common";
+import { Controller, HttpCode, HttpStatus, Post, Req, UseGuards, UseInterceptors, Get, Put, Body, Delete, Param } from "@nestjs/common";
 import { ApiTagsNames, ProfileRouterPaths } from "@libs/constants/index";
 import { ApiTags } from "@nestjs/swagger";
 import { ProfileAuthClientService } from "./profile-auth-clien.service";
@@ -14,20 +14,20 @@ import { DeleteProfileSwagger } from "@gateway/core/decorators/swagger/profile/d
 import { DeleteProfileAvatarSwagger } from "@gateway/core/decorators/swagger/profile/delete-profile-avatar.decorator";
 
 @ApiTags(ApiTagsNames.PROFILE)
-@UseGuards(JwtAccessAuthGuard)
 @Controller(ProfileRouterPaths.PROFILE)
 export class ProfileAuthClientController {
 	constructor(private readonly profileAuthClientService: ProfileAuthClientService) {}
 
 	@GetProfileSwagger()
-	@Get()
+	@Get(":profileId")
 	@HttpCode(HttpStatus.OK)
-	async getProfile(@ExtractUserFromRequest() user: PayloadFromRequestDto): Promise<ProfileOutputWithAvatarDto> {
-		const result = await this.profileAuthClientService.getProfile(user.userId);
+	async getProfile(@Param("profileId") id: string): Promise<ProfileOutputWithAvatarDto> {
+		const result = await this.profileAuthClientService.getProfile(id);
 		return result;
 	}
 
 	@UpdateProfileSwagger()
+	@UseGuards(JwtAccessAuthGuard)
 	@Put()
 	@HttpCode(HttpStatus.OK)
 	async updateProfile(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Body() dto: ProfileInputDto): Promise<ProfileOutputDto> {
@@ -36,6 +36,7 @@ export class ProfileAuthClientController {
 	}
 
 	@UploadAvatarSwagger()
+	@UseGuards(JwtAccessAuthGuard)
 	@Post(ProfileRouterPaths.AVATAR)
 	@HttpCode(HttpStatus.CREATED)
 	@UseInterceptors(StreamingFileInterceptor)
@@ -45,6 +46,7 @@ export class ProfileAuthClientController {
 	}
 
 	@DeleteProfileAvatarSwagger()
+	@UseGuards(JwtAccessAuthGuard)
 	@Delete(ProfileRouterPaths.AVATAR)
 	@HttpCode(HttpStatus.NO_CONTENT)
 	async deleteProfileAvatar(@ExtractUserFromRequest() user: PayloadFromRequestDto): Promise<void> {
@@ -54,6 +56,7 @@ export class ProfileAuthClientController {
 
 	//* Endpoint for testing, profile deleting is not required
 	@DeleteProfileSwagger()
+	@UseGuards(JwtAccessAuthGuard)
 	@Delete()
 	@HttpCode(HttpStatus.NO_CONTENT)
 	async deleteProfile(@ExtractUserFromRequest() user: PayloadFromRequestDto): Promise<void> {

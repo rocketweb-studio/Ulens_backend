@@ -1,6 +1,16 @@
 import { Controller, Post, Body, HttpCode, Res, HttpStatus, Req, Get, UseGuards } from "@nestjs/common";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
-import { CreateUserDto, ConfirmCodeDto, ResendEmailDto, NewPasswordDto, LoginDto, AccessTokenDto, EmailDto, RecoveryPasswordDto } from "@libs/contracts/index";
+import {
+	CreateUserDto,
+	ConfirmCodeDto,
+	ResendEmailDto,
+	NewPasswordDto,
+	LoginDto,
+	AccessTokenDto,
+	EmailDto,
+	RecoveryPasswordDto,
+	PayloadFromRequestDto,
+} from "@libs/contracts/index";
 import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
@@ -20,6 +30,7 @@ import { CheckRecoveryCodeSwagger } from "@gateway/core/decorators/swagger/auth/
 import { ThrottlerGuard } from "@nestjs/throttler";
 import { Environments } from "@gateway/core/core.config";
 import { RecaptchaGuard } from "@gateway/core/guards/recaptcha.guard";
+import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 
 @ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -121,11 +132,11 @@ export class AuthClientController {
 	}
 
 	@MeSwagger()
+	@UseGuards(JwtAccessAuthGuard)
 	@Get(AuthRouterPaths.ME)
 	@HttpCode(HttpStatus.OK)
-	async me(@Req() request: Request): Promise<MeUserViewDto> {
-		const refreshTokenFromCookie = request.cookies?.refreshToken;
-		const userInfo = await this.authClientService.me(refreshTokenFromCookie);
+	async me(@ExtractUserFromRequest() dto: PayloadFromRequestDto): Promise<MeUserViewDto> {
+		const userInfo = await this.authClientService.me(dto.userId);
 		return userInfo;
 	}
 

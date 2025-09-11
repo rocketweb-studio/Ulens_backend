@@ -58,7 +58,6 @@ export class PostsClientController {
 	@GetUserPostsSwagger()
 	@Get(RouteParams.USER_ID)
 	@HttpCode(HttpStatus.OK)
-	@UseGuards(JwtAccessAuthGuard)
 	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
 		return await this.postsClientService.getUserPosts(userId, query);
 	}

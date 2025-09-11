@@ -4,4 +4,5 @@ export enum MainMessages {
 	DELETE_POST = "delete_post",
 	UPDATE_POST = "update_post",
 	GET_USER_POSTS = "get_user_posts",
+	GET_ALL_USER_POSTS = "get_all_user_posts",
 }

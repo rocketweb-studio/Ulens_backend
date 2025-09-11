@@ -8,6 +8,7 @@ import { RedisService } from "../../../../libs/redis/src/redis.service";
 import { mockRedisService } from "./mocks/redis";
 import { mockRabbitConnection, mockRabbitChannel } from "./mocks/rabbit";
 import { PostsTestManager } from "./posts-test-manager";
+import { ProfileTestManager } from "./profile-test-manager";
 
 /**
  * initSettings служит для создания отдельного инстэнса нашего приложения и выполнения в нем тестов
@@ -50,12 +51,14 @@ export const initSettings = async (
 	const httpServer = app.getHttpServer();
 	const authTestManger = new AuthTestManager(app);
 	const postsTestManger = new PostsTestManager(app);
+	const profileTestManger = new ProfileTestManager(app);
 
 	return {
 		app,
 		httpServer,
 		authTestManger,
 		postsTestManger,
+		profileTestManger,
 		authMicroservice,
 		mainMicroservice,
 		filesMicroservice,

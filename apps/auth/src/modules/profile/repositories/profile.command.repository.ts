@@ -36,6 +36,7 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 	private _mapToView(profile: Profile): ProfileOutputDto {
 		return {
 			userName: profile.userName,
+			id: profile.id,
 			firstName: profile.firstName,
 			lastName: profile.lastName,
 			city: profile.city,

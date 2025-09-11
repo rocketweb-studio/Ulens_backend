@@ -19,6 +19,7 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 
 	private _mapToView(profile: Profile): ProfileOutputDto {
 		return {
+			id: profile.userId,
 			userName: profile.userName,
 			firstName: profile.firstName,
 			lastName: profile.lastName,

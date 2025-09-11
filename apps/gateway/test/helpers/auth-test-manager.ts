@@ -25,7 +25,7 @@ export class AuthTestManager {
 		return res.body;
 	}
 
-	async registrationConfirmation(code: string, status: HttpStatus): Promise<Response> {
+	async registrationConfirmation(code: string, status: HttpStatus = HttpStatus.NO_CONTENT): Promise<Response> {
 		const server = this.app.getHttpServer();
 		const url = `/${RouterPrefix.API_V1}/${AuthRouterPaths.AUTH}/${AuthRouterPaths.REGISTRATION_CONFIRMATION}`;
 

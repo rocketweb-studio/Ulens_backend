@@ -12,19 +12,6 @@ import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
-			// MAIN microservice
-			{
-				name: Microservice.MAIN,
-				useFactory: (config: MainClientEnvConfig) => ({
-					transport: Transport.TCP,
-					options: {
-						host: config.mainClientHost,
-						port: config.mainClientPort,
-					},
-				}),
-				inject: [MainClientEnvConfig],
-				extraProviders: [MainClientEnvConfig],
-			},
 			// AUTH microservice
 			{
 				name: Microservice.AUTH,
@@ -37,6 +24,19 @@ import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.
 				}),
 				inject: [AuthClientEnvConfig],
 				extraProviders: [AuthClientEnvConfig],
+			},
+			// MAIN microservice
+			{
+				name: Microservice.MAIN,
+				useFactory: (config: MainClientEnvConfig) => ({
+					transport: Transport.TCP,
+					options: {
+						host: config.mainClientHost,
+						port: config.mainClientPort,
+					},
+				}),
+				inject: [MainClientEnvConfig],
+				extraProviders: [MainClientEnvConfig],
 			},
 			// FILES microservice
 			{

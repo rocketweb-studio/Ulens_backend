@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsNotEmpty, MaxLength } from "class-validator";
 
-// Create a DTO for the form data
 export class CreatePostDto {
 	@ApiProperty({
 		maxLength: 500,

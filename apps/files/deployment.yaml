@@ -42,8 +42,33 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-files-production-config-secret
                    key: FILES_POSTGRES_URL
-             - name: PORT
+             - name: S3_ENDPOINT
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-files-production-config-secret
-                   key: PORT
+                   key: S3_ENDPOINT
+             - name: S3_ACCESS_KEY_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_ACCESS_KEY_ID
+             - name: S3_SECRET_ACCESS_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_SECRET_ACCESS_KEY
+             - name: S3_BUCKET
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_BUCKET
+             - name: S3_REGION
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_REGION
+             - name: FILES_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: FILES_TCP_PORT

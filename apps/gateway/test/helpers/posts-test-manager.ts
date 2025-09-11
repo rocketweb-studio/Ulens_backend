@@ -6,7 +6,7 @@ export class PostsTestManager {
 	private server: any;
 	private readonly baseUrl = `/api/v1/posts`;
 
-	constructor(private app: INestApplication) {
+	constructor(app: INestApplication) {
 		this.server = app.getHttpServer();
 	}
 

@@ -29,8 +29,6 @@ COPY --chown=node . .
 # Fix: Use correct path for Prisma schema
 RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
 
-RUN yarn prisma:migrateDeploy:${SERVICE}
-
 RUN yarn build:libs
 
 RUN yarn build:${SERVICE}

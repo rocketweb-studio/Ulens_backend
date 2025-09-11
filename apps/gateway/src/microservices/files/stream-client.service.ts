@@ -141,7 +141,6 @@ export class StreamClientService {
 			socket.on("connect", () => {
 				console.log(`Connected to files service for: ${filename}`);
 
-				// biome-ignore lint/style/useTemplate: <serializing>
 				const header = `${JSON.stringify({
 					originalname: filename,
 					folder: folder,

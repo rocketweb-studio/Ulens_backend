@@ -32,6 +32,11 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-main-production-config-secret
                    key: MAIN_POSTGRES_URL
+             - name: RMQ_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-main-production-config-secret
+                   key: RMQ_URL
              - name: MAIN_TCP_HOST
                valueFrom:
                  secretKeyRef:

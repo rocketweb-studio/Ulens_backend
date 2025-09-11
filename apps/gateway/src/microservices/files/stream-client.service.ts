@@ -128,7 +128,7 @@ export class StreamClientService {
 		fileSizes: string[],
 	): Promise<UploadFileOutputDto> {
 		return new Promise((resolve, reject) => {
-			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientHost);
+			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientStreamingHost);
 
 			let responseBuffer = "";
 			let timeout: NodeJS.Timeout;

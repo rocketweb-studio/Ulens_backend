@@ -127,6 +127,21 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: RMQ_URL
+             - name: FILES_STREAMING_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_STREAMING_HOST
+             - name: PAYMENTS_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: PAYMENTS_TCP_HOST
+             - name: PAYMENTS_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: PAYMENTS_TCP_PORT
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

@@ -17,6 +17,12 @@ export class FilesClientEnvConfig {
 	})
 	filesClientPort: number;
 
+	@IsString()
+	@IsNotEmpty({
+		message: "Set Env variable FILES_STREAMING_HOST, example: 0.0.0.0",
+	})
+	filesClientStreamingHost: string;
+
 	@IsNotEmpty({
 		message: "Set Env variable FILES_STREAMING_PORT, example: 3002",
 	})
@@ -26,6 +32,7 @@ export class FilesClientEnvConfig {
 		this.filesClientHost = this.configService.get<string>("FILES_TCP_HOST");
 		this.filesClientPort = this.configService.get<number>("FILES_TCP_PORT");
 		this.filesClientStreamingPort = this.configService.get<number>("FILES_STREAMING_PORT");
+		this.filesClientStreamingHost = this.configService.get<string>("FILES_STREAMING_HOST");
 
 		configValidationUtility.validateConfig(this);
 	}

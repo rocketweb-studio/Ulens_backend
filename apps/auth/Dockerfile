@@ -37,4 +37,4 @@ RUN yarn build:${SERVICE}
 
 EXPOSE ${PORT}
 
-CMD yarn 'prisma:migrateDeploy:${SERVICE}' && yarn 'start:auth'
+CMD yarn 'prisma:migrateDeploy:auth' && yarn 'start:auth'

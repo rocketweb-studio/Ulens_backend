@@ -38,4 +38,4 @@ RUN yarn build:${SERVICE}
 
 EXPOSE ${PORT}
 
-CMD yarn 'start:main'
+CMD yarn 'prisma:migrateDeploy:main' && yarn 'start:main'

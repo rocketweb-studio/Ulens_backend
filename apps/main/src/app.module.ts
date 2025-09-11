@@ -5,7 +5,7 @@ import { PostModule } from "./modules/post/post.module";
 
 @Module({
 	// 1
-	imports: [CoreModule], // 2
+	imports: [CoreModule, PostModule], // 2
 	controllers: [],
 	providers: [],
 })
@@ -14,7 +14,6 @@ export class AppModule {
 		// 3
 		return {
 			module: AppModule,
-			imports: [CoreModule, PostModule],
 			providers: [
 				{
 					provide: CoreEnvConfig,

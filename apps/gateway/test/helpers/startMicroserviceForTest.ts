@@ -2,11 +2,13 @@ import { Test, TestingModule } from "@nestjs/testing";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
 import { AppModule as AuthAppModule } from "@auth/app.module";
 import { AppModule as MainAppModule } from "@main/app.module";
+import { AppModule as FilesAppModule } from "@files/app.module";
 import { mockRabbitConnection, mockRabbitChannel } from "./mocks/rabbit";
 
 const microservicesRootModules = {
 	auth: AuthAppModule,
 	main: MainAppModule,
+	files: FilesAppModule,
 };
 
 export const startMicroserviceForTest = async (microserviceName: string) => {

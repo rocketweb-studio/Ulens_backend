@@ -1,0 +1,33 @@
+services:                        # Определяем список сервисов (контейнеров), которые нужно запустить
+  rabbitmq:                      # Имя сервиса (дальше можно обращаться по имени "rabbitmq")
+    image: rabbitmq:3-management # Используем официальный образ RabbitMQ с плагином Management (веб-интерфейс на 15672)
+    ports:                       # Проброс портов (хост:контейнер)
+      - "5672:5672"              # Открываем порт 5672 — стандартный порт AMQP (для клиентов/сервисов)
+      - "15672:15672"            # Открываем порт 15672 — веб-панель управления (RabbitMQ Management UI)
+    environment:                 # Переменные окружения для инициализации RabbitMQ
+      RABBITMQ_DEFAULT_USER: "${RMQ_USER:-guest}"   # Логин по умолчанию (берётся из переменной окружения RMQ_USER, иначе "guest")
+      RABBITMQ_DEFAULT_PASS: "${RMQ_PASS:-guest}"   # Пароль по умолчанию (RMQ_PASS или "guest")
+      RABBITMQ_DEFAULT_VHOST: "${RMQ_VHOST:-/}"     # Виртуальный хост по умолчанию (RMQ_VHOST или "/")
+    volumes:                     # Примонтированные тома (для сохранения данных вне контейнера)
+      - rabbitmq_data:/var/lib/rabbitmq # Хранение данных RabbitMQ (очереди, exchange, сообщения) — чтобы не потерялись при перезапуске
+      - rabbitmq_log:/var/log/rabbitmq # Логи RabbitMQ
+    healthcheck:                 # Проверка "живости" контейнера
+      test: ["CMD", "rabbitmq-diagnostics", "ping"] # Команда для проверки: пинг RabbitMQ изнутри
+      interval: 10s              # Запускать проверку каждые 10 секунд
+      timeout: 5s                # Таймаут выполнения healthcheck
+      retries: 5                 # Сколько раз подряд должно не пройти, чтобы контейнер считался "unhealthy"
+
+  redis:
+    image: redis:latest
+    container_name: redis-ulens
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: redis-server
+    volumes:
+      - redis-ulens:/data
+
+volumes:                         # Определение именованных томов (Docker создаст их автоматически)
+  rabbitmq_data:                 # Том для данных RabbitMQ (сообщения, конфигурация)
+  rabbitmq_log:                  # Том для логов RabbitMQ
+  redis-ulens:

@@ -20,6 +20,7 @@ export * from "./main-contracts/input/postId-param.dto";
 export * from "./main-contracts/input/userId-param.dto";
 export * from "./main-contracts/output/get-user-post-query.dto";
 export * from "./main-contracts/output/get-user-posts-output.dto";
+export * from "./main-contracts/output/user-posts-output.dto";
 export * from "./auth-contracts/auth.contract";
 export * from "./files-contracts/files.contract";
 export * from "./files-contracts/output/upload-file.output.dto";

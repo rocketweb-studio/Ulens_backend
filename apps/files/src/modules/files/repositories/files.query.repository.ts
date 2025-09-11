@@ -35,6 +35,8 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 	}
 
 	// todo я бы убрал этот метод, и использовал тот что выше - getUserAvatars
+	/*они уже были написаны, а эти замены это переписывание dto и тд + этим методом мы получаем
+		только то что нам нужно и не гоняем лишние данные*/
 	async getAvatarUrlByUserId(userId: string): Promise<{ url: string } | null> {
 		const avatarUrl = await this.prisma.avatar.findFirst({
 			where: { parentId: userId },

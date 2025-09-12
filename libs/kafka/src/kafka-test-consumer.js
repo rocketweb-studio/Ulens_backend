@@ -10,11 +10,14 @@ const kafka = new Kafka({
   logLevel: logLevel.WARN,
 });
 
-const TOPIC = 'demo.ping.v1';
-const GROUP_ID = 'demo-consumer-group-1';
+const TOPIC = 'demo.keys.v1';
+const GROUP_ID = 'demo-keys-group-1';
 
 (async () => {
-  const consumer = kafka.consumer({ groupId: GROUP_ID });
+  const consumer = kafka.consumer({ 
+		groupId: GROUP_ID, 
+		allowAutoTopicCreation: false,
+	});
 
   await consumer.connect();                                   // коннект к брокеру
   await consumer.subscribe({ topic: TOPIC, fromBeginning: true }); // подписка на топик
@@ -23,6 +26,7 @@ const GROUP_ID = 'demo-consumer-group-1';
 
   await consumer.run({
     autoCommit: false,                                        // коммитим оффсеты вручную
+		partitionsConsumedConcurrently: 3,					// явно указываем параллелизм
     eachMessage: async ({ topic, partition, message }) => {
       const key = message.key?.toString();
       const value = message.value?.toString();

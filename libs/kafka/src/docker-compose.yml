@@ -32,5 +32,16 @@ services:
       - "9644:9644"   # Admin API Redpanda (health/status: /v1/status/ready)
     networks: [knet]  # Отдельная docker-сеть для чистых DNS-имён/изоляции
 
+  kafka-ui:            # ui для просмотра сообщений
+    image: provectuslabs/kafka-ui:latest
+    depends_on:
+      - redpanda
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: redpanda:9092   # внутренний listener
+    ports:
+      - "8080:8080"                                       # UI по http://localhost:8080
+    networks: [knet]
+
 networks:
   knet: {}             # Создаёт bridge-сеть "knet" (Compose сам всё настроит)

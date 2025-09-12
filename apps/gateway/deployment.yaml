@@ -22,18 +22,128 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
-             - name: AUTH_CLIENT_HOST
+             - name: AUTH_TCP_HOST
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
-                   key: AUTH_CLIENT_HOST
-             - name: AUTH_CLIENT_PORT
+                   key: AUTH_TCP_HOST
+             - name: AUTH_TCP_PORT
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
-                   key: AUTH_CLIENT_PORT
-             - name: PORT
+                   key: AUTH_TCP_PORT
+             - name: MAIN_TCP_HOST
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
-                   key: PORT
+                   key: MAIN_TCP_HOST
+             - name: MAIN_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: MAIN_TCP_PORT
+             - name: NOTIFICATIONS_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: NOTIFICATIONS_TCP_HOST
+             - name: NOTIFICATIONS_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: NOTIFICATIONS_TCP_PORT
+             - name: ACCESS_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ACCESS_SECRET_KEY
+             - name: ACCESS_EXPIRES_IN
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ACCESS_EXPIRES_IN
+             - name: ALLOWED_ORIGINS
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ALLOWED_ORIGINS
+             - name: GOOGLE_CLIENT_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GOOGLE_CLIENT_ID
+             - name: GOOGLE_CLIENT_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GOOGLE_CLIENT_SECRET
+             - name: GOOGLE_CALLBACK_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GOOGLE_CALLBACK_URL
+             - name: GITHUB_CLIENT_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GITHUB_CLIENT_ID
+             - name: GITHUB_CLIENT_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GITHUB_CLIENT_SECRET
+             - name: GITHUB_CALLBACK_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GITHUB_CALLBACK_URL
+             - name: FRONTEND_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FRONTEND_URL
+             - name: RECAPTCHA_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: RECAPTCHA_SECRET_KEY
+             - name: FILES_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_TCP_HOST
+             - name: FILES_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_TCP_PORT
+             - name: FILES_STREAMING_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_STREAMING_PORT
+             - name: RMQ_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: RMQ_URL
+             - name: FILES_STREAMING_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: FILES_STREAMING_HOST
+             - name: PAYMENTS_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: PAYMENTS_TCP_HOST
+             - name: PAYMENTS_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: PAYMENTS_TCP_PORT
+             - name: GATEWAY_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: GATEWAY_PORT

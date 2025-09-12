@@ -1,26 +1,27 @@
-import { DynamicModule, Module } from '@nestjs/common';
-import { CoreModule } from '@/core/core.module';
-import { CoreEnvConfig } from './core/core.config';
+import { DynamicModule, Module } from "@nestjs/common";
+import { CoreModule } from "@main/core/core.module";
+import { CoreEnvConfig } from "@main/core/core.config";
+import { PostModule } from "./modules/post/post.module";
 
 @Module({
-  // 1
-  imports: [CoreModule], // 2
-  controllers: [],
-  providers: []
+	// 1
+	imports: [CoreModule, PostModule], // 2
+	controllers: [],
+	providers: [],
 })
 export class AppModule {
-  static forRoot(config: CoreEnvConfig): DynamicModule {
-    // 3
-    return {
-      module: AppModule,
-      providers: [
-        {
-          provide: CoreEnvConfig,
-          useValue: config
-        }
-      ]
-    };
-  }
+	static forRoot(config: CoreEnvConfig): DynamicModule {
+		// 3
+		return {
+			module: AppModule,
+			providers: [
+				{
+					provide: CoreEnvConfig,
+					useValue: config,
+				},
+			],
+		};
+	}
 }
 
 /**

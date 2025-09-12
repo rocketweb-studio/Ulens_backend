@@ -1,0 +1,29 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("MAIN_POSTGRES_URL")
+}
+
+
+// Модель подписки - таблица в БД
+model Post {
+  id String @id  @default(uuid())
+  userId String
+  description String
+  createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
+  deletedAt DateTime? 
+
+	@@unique([createdAt, id], name: "createdAt_id") // составной уникальный индекс для реализации пагинации с курсором
+  @@map("posts")
+}

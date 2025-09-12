@@ -1,12 +1,13 @@
-import { configModule } from '@/core/modules/env-config/env-config.module';
-import { Module } from '@nestjs/common';
-
-import { CoreEnvConfig } from './core-env.config';
+import { configModule } from "./env-config/env-config.module";
+import { Module } from "@nestjs/common";
+import { CoreEnvConfig } from "./core.config";
+import { StorageModule } from "@files/core/storage/storage.module";
+import { PrismaModule } from "@files/core/prisma/prisma.module";
 
 @Module({
-  imports: [configModule],
-  controllers: [],
-  providers: [CoreEnvConfig],
-  exports: [CoreEnvConfig]
+	imports: [configModule, PrismaModule, StorageModule],
+	controllers: [],
+	providers: [CoreEnvConfig],
+	exports: [CoreEnvConfig], // Remove StorageService and StorageConfig from exports
 })
 export class CoreModule {}

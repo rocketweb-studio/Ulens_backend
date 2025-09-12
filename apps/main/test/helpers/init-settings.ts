@@ -1,8 +1,6 @@
-import { Test, TestingModuleBuilder } from '@nestjs/testing';
-import { MockTestManager } from './mock-test-manager';
-import { AppModule } from '../../src/app.module';
-import { CoreEnvConfig } from '../../src/core/core.config';
-import { configApp } from '../../src/app.setup';
+import { Test, TestingModuleBuilder } from "@nestjs/testing";
+import { MockTestManager } from "./mock-test-manager";
+import { AppModule } from "../../src/app.module";
 
 /**
  * initSettings служит для создания отдельного инстэнса нашего приложения и выполнения в нем тестов
@@ -10,36 +8,30 @@ import { configApp } from '../../src/app.setup';
  */
 
 export const initSettings = async (
-  //передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
-  addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void
+	//передаем callback, который получает ModuleBuilder, если хотим изменить настройку тестового модуля
+	addSettingsToModuleBuilder?: (moduleBuilder: TestingModuleBuilder) => void,
 ) => {
-  // создаем тестовый модуль и можем конфигурировать его
-  const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
-    imports: [AppModule]
-  });
+	// создаем тестовый модуль и можем конфигурировать его
+	const testingModuleBuilder: TestingModuleBuilder = Test.createTestingModule({
+		imports: [AppModule],
+	});
 
-  if (addSettingsToModuleBuilder) {
-    addSettingsToModuleBuilder(testingModuleBuilder);
-  }
+	if (addSettingsToModuleBuilder) {
+		addSettingsToModuleBuilder(testingModuleBuilder);
+	}
 
-  const testingAppModule = await testingModuleBuilder.compile();
+	const testingAppModule = await testingModuleBuilder.compile();
 
-  const app = testingAppModule.createNestApplication();
-  const coreConfig = app.get<CoreEnvConfig>(CoreEnvConfig);
+	const app = testingAppModule.createNestApplication();
 
-  configApp(app, coreConfig);
+	await app.init();
 
-  await app.init();
+	const httpServer = app.getHttpServer();
+	const mockTestManger = new MockTestManager(app);
 
-  const httpServer = app.getHttpServer();
-  const mockTestManger = new MockTestManager(app);
-
-  // TODO: delete all data from database for testing
-  // await deleteAllData(app);
-
-  return {
-    app,
-    httpServer,
-    mockTestManger
-  };
+	return {
+		app,
+		httpServer,
+		mockTestManger,
+	};
 };

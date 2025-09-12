@@ -2,6 +2,7 @@
   "compilerOptions": {
     "module": "commonjs",
     "declaration": true,
+    "resolveJsonModule": true,
     "removeComments": true,
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
@@ -19,8 +20,42 @@
     "noFallthroughCasesInSwitch": false,
     "composite": true,
     "paths": {
-      "@libs/utils/*": ["libs/utils/src/*"],
-      "@libs/constants/*": ["libs/constants/src/*"]
+      "@auth/*": [
+        "apps/auth/src/*"
+      ],
+      "@files/*": [
+        "apps/files/src/*"
+      ],
+      "@gateway/*": [
+        "apps/gateway/src/*"
+      ],
+      "@libs/constants/*": [
+        "libs/constants/src/*"
+      ],
+      "@libs/contracts/*": [
+        "libs/contracts/src/*"
+      ],
+      "@libs/exeption/*": [
+        "libs/exeption/src/*"
+      ],
+      "@libs/rabbit/*": [
+        "libs/rabbit/src/*"
+      ],
+      "@libs/redis/*": [
+        "libs/redis/src/*"
+      ],
+      "@libs/utils/*": [
+        "libs/utils/src/*"
+      ],
+      "@main/*": [
+        "apps/main/src/*"
+      ],
+      "@notifications/*": [
+        "apps/notifications/src/*"
+      ],
+      "@payments/*": [
+        "apps/payments/src/*"
+      ]
     }
   },
   "references": [
@@ -31,19 +66,34 @@
       "path": "./apps/main/tsconfig.app.json"
     },
     {
+      "path": "./apps/gateway/tsconfig.app.json"
+    },
+    {
+      "path": "./apps/notifications/tsconfig.app.json"
+    },
+    {
       "path": "./apps/files/tsconfig.app.json"
     },
     {
       "path": "./apps/payments/tsconfig.app.json"
     },
     {
-      "path": "./apps/gateway/tsconfig.app.json"
-    },
-    {
       "path": "./libs/constants/tsconfig.lib.json"
     },
     {
       "path": "./libs/utils/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/contracts/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/exeption/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/rabbit/tsconfig.lib.json"
+    },
+    {
+      "path": "./libs/redis/tsconfig.lib.json"
     }
   ]
-} 
+}

@@ -1,10 +1,12 @@
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule } from "@nestjs/config";
 
-// MICROSERVICE_NAME NODE_ENV переменные добавляем в package.json в скриптах так как они не доступны до инициализации ConfigModule
+console.log("NODE_ENV:", process.env.NODE_ENV);
+console.log("Config file path:", `.env.${process.env.NODE_ENV}.local`);
+
 export const configModule = ConfigModule.forRoot({
-  envFilePath: [
-    // local dev
-    `apps/${process.env.MICROSERVICE_NAME}/.env.${process.env.NODE_ENV}.local`
-  ],
-  isGlobal: true
+	envFilePath: [
+		// local dev
+		`.env.${process.env.NODE_ENV}.local`,
+	],
+	isGlobal: true,
 });

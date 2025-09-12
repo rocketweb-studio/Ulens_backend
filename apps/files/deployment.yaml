@@ -22,8 +22,53 @@ spec:
              - containerPort: PORT_CONTAINER
 
            env:
-             - name: PORT
+             - name: RMQ_URL
                valueFrom:
                  secretKeyRef:
                    name: ulens-backend-files-production-config-secret
-                   key: PORT
+                   key: RMQ_URL
+             - name: FILES_TCP_HOST
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: FILES_TCP_HOST
+             - name: FILES_STREAMING_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: FILES_STREAMING_PORT
+             - name: FILES_POSTGRES_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: FILES_POSTGRES_URL
+             - name: S3_ENDPOINT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_ENDPOINT
+             - name: S3_ACCESS_KEY_ID
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_ACCESS_KEY_ID
+             - name: S3_SECRET_ACCESS_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_SECRET_ACCESS_KEY
+             - name: S3_BUCKET
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_BUCKET
+             - name: S3_REGION
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: S3_REGION
+             - name: FILES_TCP_PORT
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-files-production-config-secret
+                   key: FILES_TCP_PORT

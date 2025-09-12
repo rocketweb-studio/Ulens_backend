@@ -14,19 +14,28 @@
   *This aliases are still local(not global) because root tsconfig.json has: 
     "paths": {}
  */
- {
-   "extends": "../../tsconfig.json",
-   "compilerOptions": {
-     "declaration": true,
-     "outDir": "../../dist/apps/main",
-     "baseUrl": ".",
-     "paths": {
-       "@/*": ["src/*"],
-       "@libs/constants/*": ["../../libs/constants/src/*"],
-       "@libs/utils/*": ["../../libs/utils/src/*"]
-     }
-   },
-   "references": [{ "path": "../../libs/constants/tsconfig.lib.json" }, { "path": "../../libs/utils/tsconfig.lib.json" }],
-   "include": ["src/**/*"],
-   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
- }
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "declaration": true,
+    "outDir": "../../dist/apps/main",
+    "baseUrl": ".",
+    "paths": {
+      "@main/*": ["src/*"],
+      "@libs/constants/*": ["../../libs/constants/src/*"],
+      "@libs/utils/*": ["../../libs/utils/src/*"],
+      "@libs/contracts/*": ["../../libs/contracts/src/*"],
+      "@libs/exeption/*": ["../../libs/exeption/src/*"],
+      "@libs/rabbit/*": ["../../libs/rabbit/src/*"]
+    }
+  },
+  "references": [
+    { "path": "../../libs/constants/tsconfig.lib.json" },
+    { "path": "../../libs/utils/tsconfig.lib.json" },
+    { "path": "../../libs/contracts/tsconfig.lib.json" },
+    { "path": "../../libs/exeption/tsconfig.lib.json" },
+    { "path": "../../libs/rabbit/tsconfig.lib.json" },
+  ],
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]
+}

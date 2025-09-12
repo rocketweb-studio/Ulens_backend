@@ -1,9 +1,24 @@
 {
   "moduleFileExtensions": ["js", "json", "ts"],
-  "rootDir": ".",
+  "rootDir": "../",
+	"preset": "ts-jest",
   "testEnvironment": "node",
+	"forceExit": true,
   "testRegex": ".e2e-spec.ts$",
   "transform": {
-    "^.+\\.(t|j)s$": "ts-jest"
-  }
+    "^.+\\.(t|j)s$": ["ts-jest", { "tsconfig": "<rootDir>/tsconfig.app.json" }]
+  },
+  "moduleNameMapper": {
+    "^@gateway/(.*)$": "<rootDir>/src/$1",
+    "^@libs/constants/(.*)$": "<rootDir>/../../libs/constants/src/$1",
+    "^@libs/utils/(.*)$": "<rootDir>/../../libs/utils/src/$1",
+    "^@libs/contracts/(.*)$": "<rootDir>/../../libs/contracts/src/$1",
+    "^@libs/exeption/(.*)$": "<rootDir>/../../libs/exeption/src/$1",
+    "^@libs/redis/(.*)$": "<rootDir>/../../libs/redis/src/$1",
+    "^@libs/rabbit/(.*)$": "<rootDir>/../../libs/rabbit/src/$1",
+    "^@auth/(.*)$": "<rootDir>/../auth/src/$1",
+    "^@main/(.*)$": "<rootDir>/../main/src/$1",
+    "^@files/(.*)$": "<rootDir>/../files/src/$1"
+  },
+  "moduleDirectories": ["node_modules", "<rootDir>/../auth/src", "<rootDir>/../main/src", "<rootDir>/src"]
 }

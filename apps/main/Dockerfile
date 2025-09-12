@@ -26,10 +26,16 @@ RUN yarn install
 # Bundle app source code
 COPY --chown=node . .
 
+
+# Fix: Use correct path for Prisma schema
+RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
+
+RUN yarn build:libs
+
 RUN yarn build:${SERVICE}
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 
 EXPOSE ${PORT}
 
-CMD yarn 'start:main'
+CMD yarn 'prisma:migrateDeploy:main' && yarn 'start:main'

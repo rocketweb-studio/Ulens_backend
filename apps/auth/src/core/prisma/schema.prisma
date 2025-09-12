@@ -11,29 +11,77 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  url      = env("POSTGRES_URL")
+  url      = env("AUTH_POSTGRES_URL")
 }
 
 // Модель пользователя - таблица в БД
 model User {
-  id    Int     @default(autoincrement()) @id
+  id String @id @default(uuid())
   email String  @unique
-  name  String? 
-  posts Post[]
   createdAt DateTime @default(now())
+  passwordHash String?
+  confirmationCode String? @unique
+  confirmationCodeConfirmed Boolean @default(false)
+	confirmationCodeExpDate DateTime?
+  recoveryCode String? @unique
+  recoveryCodeExpDate DateTime?
+  googleUserId String? 
+  githubUserId String? @unique
+	deletedAt DateTime?
 
-  @@map("users")
+  sessions Session[]  // обратная сторона связи
+	profile Profile?
+
+  @@map("users")  
 }
 
-// Модель поста - таблица в БД
-model Post {
-  id        Int      @default(autoincrement()) @id
-  title     String
-  content   String?
-  published Boolean? @default(false)
-  
-  author    User?    @relation(fields: [authorId], references: [id])
-  authorId  Int? @map("author_id")
+model Session {
+  deviceId String @id @unique
+  userId String 
+  deviceName String
+  iat DateTime
+  exp DateTime
+  ip String
+	country String?
+	city String?
+	latitude Float?
+	longitude Float?
+	timezone String?
+	browser String?
+	os String?
+	type String?
+	userAgent String?
+  deletedAt DateTime?
+	createdAt DateTime @default(now())
 
-  @@map("posts")
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  @@map("sessions")
+}
+
+
+model TokensBlacklist {
+  id String @id @default(uuid())
+  token String
+  createdAt DateTime @default(now())
+	expiredAt DateTime
+  @@map("blacklist")
+}
+
+model Profile {
+  id String @id @default(uuid())
+  userId String @unique
+  userName String @unique
+  firstName String?
+  lastName String?
+  city String?
+  country String?
+  region String?
+  dateOfBirth DateTime?
+  aboutMe String?
+  createdAt DateTime @default(now())
+	deletedAt DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
 }

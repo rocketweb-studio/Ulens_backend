@@ -1,41 +1,47 @@
-import { configValidationUtility } from '@libs/utils/env-validation.utility';
-import { Injectable } from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
-import { IsEnum, IsNotEmpty } from 'class-validator';
+import { configValidationUtility } from "@libs/utils/env-validation.utility";
+import { Injectable } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
+import { IsEnum, IsNotEmpty } from "class-validator";
 
 export enum Environments {
-  DEVELOPMENT = 'development',
-  STAGING = 'staging',
-  PRODUCTION = 'production',
-  TESTING = 'testing'
+	DEVELOPMENT = "development",
+	STAGING = "staging",
+	PRODUCTION = "production",
+	TESTING = "testing",
 }
 
 // each module has it's own *.config.ts
 
 @Injectable()
 export class CoreEnvConfig {
-  @IsEnum(Environments, {
-    message: 'Ser correct NODE_ENV value, available values: ' + configValidationUtility.getEnumValues(Environments).join(', ')
-  })
-  env: string;
+	@IsEnum(Environments, {
+		message: `Ser correct NODE_ENV value, available values: ${configValidationUtility.getEnumValues(Environments).join(", ")}`,
+	})
+	env: string;
 
-  @IsNotEmpty({
-    message: 'Set Env variable TCP_HOST, example: 0.0.0.0'
-  })
-  tcpHost: string;
+	@IsNotEmpty({
+		message: "Set Env variable MAIN_TCP_HOST, example: 0.0.0.0",
+	})
+	tcpHost: string;
 
-  @IsNotEmpty({
-    message: 'Set Env variable TCP_PORT, example: 3001'
-  })
-  tcpPort: number;
+	@IsNotEmpty({
+		message: "Set Env variable MAIN_TCP_PORT, example: 3001",
+	})
+	tcpPort: number;
 
-  constructor(private configService: ConfigService<any, true>) {
-    this.env = this.configService.get('NODE_ENV'); // 1
-    this.tcpHost = this.configService.get<string>('TCP_HOST');
-    this.tcpPort = this.configService.get<number>('TCP_PORT');
+	@IsNotEmpty({
+		message: "Set Env variable MAIN_POSTGRES_URL, example: postgresql://user:password@host:port/database",
+	})
+	databaseUrl: string;
 
-    configValidationUtility.validateConfig(this); // 2
-  }
+	constructor(private configService: ConfigService<any, true>) {
+		this.env = this.configService.get("NODE_ENV"); // 1
+		this.tcpHost = this.configService.get<string>("MAIN_TCP_HOST");
+		this.tcpPort = this.configService.get<number>("MAIN_TCP_PORT");
+		this.databaseUrl = this.configService.get<string>("MAIN_POSTGRES_URL");
+
+		configValidationUtility.validateConfig(this); // 2
+	}
 }
 
 /**

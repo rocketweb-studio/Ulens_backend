@@ -28,6 +28,8 @@ model User {
   googleUserId String? 
   githubUserId String? @unique
 	deletedAt DateTime?
+	isPremium Boolean @default(false)
+	premiumUntil	DateTime?
 
   sessions Session[]  // обратная сторона связи
 	profile Profile?
@@ -84,4 +86,25 @@ model Profile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+model InboxMessage {
+  id           String      @id            // messageId из брокера / eventId из webhooks
+  type         String
+  source       String                      // "payments-service" | "stripe" и т.п.
+  payload      Json
+  status       InboxStatus @default(RECEIVED)
+  error        String?
+  receivedAt   DateTime    @default(now())
+  processedAt  DateTime?
+
+  @@map("inbox_messages")
+  @@index([status])
+  @@index([source, type])
 }

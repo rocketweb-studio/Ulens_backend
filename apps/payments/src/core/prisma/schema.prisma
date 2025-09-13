@@ -1,0 +1,157 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYMENTS_POSTGRES_URL")
+}
+
+enum PaymentProvider {
+  STRIPE
+  PAYPAL
+	MOCK
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELED
+  REFUNDED
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  INCOMPLETE
+  PAST_DUE
+  CANCELED
+  EXPIRED
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+model Transaction {
+  id                 String          @id @default(uuid())
+  userId             String
+  amountCents        Int
+  currency           String
+  provider           PaymentProvider
+  providerPaymentId  String?         // payment_intent / PayPal capture id
+  providerInvoiceId  String?
+  status             PaymentStatus   @default(PENDING)
+  subscriptionId     String?
+  idempotencyKey     String?         @unique  // ключ от клиента/оркестратора
+  correlationId      String          @default(uuid()) // для трассировки саги
+  metadata           Json?
+  createdAt          DateTime        @default(now())
+
+  @@map("transactions")
+  @@index([userId])
+  @@index([status])
+  @@unique([provider, providerPaymentId], map: "uq_tx_provider_payment") // строгая уникальность
+  @@index([subscriptionId])
+}
+
+model Subscription {
+  id                      String              @id @default(uuid())
+  userId                  String
+  planId                  String
+  provider                PaymentProvider
+  providerSubscriptionId  String?
+  status                  SubscriptionStatus  @default(ACTIVE)
+  currentPeriodStart      DateTime?
+  currentPeriodEnd        DateTime?
+  cancelAt                DateTime?
+  canceledAt              DateTime?
+  correlationId           String              @default(uuid()) // связь событий саги
+  createdAt               DateTime            @default(now())
+  updatedAt               DateTime            @updatedAt
+
+  @@map("subscriptions")
+  @@index([userId])
+  @@index([status])
+  @@unique([provider, providerSubscriptionId], map: "uq_sub_provider_id")
+}
+
+model Plan {
+  id               String   @id @default(uuid())
+  code             String   @unique
+  title            String
+  description      String
+  priceCents       Int
+  currency         String
+  interval         String
+  stripeProductId  String?
+  stripePriceId    String?
+  paypalPlanId     String?
+  createdAt        DateTime @default(now())
+
+  @@map("plans")
+  @@index([currency])
+  @@index([interval])
+}
+
+/**
+ * OUTBOX: события публикуем асинхронно (Rabbit/Kafka) из этой таблицы.
+ * Заполняется ВМЕСТЕ с изменениями (Transaction/Subscription) в одной DB-транзакции.
+ */
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  // Для маршрутизации/реплея:
+  aggregateType  String       // "subscription" | "transaction" | "user"
+  aggregateId    String
+  eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?      // опционально: имя топика/роутинга
+  correlationId  String       // наследуем из Transaction/Subscription
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+  @@index([status, nextAttemptAt])
+  @@index([aggregateType, aggregateId])
+  @@index([eventType])
+}
+
+/**
+ * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
+ * Если messageId уже есть — повтор не обрабатываем.
+ */
+model InboxMessage {
+  id            String      @id                 // используйте messageId из брокера/вебхука
+  type          String
+  source        String                           // "stripe", "paypal", "auth-service", ...
+  payload       Json
+  status        InboxStatus  @default(RECEIVED)
+  error         String?
+  receivedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  @@map("inbox_messages")
+  @@index([status])
+  @@index([source, type])
+}
+
+

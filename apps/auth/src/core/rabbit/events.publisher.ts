@@ -8,7 +8,7 @@ export class AuthEventsPublisher {
 	constructor(@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel) {}
 
 	// Отправляем событие: пользователь зарегистрирован
-	async publishUserRegistered(payload: { userId: string; email: string }) {
+	async publishRabbitUserRegistered(payload: { userId: string; email: string }) {
 		const evt: EventEnvelope<typeof payload> = {
 			messageId: randomUUID(),
 			traceId: randomUUID(),

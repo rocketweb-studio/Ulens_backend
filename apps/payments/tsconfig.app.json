@@ -11,7 +11,8 @@
       "@libs/contracts/*": ["../../libs/contracts/src/*"],
       "@libs/exeption/*": ["../../libs/exeption/src/*"],
       "@libs/rabbit/*": ["../../libs/rabbit/src/*"],
-      "@libs/redis/*": ["../../libs/redis/src/*"]
+      "@libs/redis/*": ["../../libs/redis/src/*"],
+      "@libs/kafka/*": ["../../libs/kafka/src/*"],
     }
   },
   "references": [
@@ -20,7 +21,8 @@
     { "path": "../../libs/contracts/tsconfig.lib.json" },
     { "path": "../../libs/exeption/tsconfig.lib.json" },
     { "path": "../../libs/rabbit/tsconfig.lib.json" },
-    { "path": "../../libs/redis/tsconfig.lib.json" }
+    { "path": "../../libs/redis/tsconfig.lib.json" },
+    { "path": "../../libs/kafka/tsconfig.lib.json" },
   ],
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "test", "**/*spec.ts", "test/**/*"]

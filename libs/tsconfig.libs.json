@@ -7,5 +7,6 @@
     { "path": "./exeption/tsconfig.lib.json" },
     { "path": "./rabbit/tsconfig.lib.json" },
     { "path": "./redis/tsconfig.lib.json" },
+    { "path": "./kafka/tsconfig.lib.json" },
   ]
 }

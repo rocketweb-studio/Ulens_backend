@@ -34,6 +34,7 @@ import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
 import { RedisService } from "@libs/redis/redis.service";
+import { AuthKafkaPublisher } from "@auth/core/kafka/auth.kafka.publisher";
 
 @Injectable()
 export class UserService {
@@ -45,6 +46,7 @@ export class UserService {
 		private readonly blacklistService: BlacklistService,
 		private readonly authEventsPublisher: AuthEventsPublisher,
 		private readonly redisService: RedisService,
+		private readonly authKafkaPublisher: AuthKafkaPublisher,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -73,7 +75,12 @@ export class UserService {
 			throw new UnexpectedErrorRpcException("User was not created");
 		}
 
-		await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
+		await this.authEventsPublisher.publishRabbitUserRegistered({ userId: createdUser.id, email: createdUser.email });
+
+		await this.authKafkaPublisher.publishUserRegisteredKafkaEvent({
+			userId: createdUser.id,
+			email: createdUser.email,
+		});
 
 		return {
 			email: createdUser.email,

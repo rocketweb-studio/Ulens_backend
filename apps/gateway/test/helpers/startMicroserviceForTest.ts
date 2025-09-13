@@ -4,6 +4,7 @@ import { AppModule as AuthAppModule } from "@auth/app.module";
 import { AppModule as MainAppModule } from "@main/app.module";
 import { AppModule as FilesAppModule } from "@files/app.module";
 import { mockRabbitConnection, mockRabbitChannel } from "./mocks/rabbit";
+import { RmqTokens } from "@libs/constants/index";
 
 const microservicesRootModules = {
 	auth: AuthAppModule,
@@ -18,9 +19,9 @@ export const startMicroserviceForTest = async (microserviceName: string) => {
 	const testingModule: TestingModule = await Test.createTestingModule({
 		imports: [rootModule],
 	})
-		.overrideProvider("RMQ_CONNECTION")
+		.overrideProvider(RmqTokens.CONNECTION)
 		.useValue(mockRabbitConnection)
-		.overrideProvider("RMQ_CHANNEL")
+		.overrideProvider(RmqTokens.CHANNEL)
 		.useValue(mockRabbitChannel)
 		.compile();
 

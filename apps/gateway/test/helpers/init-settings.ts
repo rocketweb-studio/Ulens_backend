@@ -1,10 +1,10 @@
 import { Test, TestingModuleBuilder } from "@nestjs/testing";
 import { AuthTestManager } from "./auth-test-manager";
-import { GatewayModule } from "../../src/gateway.module";
-import { CoreEnvConfig } from "../../src/core/core.config";
-import { configApp } from "../../src/gateway.setup";
+import { GatewayModule } from "@gateway/gateway.module";
+import { CoreEnvConfig } from "@gateway/core/core.config";
+import { configApp } from "@gateway/gateway.setup";
 import { startMicroserviceForTest } from "./startMicroserviceForTest";
-import { RedisService } from "../../../../libs/redis/src/redis.service";
+import { RedisService } from "@libs/redis/index";
 import { mockRedisService } from "./mocks/redis";
 import { mockRabbitConnection, mockRabbitChannel } from "./mocks/rabbit";
 import { PostsTestManager } from "./posts-test-manager";

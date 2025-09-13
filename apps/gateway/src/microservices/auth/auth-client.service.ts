@@ -20,14 +20,14 @@ import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.con
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
 import { MeUserViewDto } from "@libs/contracts/index";
 import * as amqp from "amqplib";
-import { EventEnvelope } from "@libs/contracts/index";
-import { randomUUID } from "crypto";
+import { Producer } from "kafkajs";
 
 @Injectable()
 export class AuthClientService implements IAuthClientService {
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
-		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+		@Inject("RMQ_CHANNEL") private readonly _ch: amqp.Channel,
+		@Inject("KAFKA_PRODUCER") private readonly _producer: Producer,
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
@@ -146,42 +146,5 @@ export class AuthClientService implements IAuthClientService {
 	async getUserConfirmation(email: string): Promise<UserConfirmationOutputDto> {
 		const user = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USER_CONFIRMATION_BY_EMAIL }, { email }));
 		return user;
-	}
-
-	// тестовый метод для публикации сообщения
-	async publishTestEvent() {
-		const event = {
-			messageId: Date.now().toString(),
-			type: "test.event",
-			payload: { hello: "world" },
-		};
-
-		this.ch.publish(
-			"app.events", // exchange
-			"test.event", // routing key
-			Buffer.from(JSON.stringify(event)),
-			{ persistent: true, contentType: "application/json" },
-		);
-		console.log("[RMQ] Published test.event:", event);
-	}
-
-	// тестовый метод с "реальным" событием
-	async publishUserRegisteredEvent() {
-		const event: EventEnvelope<{ userId: string; email: string }> = {
-			messageId: randomUUID(),
-			traceId: randomUUID(),
-			type: "auth.user.registered.v1", // ← новый тип
-			occurredAt: new Date().toISOString(),
-			producer: "gateway", // пока публикуем из gateway
-			payload: { userId: "demo-user-id", email: "demo@example.com" },
-		};
-
-		this.ch.publish(
-			"app.events", // общий topic exchange
-			"auth.user.registered.v1", // ← routing key в тему события
-			Buffer.from(JSON.stringify(event)),
-			{ persistent: true, contentType: "application/json" },
-		);
-		console.log("[RMQ] Published auth.user.registered.v1:", event);
 	}
 }

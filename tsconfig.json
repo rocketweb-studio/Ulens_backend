@@ -94,6 +94,9 @@
     },
     {
       "path": "./libs/redis/tsconfig.lib.json"
+    },
+		{
+      "path": "./libs/kafka/tsconfig.lib.json"
     }
   ]
 }

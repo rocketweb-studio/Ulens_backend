@@ -12,7 +12,7 @@ export class FileUploadConfigs {
 		fieldName: "avatar",
 		folder: "avatars",
 		maxFiles: 1,
-		allowedTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 10 * 1024 * 1024, // 10MB
 		fileSizes: ["192x192", "45x45"],
 	};

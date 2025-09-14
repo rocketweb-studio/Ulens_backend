@@ -36,9 +36,9 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "cross-env NODE_ENV=testing jest --config ./apps/files/test/jest-e2e.json",
     "test:e2e:gateway": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json",
-		"test:e2e:posts": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/posts.e2e-spec.ts",
-		"test:e2e:profile": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/profile.e2e-spec.ts",
-		"test:e2e:auth": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/auth.e2e-spec.ts",
+    "test:e2e:posts": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/posts.e2e-spec.ts",
+    "test:e2e:profile": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/profile.e2e-spec.ts",
+    "test:e2e:auth": "cross-env NODE_ENV=testing jest --config ./apps/gateway/test/jest-e2e.json apps/gateway/test/auth.e2e-spec.ts",
     "prisma:studio:auth": "dotenv -e .env.development.local -- npx prisma studio --schema=./apps/auth/src/core/prisma/schema.prisma",
     "prisma:push:auth": "dotenv -e .env.development.local -- npx prisma db push --schema=./apps/auth/src/core/prisma/schema.prisma",
     "prisma:generate:auth": "dotenv -e .env.development.local -- npx prisma generate --schema=./apps/auth/src/core/prisma/schema.prisma",
@@ -56,7 +56,13 @@
     "prisma:generate:files": "dotenv -e .env.development.local -- npx prisma generate --schema=./apps/files/src/core/prisma/schema.prisma",
     "prisma:migrateDev:files": "dotenv -e .env.development.local -- npx prisma migrate dev  --schema=apps/files/src/core/prisma/schema.prisma",
     "prisma:migrateReset:files": "dotenv -e .env.development.local -- npx prisma migrate reset  --schema=apps/files/src/core/prisma/schema.prisma",
-    "prisma:migrateDeploy:files": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/files/src/core/prisma/schema.prisma"
+    "prisma:migrateDeploy:files": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/files/src/core/prisma/schema.prisma",
+		"prisma:studio:payments": "dotenv -e .env.development.local -- npx prisma studio --schema=./apps/payments/src/core/prisma/schema.prisma",
+    "prisma:push:payments": "dotenv -e .env.development.local -- npx prisma db push --schema=./apps/payments/src/core/prisma/schema.prisma",
+    "prisma:generate:payments": "dotenv -e .env.development.local -- npx prisma generate --schema=./apps/payments/src/core/prisma/schema.prisma",
+    "prisma:migrateDev:payments": "dotenv -e .env.development.local -- npx prisma migrate dev  --schema=apps/payments/src/core/prisma/schema.prisma",
+    "prisma:migrateReset:payments": "dotenv -e .env.development.local -- npx prisma migrate reset  --schema=apps/payments/src/core/prisma/schema.prisma",
+    "prisma:migrateDeploy:payments": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/payments/src/core/prisma/schema.prisma"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.876.0",
@@ -88,7 +94,8 @@
     "passport-local": "^1.0.0",
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
-    "sharp": "^0.34.3"
+    "sharp": "^0.34.3",
+    "stripe": "^18.5.0"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

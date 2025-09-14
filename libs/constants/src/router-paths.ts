@@ -44,4 +44,5 @@ export enum ApiTagsNames {
 	OAuth2 = "OAuth2",
 	FILES = "Files",
 	POSTS = "Posts",
+	PAYMENTS = "Payments",
 }

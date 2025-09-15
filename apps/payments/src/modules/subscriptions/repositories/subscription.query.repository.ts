@@ -5,12 +5,5 @@ import { ISubscriptionQueryRepository } from "../subscription.interface";
 
 @Injectable()
 export class PrismaSubscriptionQueryRepository implements ISubscriptionQueryRepository {
-	constructor(private readonly prisma: PrismaService) {}
-
-	getUniqueSubscription(planCode: string): Promise<any> {
-		const result = this.prisma.plan.findUnique({
-			where: { code: planCode },
-		});
-		return result;
-	}
+	constructor(readonly _prisma: PrismaService) {}
 }

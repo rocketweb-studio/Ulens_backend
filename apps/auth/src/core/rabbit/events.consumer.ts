@@ -1,11 +1,101 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import * as amqp from "amqplib";
+import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
+import { EventsPublisher } from "./events.publisher";
 
 @Injectable()
-export class RabbitTestConsumer implements OnModuleInit {
-	constructor(@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel) {}
+export class RabbitConsumer implements OnModuleInit {
+	constructor(
+		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+		private readonly userCommandRepository: IUserCommandRepository,
+		private readonly eventsPublisher: EventsPublisher,
+	) {}
 
 	async onModuleInit() {
+		// === подписка на событие от payments ===
+		// 1) Очереди для события из payments
+		await this.ch.assertQueue("auth.payment.succeeded.q", {
+			durable: true,
+			arguments: {
+				"x-dead-letter-exchange": "app.dlx",
+				"x-dead-letter-routing-key": "auth.payment.succeeded.q.dlq",
+			},
+		});
+		await this.ch.bindQueue("auth.payment.succeeded.q", "app.events", "payment.succeeded");
+
+		// retry-очередь на 1 минуту
+		await this.ch.assertQueue("auth.payment.succeeded.q.retry.1m", {
+			durable: true,
+			arguments: {
+				"x-message-ttl": 60_000,
+				"x-dead-letter-exchange": "app.events",
+				"x-dead-letter-routing-key": "payment.succeeded",
+			},
+		});
+
+		// DLQ
+		await this.ch.assertQueue("auth.payment.succeeded.q.dlq", { durable: true });
+		await this.ch.bindQueue("auth.payment.succeeded.q.dlq", "app.dlx", "auth.payment.succeeded.q.dlq");
+
+		// 2) Консьюм сообщения payment.succeeded (добавляли в самом начале просто для тестирования)
+		await this.ch.consume(
+			"auth.payment.succeeded.q",
+			async (msg) => {
+				if (!msg) return;
+				try {
+					const evt = JSON.parse(msg.content.toString()) as {
+						messageId: string;
+						userId: string;
+						planCode: string; // "PREMIUM_MONTH" и т.п.
+						occurredAt: string;
+						transactionId: string;
+						correlationId: string;
+					};
+
+					const { premiumUntil } = await this.userCommandRepository.applyPaymentSucceeded({
+						messageId: evt.messageId,
+						userId: evt.userId,
+						planCode: evt.planCode,
+						occurredAt: evt.occurredAt,
+						transactionId: evt.transactionId,
+						correlationId: evt.correlationId,
+					});
+
+					// публикуем подтверждение
+					await this.eventsPublisher.publishUserPremiumActivated({
+						transactionId: evt.transactionId,
+						userId: evt.userId,
+						planCode: evt.planCode,
+						premiumUntil: premiumUntil.toISOString(),
+						correlationId: evt.correlationId,
+					});
+					console.log("[AUTH][RMQ] got payment.succeeded:", evt);
+
+					// (Следующий шаг: идемпотентность через Inbox + обновить users.isPremium/premiumUntil)
+					this.ch.ack(msg);
+				} catch (_e) {
+					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
+					if (retries < 3) {
+						this.ch.sendToQueue("auth.payment.succeeded.q.retry.1m", msg.content, {
+							persistent: true,
+							contentType: "application/json",
+							headers: { ...(msg.properties.headers || {}), "x-retries": retries + 1 },
+						});
+						this.ch.ack(msg);
+					} else {
+						this.ch.publish("app.dlx", "auth.payment.succeeded.q.dlq", msg.content, {
+							persistent: true,
+							contentType: "application/json",
+							headers: msg.properties.headers,
+						});
+						this.ch.ack(msg);
+					}
+				}
+			},
+			{ noAck: false },
+		);
+
+		// -------------Register testing queue----------------
 		// основная очередь
 		await this.ch.assertQueue("auth.user.registered.q", {
 			durable: true,
@@ -47,7 +137,6 @@ export class RabbitTestConsumer implements OnModuleInit {
 					 * Идемпотентность = гарантия, что каждое событие будет обработано ровно один раз, даже если оно придёт повторно.
 					 * Как это делается:
 					 * В evt.messageId (мы его формируем в publisher через randomUUID()) содержится уникальный ID события.
-					 * (Вероятно для этого мы сможем использовать REDIS, чтобы не дергать БД каждый раз. Но редису нужно будет настроить персистентность)
 					 * В auth или другом сервисе мы заводим таблицу в БД, например processed_messages(message_id TEXT PRIMARY KEY, processed_at TIMESTAMP).
 					 * Перед тем, как реально обрабатывать событие:
 					 * Проверяем в БД: обрабатывали ли мы уже это messageId.
@@ -80,4 +169,5 @@ export class RabbitTestConsumer implements OnModuleInit {
 			{ noAck: false },
 		);
 	}
+	// -------------End of Register testing queue----------------
 }

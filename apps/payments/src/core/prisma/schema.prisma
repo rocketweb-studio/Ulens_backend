@@ -58,7 +58,7 @@ model Transaction {
   providerInvoiceId  String?
   status             PaymentStatus   @default(PENDING)
   subscriptionId     String?
-  idempotencyKey     String?         @unique  // ключ от клиента/оркестратора
+  idempotencyKey     String?         @unique  				// ключ от клиента
   correlationId      String          @default(uuid()) // для трассировки саги
   metadata           Json?
   createdAt          DateTime        @default(now())

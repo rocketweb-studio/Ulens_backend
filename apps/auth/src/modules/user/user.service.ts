@@ -32,8 +32,8 @@ import { Oauth2Providers } from "@libs/constants/auth-messages";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
-import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
-import { RedisService } from "@libs/redis/redis.service";
+import { EventsPublisher } from "@auth/core/rabbit/events.publisher";
+// import { RedisService } from "@libs/redis/redis.service";
 import { AuthKafkaPublisher } from "@auth/core/kafka/auth.kafka.publisher";
 
 @Injectable()
@@ -44,8 +44,8 @@ export class UserService {
 		private readonly userEnvConfig: UserEnvConfig,
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
-		private readonly authEventsPublisher: AuthEventsPublisher,
-		private readonly redisService: RedisService,
+		private readonly authEventsPublisher: EventsPublisher,
+		// private readonly redisService: RedisService,
 		private readonly authKafkaPublisher: AuthKafkaPublisher,
 	) {}
 
@@ -276,7 +276,7 @@ export class UserService {
 		};
 
 		// проверка на работоспособность redis
-		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt), "EX", 60 * 60 * 1000);
+		// await this.redisService.set(deviceId, JSON.stringify(payloadForJwt), 'PX', 60*60*1000);
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
 			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
@@ -284,7 +284,7 @@ export class UserService {
 		});
 
 		// проверка на существование deviceId в redis
-		console.log("Saved session in redis: ", await this.redisService.get(deviceId));
+		// console.log("Saved session in redis: ", await this.redisService.get(deviceId));
 
 		const payloadFromJwt = this.jwtService.decode(refreshToken); // string | object | null
 		await this.sessionService.createSession(userId, deviceId, metadata, payloadFromJwt);

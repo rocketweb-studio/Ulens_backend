@@ -3,14 +3,11 @@
  *   so your service can inject by type without @Inject()
  */
 
-export abstract class ISubscriptionQueryRepository {
-	// abstract getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto>;
-	abstract getUniqueSubscription(code: string): Promise<any>;
-}
+import { CreateTransactionInternalDto } from "./dto/create-transaction.dto";
+
+export abstract class ISubscriptionQueryRepository {}
 
 export abstract class ISubscriptionCommandRepository {
-	// abstract createPost(dto: CreatePostWithUserIdDto): Promise<CreatePostOutputDto>;
-	// abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
-	// abstract deletePost(id: string): Promise<boolean>;
-	// abstract updatePost(dto: UpdatePostDto): Promise<boolean>;
+	abstract getUniqueSubscription(code: string): Promise<any>;
+	abstract createTransaction(dto: CreateTransactionInternalDto): Promise<any>;
 }

@@ -6,7 +6,7 @@ import { SubscriptionService } from "./subscription.service";
 // Idempotency-Key
 export class SubscInputDto {
 	planCode: string;
-	provider: string;
+	provider: "MOCK" | "STRIPE" | "PAYPAL";
 	userId: string;
 	idempotencyKey: string;
 }
@@ -16,7 +16,7 @@ export class SubscriptionController {
 	constructor(private readonly subscriptionService: SubscriptionService) {}
 
 	@MessagePattern({ cmd: PaymentsMessages.CREATE_SUBSCRIPTION })
-	async createPost(@Payload() dto: SubscInputDto): Promise<any> {
+	async createSubscription(@Payload() dto: SubscInputDto): Promise<any> {
 		return this.subscriptionService.createSubscription(dto);
 	}
 }

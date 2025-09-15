@@ -18,6 +18,7 @@ export class TransactionController {
 
 	@MessagePattern({ cmd: PaymentsMessages.MAKE_PAYMENT })
 	async makePayment(@Payload() dto: { payment: PaymentInputDto; user: MeUserViewDto }): Promise<PaymentOutputDto> {
+		// проверяем существование плана
 		const plan = await this.planQueryRepository.findPlanById(dto.payment.planId);
 		if (!plan) {
 			throw new NotFoundRpcException("Plan not found");

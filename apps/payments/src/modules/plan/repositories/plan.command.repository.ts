@@ -23,6 +23,7 @@ export class PrismaPlanCommandRepository implements IPlanCommandRepository {
 	}
 
 	async deletePlan(id: string): Promise<boolean> {
+		// возможно нужно сделать soft-delete но в страйпе план удаляется полностью
 		const deletedPlan = await this.prisma.plan.delete({ where: { id } });
 		return !!deletedPlan;
 	}

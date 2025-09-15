@@ -11,6 +11,7 @@ export class PlanService {
 	) {}
 
 	async createPlan(plan: PlanInputDto) {
+		// создаем план в stripe
 		const stripePlan = await this.stripeService.plans.create({
 			amount: Math.round(plan.price * 100),
 			currency: plan.currency,
@@ -20,19 +21,24 @@ export class PlanService {
 			},
 		});
 
+		// создаем план в локальной бд
 		const createdPlan = await this.prismaPlanCommandRepository.createPlan(plan, stripePlan.id, stripePlan.product?.toString() || "");
 
 		return createdPlan;
 	}
 
 	async deletePlan(id: string) {
+		// получаем план из локальной бд
 		const plan = await this.prismaPlanCommandRepository.findPlanById(id);
 		if (!plan) {
 			throw new Error("Plan not found");
 		}
+		// удаляем план в stripe
 		await this.stripeService.plans.del(plan.stripePlanId);
+		// удаляем продукт в stripe
 		await this.stripeService.products.del(plan.stripeProductId);
 
+		// удаляем план из локальной бд
 		const isDeleted = await this.prismaPlanCommandRepository.deletePlan(id);
 		if (!isDeleted) {
 			throw new Error("Plan not deleted");

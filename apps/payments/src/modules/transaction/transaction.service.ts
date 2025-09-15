@@ -27,17 +27,16 @@ export class TransactionService {
 	}
 
 	async makePayment(user: MeUserViewDto, payment: PaymentInputDto, plan: PlanOutputDto): Promise<PaymentOutputDto> {
-		if (!plan) {
-			throw new Error("Plan not found");
-		}
-
+		// проверяем отсутствие активной подписки у пользователя
 		const subscription = await this.subscriptionService.getSubscriptionByUserId(user.id);
 
 		if (subscription) {
 			throw new BadRequestRpcException("Subscription already exists");
 		}
 
+		// создаем сессию для оплаты
 		let session: Stripe.Checkout.Session;
+		// для работы с разными провайдерами
 		if (payment.provider === PaymentProvidersEnum.STRIPE) {
 			session = await this.makeStripePayment(user, plan);
 		} else {
@@ -56,29 +55,39 @@ export class TransactionService {
 
 		// создаем сессию для оплаты
 		const session = await this.stripeService.checkout.sessions.create({
+			// типы методов оплаты
 			payment_method_types: ["card"],
+			// товары для оплаты
 			line_items: [
 				{
 					price_data: {
+						// данные о товаре
 						product_data: {
 							name: plan.title,
 							description: plan.description ?? "",
 						},
+						// данные о цене. умножаем на 100 чтобы получить цену в центах(в страйпе используется наименьшая единица валюты)
 						unit_amount: Math.round(plan.price * 100),
+						// валюта указана в соответствии с кодами - https://docs.stripe.com/currencies
 						currency: plan.currency,
+						// данные о периоде(день, неделя, месяц, год) - берем из плана
 						recurring: {
 							interval: plan.interval as PaymentInterval,
 						},
 					},
+					// количество товаров
 					quantity: 1,
 				},
 			],
+			// тип оплаты - подписка
 			mode: "subscription",
 			// url на который будет перенаправлен пользователь после оплаты
 			success_url: `${this.coreEnvConfig.redirectUrl}?success=true`,
 			// url на который будет перенаправлен пользователь если он отменит оплату
 			cancel_url: `${this.coreEnvConfig.redirectUrl}?success=false`,
+			// клиент для оплаты
 			customer: customer.id,
+			// данные о пользователе и плане, придут нам в webhook обратно
 			metadata: {
 				userId: user.id,
 				planId: plan.id,

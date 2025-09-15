@@ -10,6 +10,7 @@
       "@main/*": ["../main/src/*"],
       "@files/*": ["../files/src/*"],
       "@notifications/*": ["../notifications/src/*"],
+      "@payments/*": ["../payments/src/*"],
       "@libs/constants/*": ["../../libs/constants/src/*"],
       "@libs/utils/*": ["../../libs/utils/src/*"],
       "@libs/contracts/*": ["../../libs/contracts/src/*"],

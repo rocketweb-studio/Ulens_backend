@@ -1,11 +1,11 @@
 import { DynamicModule, Module } from "@nestjs/common";
-import { PaymentsController } from "@payments/payments.controller";
 import { CoreEnvConfig } from "@payments/core/core-env.config";
 import { CoreModule } from "./core/core.module";
 import { RabbitModule } from "@libs/rabbit/index";
+import { SubscriptionModule } from "./modules/subscriptions/subscription.module";
 @Module({
-	imports: [CoreModule, RabbitModule],
-	controllers: [PaymentsController],
+	imports: [CoreModule, RabbitModule, SubscriptionModule],
+	controllers: [],
 	providers: [],
 })
 export class AppModule {

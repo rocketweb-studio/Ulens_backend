@@ -33,6 +33,10 @@ export enum MainRouterPaths {
 	IMAGES = ":postId/images",
 }
 
+export enum PaymentsRouterPaths {
+	SUBSCRIPTIONS = "subscriptions",
+}
+
 export enum RouteParams {
 	POST_ID = ":postId",
 	USER_ID = ":userId",
@@ -44,4 +48,5 @@ export enum ApiTagsNames {
 	OAuth2 = "OAuth2",
 	FILES = "Files",
 	POSTS = "Posts",
+	SUBSCRIPTIONS = "Subscriptions",
 }

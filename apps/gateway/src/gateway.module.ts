@@ -5,11 +5,12 @@ import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module
 import { MainClientModule } from "@gateway/microservices/main/main-client.module";
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
+import { PaymentsClientModule } from "@gateway/microservices/payments/payments-client.module";
 import { RabbitModule } from "@libs/rabbit/index";
 import { KafkaModule } from "@libs/kafka/index";
 
 @Module({
-	imports: [CoreModule, AuthClientModule, MainClientModule, NotificationsClientModule, FilesClientModule, RabbitModule, KafkaModule],
+	imports: [CoreModule, AuthClientModule, MainClientModule, NotificationsClientModule, FilesClientModule, PaymentsClientModule, RabbitModule, KafkaModule],
 	controllers: [],
 	providers: [],
 })

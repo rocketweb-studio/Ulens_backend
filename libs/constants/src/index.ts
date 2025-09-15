@@ -7,3 +7,4 @@ export * from "./errors";
 export * from "./notification-messages";
 export * from "./files-messages";
 export * from "./rabbit.constants";
+export * from "./payments-messages";

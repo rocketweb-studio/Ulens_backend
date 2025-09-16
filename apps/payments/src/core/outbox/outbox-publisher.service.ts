@@ -1,5 +1,6 @@
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
+// import { EventBus } from "../../../../../libs/rabbit/src";
 import { EventBus } from "@libs/rabbit/rabbit.event-bus";
 
 @Injectable()
@@ -64,7 +65,7 @@ export class OutboxPublisherService implements OnModuleInit, OnModuleDestroy {
 					const headers = (ev.headers as Record<string, any>) || {};
 
 					// Публикуем в Rabbit (или позже в Kafka)
-					await this.bus.publish(exchange, routingKey, message, { headers });
+					await this.bus.publishConfirm(exchange, routingKey, message, { headers });
 
 					// Успех — помечаем PUBLISHED
 					await this.prisma.outboxEvent.update({

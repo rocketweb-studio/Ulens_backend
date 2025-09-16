@@ -3,7 +3,7 @@ import { SubscriptionService } from "./subscription.service";
 import { SubscriptionController } from "./subscription.controller";
 import { ISubscriptionCommandRepository } from "./subscription.interface";
 import { PrismaSubscriptionCommandRepository } from "./repositories/subscription.command.repository";
-import { OutboxPublisherService } from "@payments/core/outbox/outbox-publisher.service.ts";
+import { OutboxPublisherService } from "@payments/core/outbox/outbox-publisher.service";
 import { RabbitEventBus } from "@libs/rabbit/index";
 
 @Module({
@@ -16,6 +16,6 @@ import { RabbitEventBus } from "@libs/rabbit/index";
 		{ provide: "EVENT_BUS", useClass: RabbitEventBus },
 	],
 	controllers: [SubscriptionController],
-	exports: [],
+	exports: [ISubscriptionCommandRepository],
 })
 export class SubscriptionModule {}

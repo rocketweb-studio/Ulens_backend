@@ -4,10 +4,12 @@
  */
 
 import { CreateTransactionInternalDto } from "./dto/create-transaction.dto";
+import { PremiumActivatedInput } from "./dto/premium-activated.dto";
 
 export abstract class ISubscriptionQueryRepository {}
 
 export abstract class ISubscriptionCommandRepository {
 	abstract getUniqueSubscription(code: string): Promise<any>;
 	abstract createTransaction(dto: CreateTransactionInternalDto): Promise<any>;
+	abstract finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void>;
 }

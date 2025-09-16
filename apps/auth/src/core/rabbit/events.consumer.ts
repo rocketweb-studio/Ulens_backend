@@ -4,7 +4,7 @@ import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
 import { EventsPublisher } from "./events.publisher";
 
 @Injectable()
-export class RabbitConsumer implements OnModuleInit {
+export class RabbitAuthConsumer implements OnModuleInit {
 	constructor(
 		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
 		private readonly userCommandRepository: IUserCommandRepository,
@@ -37,7 +37,7 @@ export class RabbitConsumer implements OnModuleInit {
 		await this.ch.assertQueue("auth.payment.succeeded.q.dlq", { durable: true });
 		await this.ch.bindQueue("auth.payment.succeeded.q.dlq", "app.dlx", "auth.payment.succeeded.q.dlq");
 
-		// 2) Консьюм сообщения payment.succeeded (добавляли в самом начале просто для тестирования)
+		// 2) Консьюм сообщения payment.succeeded
 		await this.ch.consume(
 			"auth.payment.succeeded.q",
 			async (msg) => {
@@ -52,6 +52,8 @@ export class RabbitConsumer implements OnModuleInit {
 						correlationId: string;
 					};
 
+					// даже если одно сообщение по какой-то причине пришло к нам несколько раз в applyPaymentSucceeded
+					// мы поймем это по messageId и ниже просто ack(msg) без каких либо последствий
 					const { premiumUntil } = await this.userCommandRepository.applyPaymentSucceeded({
 						messageId: evt.messageId,
 						userId: evt.userId,
@@ -61,7 +63,8 @@ export class RabbitConsumer implements OnModuleInit {
 						correlationId: evt.correlationId,
 					});
 
-					// публикуем подтверждение
+					// публикуем подтверждение в "payments-svc" о том, что на стороне auth-svc обновление статуса пользователя
+					// прошло успешно и транзакцию можно закрывать
 					await this.eventsPublisher.publishUserPremiumActivated({
 						transactionId: evt.transactionId,
 						userId: evt.userId,
@@ -71,7 +74,6 @@ export class RabbitConsumer implements OnModuleInit {
 					});
 					console.log("[AUTH][RMQ] got payment.succeeded:", evt);
 
-					// (Следующий шаг: идемпотентность через Inbox + обновить users.isPremium/premiumUntil)
 					this.ch.ack(msg);
 				} catch (_e) {
 					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);

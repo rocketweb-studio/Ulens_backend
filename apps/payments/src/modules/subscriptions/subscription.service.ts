@@ -97,15 +97,14 @@ export class SubscriptionService {
 
 			const result = await this.subscriptionCommandRepo.createTransaction(transaction);
 			console.log("Transaction result--->", result);
-			// (Позже: запись Transaction + Outbox в БД c этим же transactionId/correlationId)
 			return { transactionId, plan };
 		} finally {
-			// 4) Освобождаем лок (TTL всё равно истечёт)
+			// 4) можно освободить лок или TTL всё равно истечёт (устанавливали 30 секунд)
+			// idemKey не удаляем из редис даже после успешного завершения транзакции. Это наша гарантия, идемпотентности
+			// что с фронта не прилетить еще один запрос и будет открыта вторая транзакция. Время жизни idemKey - 24часа
 			try {
 				// await this.redisService.del(lockKey);
-			} catch {
-				/* ignore */
-			}
+			} catch {}
 		}
 	}
 }

@@ -3,7 +3,8 @@ import { ISubscriptionCommandRepository } from "../subscription.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { CreateTransactionInternalDto } from "../dto/create-transaction.dto";
 import { randomUUID } from "crypto";
-// import { Prisma } from "@payments/core/prisma/generated";
+import { PremiumActivatedInput } from "../dto/premium-activated.dto";
+import { PaymentStatus } from "@payments/core/prisma/generated";
 
 @Injectable()
 export class PrismaSubscriptionCommandRepository implements ISubscriptionCommandRepository {
@@ -61,6 +62,71 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 			});
 
 			return createdTx;
+		});
+	}
+
+	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
+		const { messageId, transactionId, userId, planCode } = input;
+
+		await this.prisma.$transaction(async (tx) => {
+			// 1) Inbox идемпотентно
+			const ins = await tx.inboxMessage.createMany({
+				data: [
+					{
+						id: messageId,
+						type: "auth.user.premium.activated.v1",
+						source: "auth-service",
+						payload: input,
+						status: "RECEIVED",
+					},
+				],
+				skipDuplicates: true,
+			});
+			if (ins.count === 0) return; // уже обработали
+
+			// 2) Проверяем транзакцию и план
+			const trx = await tx.transaction.findUnique({ where: { id: transactionId } });
+			if (!trx) {
+				await tx.inboxMessage.update({
+					where: { id: messageId },
+					data: { status: "FAILED", error: `Transaction ${transactionId} not found`, processedAt: new Date() },
+				});
+				return;
+			}
+
+			const plan = await tx.plan.findUnique({ where: { code: planCode } });
+			if (!plan) {
+				await tx.inboxMessage.update({
+					where: { id: messageId },
+					data: { status: "FAILED", error: `Plan ${planCode} not found`, processedAt: new Date() },
+				});
+				return;
+			}
+
+			// 3) Создаём подписку
+			const sub = await tx.subscription.create({
+				data: {
+					userId,
+					planId: plan.id,
+					provider: trx.provider,
+					// возможно позже: currentPeriodEnd: new Date(input.premiumUntil ?? new Date()),
+				},
+			});
+
+			// 4) Обновляем транзакцию → SUCCESS + линкуем подписку
+			await tx.transaction.update({
+				where: { id: trx.id },
+				data: {
+					status: PaymentStatus.SUCCEEDED,
+					subscriptionId: sub.id,
+				},
+			});
+
+			// 5) Inbox → PROCESSED
+			await tx.inboxMessage.update({
+				where: { id: messageId },
+				data: { status: "PROCESSED", processedAt: new Date() },
+			});
 		});
 	}
 }

@@ -19,7 +19,7 @@ export class SubscriptionService {
 		return await this.subscriptionCommandRepository.updateSubscription(id, data);
 	}
 
-	async getSubscriptionByUserId(userId: string): Promise<boolean> {
+	async getSubscriptionByUserId(userId: string): Promise<any> {
 		return await this.subscriptionCommandRepository.getSubscriptionByUserId(userId);
 	}
 
@@ -38,5 +38,9 @@ export class SubscriptionService {
 		});
 
 		return await this.subscriptionCommandRepository.updateSubscription(userId, { isAutoRenewal });
+	}
+
+	async deleteSubscription(subscriptionId: string): Promise<boolean> {
+		return await this.subscriptionCommandRepository.deleteSubscription(subscriptionId);
 	}
 }

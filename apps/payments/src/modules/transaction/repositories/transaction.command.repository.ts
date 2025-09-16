@@ -1,31 +1,33 @@
-import { PlanOutputDto, TransactionStatusEnum } from "@libs/contracts/index";
+import { TransactionStatusEnum } from "@libs/contracts/index";
 import { ITransactionCommandRepository } from "../transaction.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-import { PaymentProvidersEnum } from "@libs/contracts/index";
 import { Injectable } from "@nestjs/common";
 import { UpdateTransactionDto } from "../dto/update-transaction.dto";
+import { CreateTransactionDto } from "../dto/create-transaction.dto";
 
 @Injectable()
 export class TransactionCommandRepository implements ITransactionCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async createTransaction(userId: string, plan: PlanOutputDto, stripeSubscriptionId: string, provider: PaymentProvidersEnum): Promise<string> {
+	async createTransaction(dto: CreateTransactionDto): Promise<string> {
+		const { userId, plan, stripeSubscriptionId, stripeSessionId, provider } = dto;
 		const createdTransaction = await this.prisma.transaction.create({
 			data: {
 				userId: userId,
 				amount: plan.price,
 				currency: plan.currency,
 				stripeSubscriptionId: stripeSubscriptionId,
+				stripeSessionId: stripeSessionId,
 				provider: provider,
 			},
 		});
 		return createdTransaction.id;
 	}
 
-	async updateTransaction(id: string, data: Partial<UpdateTransactionDto>): Promise<boolean> {
+	async updateTransaction(sessionId: string, data: Partial<UpdateTransactionDto>): Promise<boolean> {
 		const updatedTransaction = await this.prisma.transaction.updateMany({
 			where: {
-				stripeSubscriptionId: id,
+				stripeSessionId: sessionId,
 				status: TransactionStatusEnum.PENDING,
 			},
 			data: data,

@@ -21,6 +21,7 @@ model Transaction {
   currency String
 
   stripeSubscriptionId String?
+  stripeSessionId      String?
   status               TransactionStatus @default(PENDING)
 
   createdAt DateTime  @default(now())
@@ -44,6 +45,8 @@ model Subscription {
   isAutoRenewal Boolean @default(true)
 
   plan Plan @relation(fields: [planId], references: [id])
+
+  deletedAt DateTime?
 
   @@map("subscriptions")
 }

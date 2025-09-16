@@ -8,6 +8,7 @@ import { ITransactionCommandRepository } from "./transaction.interface";
 import { UpdateTransactionDto } from "./dto/update-transaction.dto";
 import { BadRequestRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { SubscriptionService } from "../subscription/subscription.service";
+import { CreateTransactionDto } from "./dto/create-transaction.dto";
 
 @Injectable()
 export class TransactionService {
@@ -17,6 +18,11 @@ export class TransactionService {
 		private readonly transactionCommandRepository: ITransactionCommandRepository,
 		private readonly subscriptionService: SubscriptionService,
 	) {}
+
+	async createTransaction(dto: CreateTransactionDto): Promise<string> {
+		const createdTransaction = await this.transactionCommandRepository.createTransaction(dto);
+		return createdTransaction;
+	}
 
 	async updateTransaction(id: string, data: Partial<UpdateTransactionDto>): Promise<boolean> {
 		const isUpdated = await this.transactionCommandRepository.updateTransaction(id, data);
@@ -43,8 +49,13 @@ export class TransactionService {
 			throw new Error("Provider not supported");
 		}
 		// создаем транзакцию в бд
-
-		await this.transactionCommandRepository.createTransaction(user.id, plan, session.id, payment.provider);
+		await this.transactionCommandRepository.createTransaction({
+			userId: user.id,
+			plan,
+			stripeSubscriptionId: null,
+			stripeSessionId: session.id,
+			provider: payment.provider,
+		});
 
 		return { url: session.url as string };
 	}
@@ -87,10 +98,17 @@ export class TransactionService {
 			cancel_url: `${this.coreEnvConfig.redirectUrl}?success=false`,
 			// клиент для оплаты
 			customer: customer.id,
-			// данные о пользователе и плане, придут нам в webhook обратно
+			// данные о пользователе и плане в checkout session, придут нам в webhook обратно
 			metadata: {
 				userId: user.id,
 				planId: plan.id,
+			},
+			// данные о пользователе и плане в subscription, придут нам в webhook обратно
+			subscription_data: {
+				metadata: {
+					userId: user.id,
+					planId: plan.id,
+				},
 			},
 		});
 		if (!session.url) {

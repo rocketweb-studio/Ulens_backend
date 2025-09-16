@@ -4,4 +4,5 @@ export class UpdateTransactionDto {
 	status: TransactionStatusEnum;
 	createdAt?: Date;
 	expiresAt?: Date;
+	stripeSubscriptionId?: string;
 }

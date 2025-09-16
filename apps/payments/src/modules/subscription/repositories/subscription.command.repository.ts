@@ -13,12 +13,17 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 	}
 
 	async updateSubscription(id: string, data: any): Promise<boolean> {
-		const updatedSubscription = await this.prisma.subscription.update({ where: { id }, data });
+		const updatedSubscription = await this.prisma.subscription.update({ where: { id, deletedAt: null }, data });
 		return updatedSubscription.id !== null;
 	}
 
 	async getSubscriptionByUserId(userId: string): Promise<any> {
-		const subscription = await this.prisma.subscription.findFirst({ where: { userId } });
+		const subscription = await this.prisma.subscription.findFirst({ where: { userId, deletedAt: null } });
 		return subscription;
+	}
+
+	async deleteSubscription(subscriptionId: string): Promise<boolean> {
+		const deletedSubscription = await this.prisma.subscription.update({ where: { id: subscriptionId }, data: { deletedAt: new Date() } });
+		return deletedSubscription.id !== null;
 	}
 }

@@ -125,6 +125,7 @@ exports.Prisma.TransactionScalarFieldEnum = {
   amount: 'amount',
   currency: 'currency',
   stripeSubscriptionId: 'stripeSubscriptionId',
+  stripeSessionId: 'stripeSessionId',
   status: 'status',
   createdAt: 'createdAt',
   expiresAt: 'expiresAt',
@@ -139,7 +140,8 @@ exports.Prisma.SubscriptionScalarFieldEnum = {
   createdAt: 'createdAt',
   expiresAt: 'expiresAt',
   stripeSubscriptionId: 'stripeSubscriptionId',
-  isAutoRenewal: 'isAutoRenewal'
+  isAutoRenewal: 'isAutoRenewal',
+  deletedAt: 'deletedAt'
 };
 
 exports.Prisma.PlanScalarFieldEnum = {

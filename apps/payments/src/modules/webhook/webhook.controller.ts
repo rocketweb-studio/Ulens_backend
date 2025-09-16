@@ -1,11 +1,11 @@
 import { Controller } from "@nestjs/common";
-import { WebhookService } from "./webhook.service";
+import { WebhookStripeService } from "./webhook-stripe.service";
 import { PaymentsMessages } from "@libs/constants/payment-messages";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 
 @Controller()
 export class WebhookController {
-	constructor(private readonly webhookService: WebhookService) {}
+	constructor(private readonly webhookService: WebhookStripeService) {}
 
 	@MessagePattern({ cmd: PaymentsMessages.WEBHOOK_STRIPE })
 	async receiveWebhookStripe(@Payload() payload: { rawBody: any; stripeSignature: string }) {

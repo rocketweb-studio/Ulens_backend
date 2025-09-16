@@ -1,3 +1,6 @@
+-- CreateEnum
+CREATE TYPE "public"."sizes" AS ENUM ('small', 'medium', 'large');
+
 -- CreateTable
 CREATE TABLE "public"."avatars" (
     "id" TEXT NOT NULL,
@@ -6,6 +9,7 @@ CREATE TABLE "public"."avatars" (
     "width" INTEGER NOT NULL,
     "height" INTEGER NOT NULL,
     "fileSize" INTEGER NOT NULL,
+    "size" "public"."sizes" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(3),
 
@@ -20,6 +24,7 @@ CREATE TABLE "public"."posts" (
     "width" INTEGER NOT NULL,
     "height" INTEGER NOT NULL,
     "fileSize" INTEGER NOT NULL,
+    "size" "public"."sizes" NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "deletedAt" TIMESTAMP(3),
 

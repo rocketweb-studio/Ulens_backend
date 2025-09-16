@@ -1,11 +1,11 @@
 import { Inject, Injectable } from "@nestjs/common";
-import * as amqp from "amqplib";
 import { randomUUID } from "crypto";
 import { EventEnvelope } from "@libs/contracts/index";
+import { EventBus } from "@libs/rabbit/rabbit.event-bus"; //  интерфейс из либы
 
 @Injectable()
 export class EventsPublisher {
-	constructor(@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel) {}
+	constructor(@Inject("EVENT_BUS") private readonly bus: EventBus) {}
 
 	async publishUserPremiumActivated(payload: {
 		transactionId: string;
@@ -23,12 +23,11 @@ export class EventsPublisher {
 			payload,
 		};
 
-		await this.ch.assertExchange("app.events", "topic", { durable: true });
-		this.ch.publish("app.events", "auth.user.premium.activated.v1", Buffer.from(JSON.stringify(evt)), { persistent: true, contentType: "application/json" });
+		await this.bus.publishConfirm("app.events", "auth.user.premium.activated.v1", evt, { headers: { "x-service": "auth" }, mandatory: true, timeoutMs: 10000 });
 		console.log("[AUTH][RMQ] published auth.user.premium.activated.v1:", evt);
 	}
 
-	// Отправляем событие: пользователь зарегистрирован  Тестовый метода
+	// Тестовый метод. Отправляем событие: пользователь зарегистрирован
 	async publishRabbitUserRegistered(payload: { userId: string; email: string }) {
 		const evt: EventEnvelope<typeof payload> = {
 			messageId: randomUUID(),
@@ -39,12 +38,7 @@ export class EventsPublisher {
 			payload,
 		};
 
-		this.ch.publish(
-			"app.events", // общий topic exchange
-			"auth.user.registered.v1", // routing key = тип события
-			Buffer.from(JSON.stringify(evt)),
-			{ persistent: true, contentType: "application/json" },
-		);
+		await this.bus.publishConfirm("app.events", "auth.user.registered.v1", evt, { headers: { "x-service": "auth" }, mandatory: true, timeoutMs: 10000 });
 		console.log("[AUTH][RMQ] published auth.user.registered.v1:", evt);
 	}
 }

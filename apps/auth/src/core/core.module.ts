@@ -11,11 +11,12 @@ import { KafkaModule } from "@libs/kafka/index";
 import { AuthKafkaConsumer } from "./kafka/auth.kafka.consumer";
 import { AuthKafkaPublisher } from "./kafka/auth.kafka.publisher";
 import { UserModule } from "@auth/modules/user/user.module";
+import { RabbitEventBus } from "@libs/rabbit/rabbit.event-bus";
 
 @Module({
 	imports: [configModule, PrismaModule, RabbitModule, ScheduleModule.forRoot(), RedisModule.forRoot(), KafkaModule, UserModule, forwardRef(() => UserModule)],
 	controllers: [],
-	providers: [CoreEnvConfig, RabbitAuthConsumer, EventsPublisher, AuthKafkaPublisher, AuthKafkaConsumer],
+	providers: [CoreEnvConfig, RabbitAuthConsumer, EventsPublisher, AuthKafkaPublisher, AuthKafkaConsumer, { provide: "EVENT_BUS", useClass: RabbitEventBus }],
 	exports: [CoreEnvConfig, EventsPublisher, AuthKafkaPublisher],
 })
 export class CoreModule {}

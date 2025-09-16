@@ -3,6 +3,7 @@ import { PrismaService } from "@files/core/prisma/prisma.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
 import { Avatar } from "@files/core/prisma/generated/client";
 import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
+import { FilesSizes } from "@libs/constants/files.constants";
 
 @Injectable()
 export class PrismaFilesQueryRepository implements IFilesQueryRepository {
@@ -46,6 +47,7 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 				height: true,
 				fileSize: true,
 				createdAt: true,
+				size: true,
 			},
 		});
 		return postImages;
@@ -58,6 +60,7 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 			height: avatar.height,
 			fileSize: avatar.fileSize,
 			createdAt: avatar.createdAt,
+			size: avatar.size as FilesSizes,
 			uploadId: avatar.id,
 		};
 	}

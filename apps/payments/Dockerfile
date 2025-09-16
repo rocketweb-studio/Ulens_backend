@@ -26,6 +26,9 @@ RUN yarn install
 # Bundle app source code
 COPY --chown=node . .
 
+# Fix: Use correct path for Prisma schema
+RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
+
 RUN yarn build:libs
 
 RUN yarn build:${SERVICE}
@@ -34,4 +37,4 @@ RUN yarn build:${SERVICE}
 
 EXPOSE ${PORT}
 
-CMD yarn 'start:payments'
+CMD yarn 'prisma:migrateDeploy:payments' && yarn 'start:payments'

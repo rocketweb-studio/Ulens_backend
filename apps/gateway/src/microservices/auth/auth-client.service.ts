@@ -62,14 +62,16 @@ export class AuthClientService implements IAuthClientService {
 	async resendEmail(resendEmailDto: ResendEmailDto): Promise<void> {
 		const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.RESEND_EMAIL }, resendEmailDto));
 
-		this.notificationsClientService
-			.sendRegistrationEmail({
-				email: resendEmailDto.email,
-				code: code,
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		if (code) {
+			this.notificationsClientService
+				.sendRegistrationEmail({
+					email: resendEmailDto.email,
+					code: code,
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		}
 
 		return;
 	}

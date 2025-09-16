@@ -5,7 +5,7 @@ import { IsString, Length, Matches, IsEmail } from "class-validator";
 export class CreateUserDto {
 	@ApiProperty({
 		example: "john_doe",
-		description: "User name",
+		description: "Username",
 		minLength: 6,
 		maxLength: 30,
 		pattern: "^[a-zA-Z0-9_-]*$",

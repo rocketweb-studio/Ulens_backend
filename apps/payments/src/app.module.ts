@@ -1,11 +1,14 @@
 import { DynamicModule, Module } from "@nestjs/common";
-import { PaymentsController } from "@payments/payments.controller";
 import { CoreEnvConfig } from "@payments/core/core-env.config";
 import { CoreModule } from "./core/core.module";
 import { RabbitModule } from "@libs/rabbit/index";
+import { PlanModule } from "@payments/modules/plan/plan.module";
+import { TransactionModule } from "@payments/modules/transaction/transaction.module";
+import { WebhookModule } from "@payments/modules/webhook/webhook.module";
+import { SubscriptionModule } from "@payments/modules/subscription/subscription.module";
 @Module({
-	imports: [CoreModule, RabbitModule],
-	controllers: [PaymentsController],
+	imports: [CoreModule, RabbitModule, PlanModule, TransactionModule, WebhookModule, SubscriptionModule],
+	controllers: [],
 	providers: [],
 })
 export class AppModule {

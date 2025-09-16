@@ -5,5 +5,6 @@ export class UploadFileOutputDto {
 		width: number;
 		height: number;
 		fileSize: number;
+		size: string;
 	}[];
 }

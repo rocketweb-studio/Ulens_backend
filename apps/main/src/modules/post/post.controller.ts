@@ -3,11 +3,12 @@ import { PostService } from "./post.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { MainMessages } from "@libs/constants/index";
 import { CreatePostWithUserIdDto } from "./dto/create-post.userId.input.dto";
-import { CreatePostOutputDto, UpdatePostDto } from "@libs/contracts/index";
+import { CreatePostOutputDto, PostDbOutputDto, UpdatePostDto } from "@libs/contracts/index";
 import { DeletePostDto } from "./dto/delete-post.input.dto";
 import { GetUserPostsInputDto } from "./dto/get-user-posts.input.dto";
 import { IPostQueryRepository } from "./post.interface";
 import { UserPostsPageDto } from "@libs/contracts/index";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Controller()
 export class PostController {
@@ -34,5 +35,12 @@ export class PostController {
 	@MessagePattern({ cmd: MainMessages.GET_USER_POSTS })
 	async getUserPosts(@Payload() dto: GetUserPostsInputDto): Promise<UserPostsPageDto> {
 		return this.postQueryRepository.getUserPosts(dto);
+	}
+
+	@MessagePattern({ cmd: MainMessages.GET_POST })
+	async getPost(@Payload() dto: { postId: string }): Promise<PostDbOutputDto> {
+		const post = await this.postQueryRepository.getPostById(dto.postId);
+		if (!post) throw new NotFoundRpcException("Post not found");
+		return post;
 	}
 }

@@ -6,4 +6,5 @@ export class PostImagesOutputDto {
 	createdAt: Date;
 	id: string;
 	parentId: string;
+	size: any;
 }

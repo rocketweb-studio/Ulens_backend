@@ -61,6 +61,6 @@ import { MainClientEnvConfig } from "../main/main-client.config";
 	],
 	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController],
 	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService],
-	exports: [ProfileAuthClientService],
+	exports: [ProfileAuthClientService, AuthClientService],
 })
 export class AuthClientModule {}

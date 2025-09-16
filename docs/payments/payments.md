@@ -101,22 +101,45 @@ Stripe подписывает свои webhook-запросы с помощью 
 
 10. **WebhookController** получает сообщение и вызывает `WebhookService.receiveWebhookStripe()`
 
-11. **WebhookService**:
+11. **WebhookService - Stripe**:
     - Валидирует подпись через `stripeService.webhooks.constructEvent()`
-    - Обрабатывает различные типы событий:
+    - Обрабатывает различные типы событий с правильной типизацией
+    - Обновляет записи в БД в соответствии с бизнес логикой
 
 #### Событие `checkout.session.completed`:
+- Приводит объект к типу `Stripe.Checkout.Session`
 - Извлекает `userId` и `planId` из metadata
 - Получает план из БД
-- Вычисляет дату окончания подписки на основе интервала
+- Вычисляет дату окончания подписки на основе интервала плана
 - Создает подписку через `SubscriptionService.createSubscription()`
 - Обновляет статус транзакции на `SUCCESS`
 
 #### Событие `checkout.session.expired`:
+- Приводит объект к типу `Stripe.Checkout.Session`
 - Обновляет статус транзакции на `EXPIRED`
 
 #### Событие `checkout.session.async_payment_failed`:
+- Приводит объект к типу `Stripe.Checkout.Session`
 - Обновляет статус транзакции на `FAILED`
+
+#### Событие `invoice.payment_succeeded` (автооплата подписки):
+- Приводит объект к типу `Stripe.Invoice`
+- Проверяет `billing_reason === "subscription_cycle"`
+- Извлекает данные из `session.parent.subscription_details.metadata`
+- Получает план и текущую подписку из БД
+- Создает новую транзакцию через `TransactionService.createTransaction()`
+- Обновляет статус транзакции на `SUCCESS`
+- Продлевает подписку через `SubscriptionService.updateSubscription()`
+
+#### Событие `invoice.payment_failed` (автооплата подписки):
+- Приводит объект к типу `Stripe.Invoice`
+- Проверяет `billing_reason === "subscription_cycle"`
+- Извлекает данные из `session.parent.subscription_details.metadata`
+- Получает план и текущую подписку из БД
+- Отменяет подписку в Stripe через `stripeService.subscriptions.cancel()`
+- Создает новую транзакцию через `TransactionService.createTransaction()`
+- Обновляет статус транзакции на `FAILED`
+- Удаляет подписку из БД через `SubscriptionService.deleteSubscription()`
 
 Все типы событий можно посмотреть в документации - https://docs.stripe.com/api/events/types
 
@@ -139,9 +162,11 @@ stripeApiVersion: string    // STRIPE_API_VERSION
 
 ### Типы событий Stripe которые сейчас используются
 
-- `checkout.session.completed` - успешная оплата
-- `checkout.session.expired` - истекшая сессия
-- `checkout.session.async_payment_failed` - неудачная оплата
+- `checkout.session.completed` - успешная оплата при создании подписки
+- `checkout.session.expired` - истекшая сессия оплаты
+- `checkout.session.async_payment_failed` - неудачная оплата при создании подписки
+- `invoice.payment_succeeded` - успешная автооплата подписки (продление)
+- `invoice.payment_failed` - неудачная автооплата подписки (продление)
 
 ### Статусы транзакций
 

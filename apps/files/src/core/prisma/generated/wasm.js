@@ -127,6 +127,7 @@ exports.Prisma.AvatarScalarFieldEnum = {
   width: 'width',
   height: 'height',
   fileSize: 'fileSize',
+  size: 'size',
   createdAt: 'createdAt',
   deletedAt: 'deletedAt'
 };
@@ -138,6 +139,7 @@ exports.Prisma.PostScalarFieldEnum = {
   width: 'width',
   height: 'height',
   fileSize: 'fileSize',
+  size: 'size',
   createdAt: 'createdAt',
   deletedAt: 'deletedAt'
 };
@@ -156,7 +158,11 @@ exports.Prisma.NullsOrder = {
   first: 'first',
   last: 'last'
 };
-
+exports.Size = exports.$Enums.Size = {
+  small: 'small',
+  medium: 'medium',
+  large: 'large'
+};
 
 exports.Prisma.ModelName = {
   Avatar: 'Avatar',

@@ -1,7 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+enum FilesSizes {
+	SMALL = "small",
+	MEDIUM = "medium",
+	LARGE = "large",
+}
+
 export class ImageDto {
-	@ApiProperty({ example: "https://example.com/image.jpg" })
+	@ApiProperty({ example: "folder/image.jpg" })
 	url: string;
 
 	@ApiProperty({ example: 300 })
@@ -12,6 +18,9 @@ export class ImageDto {
 
 	@ApiProperty({ example: 300 })
 	fileSize: number;
+
+	@ApiProperty({ example: "small", enum: FilesSizes, enumName: "FilesSizes" })
+	size: FilesSizes;
 
 	@ApiProperty({ example: "2025-08-04T06:54:55.325Z" })
 	createdAt: string;
@@ -64,7 +73,7 @@ export class PostOutputDto {
 	@ApiProperty({ example: "f1c0df9c-7b60-44b7-9917-d7f7970d751c" })
 	ownerId: string;
 
-	@ApiProperty({ example: "https://cdn.example.com/avatar.jpg", nullable: true })
+	@ApiProperty({ example: "folder/avatar.jpg", nullable: true })
 	avatarOwner: string | null;
 
 	@ApiProperty({ type: OwnerDto })

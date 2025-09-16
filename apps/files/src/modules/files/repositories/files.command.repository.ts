@@ -22,6 +22,7 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 				width: version.width,
 				height: version.height,
 				fileSize: version.fileSize,
+				size: version.size,
 			})),
 		});
 		if (result.count > 0) {

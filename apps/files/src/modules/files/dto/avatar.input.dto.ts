@@ -1,3 +1,5 @@
+import { FilesSizes } from "@libs/constants/index";
+
 export class AvatarInputDto {
 	readonly userId: string;
 	readonly versions: {
@@ -5,5 +7,6 @@ export class AvatarInputDto {
 		width: number;
 		height: number;
 		fileSize: number;
+		size: FilesSizes;
 	}[];
 }

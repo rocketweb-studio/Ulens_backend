@@ -4,6 +4,7 @@ import * as sharp from "sharp";
 import { PassThrough } from "stream";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { randomUUID } from "crypto";
+import { ImageSizesDto } from "./dto/image-sozes.dto";
 
 // TCP сервер для потоковой загрузки файлов
 export class StreamingServer {
@@ -55,7 +56,7 @@ export class StreamingServer {
 		let originalname: string | null = null;
 		let folder: string | null = null;
 		let headerReceived = false;
-		let imageSizes: string[] | null = null;
+		let imageSizes: ImageSizesDto[] | null = null;
 
 		// Первый пакет от клиента всегда содержит заголовок (filename, size)
 		socket.on("data", async (data) => {
@@ -113,16 +114,17 @@ export class StreamingServer {
 	}
 
 	// Обработка потока файла после получения заголовка
-	private async processStream(socket: net.Socket, folder: string, imageSizes: string[], expectedSize?: number, firstChunk?: Buffer) {
+	private async processStream(socket: net.Socket, folder: string, imageSizes: ImageSizesDto[], expectedSize?: number, firstChunk?: Buffer) {
 		try {
 			// Генерируем имена файлов для разных размеров
-			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size));
+			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size.size));
 
 			const imagesParams = imageSizes.map((fs) => ({
-				width: Number(fs.split("x")[0]),
-				height: Number(fs.split("x")[1]),
+				width: Number(fs.size.split("x")[0]),
+				height: Number(fs.size.split("x")[1]),
 				name: fs,
 				fileSize: 0,
+				size: fs.type,
 			}));
 			// const fileSizes = imageSizes.map(fs => ({ [fs]: 0 }));
 
@@ -218,6 +220,7 @@ export class StreamingServer {
 					width: fs.width,
 					height: fs.height,
 					fileSize: imagesParams[index].fileSize,
+					size: fs.size,
 				})),
 			};
 

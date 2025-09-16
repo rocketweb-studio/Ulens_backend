@@ -21,6 +21,7 @@ model Avatar {
   width Int
   height Int
   fileSize Int
+	size Size
   createdAt DateTime @default(now())
 	deletedAt DateTime?
 
@@ -33,8 +34,17 @@ model Post {
   width Int
   height Int
   fileSize Int
+  size Size
   createdAt DateTime @default(now())
 	deletedAt DateTime?
 
   @@map("posts")  
+}
+
+enum Size {
+  small
+  medium
+  large
+
+  @@map("sizes")
 }

@@ -7,3 +7,4 @@ export * from "./errors";
 export * from "./notification-messages";
 export * from "./files-messages";
 export * from "./payment-messages";
+export * from "./files.constants";

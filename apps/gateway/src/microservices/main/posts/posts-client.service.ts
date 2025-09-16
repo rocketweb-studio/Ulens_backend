@@ -91,6 +91,7 @@ export class PostsClientService {
 				width: img.width,
 				height: img.height,
 				fileSize: img.fileSize,
+				size: img.size,
 				// нормализация в string
 				createdAt: typeof img.createdAt === "string" ? img.createdAt : img.createdAt.toISOString(),
 				uploadId: img.id,

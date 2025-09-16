@@ -2,8 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { IPlanQueryRepository } from "@payments/modules/plan/plan.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { Plan } from "@payments/core/prisma/generated/client";
-import { Currency, PlanOutputDto } from "@libs/contracts/index";
-import { PaymentInterval } from "@libs/contracts/index";
+import { CurrencyEnum, PaymentIntervalEnum, PlanOutputDto } from "@libs/contracts/index";
 
 @Injectable()
 export class PrismaPlanQueryRepository implements IPlanQueryRepository {
@@ -25,8 +24,8 @@ export class PrismaPlanQueryRepository implements IPlanQueryRepository {
 			title: plan.title,
 			description: plan.description,
 			price: plan.price,
-			currency: plan.currency as Currency,
-			interval: plan.interval as PaymentInterval,
+			currency: plan.currency as CurrencyEnum,
+			interval: plan.interval as PaymentIntervalEnum,
 		};
 	}
 }

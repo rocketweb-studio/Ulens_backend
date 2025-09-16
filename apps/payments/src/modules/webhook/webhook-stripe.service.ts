@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import Stripe from "stripe";
 import { StripeService } from "@payments/core/stripe/stripe.service";
 import { StripeConfig } from "@payments/core/stripe/stripe.config";
-import { PaymentIntervalsEnum, PaymentProvidersEnum, TransactionStatusEnum } from "@libs/contracts/index";
+import { PaymentIntervalEnum, PaymentProvidersEnum, TransactionStatusEnum } from "@libs/contracts/index";
 import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 import { PlanService } from "../plan/plan.service";
 import { TransactionService } from "../transaction/transaction.service";
@@ -74,10 +74,10 @@ export class WebhookStripeService {
 	// Обработка успешного checkout сессии
 	private async handleSuccessCheckoutSession(session: Stripe.Checkout.Session) {
 		const planIntervals = {
-			[PaymentIntervalsEnum.MONTH]: 30,
-			[PaymentIntervalsEnum.WEEK]: 7,
-			[PaymentIntervalsEnum.DAY]: 1,
-			[PaymentIntervalsEnum.YEAR]: 365,
+			[PaymentIntervalEnum.MONTH]: 30,
+			[PaymentIntervalEnum.WEEK]: 7,
+			[PaymentIntervalEnum.DAY]: 1,
+			[PaymentIntervalEnum.YEAR]: 365,
 		};
 
 		// получаем данные из metadata

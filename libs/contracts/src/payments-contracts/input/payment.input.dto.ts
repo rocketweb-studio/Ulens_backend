@@ -1,10 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsIn, IsNotEmpty, IsString } from "class-validator";
 
-export enum PaymentProvidersEnum {
+enum PaymentProvidersEnum {
 	STRIPE = "STRIPE",
 	PAYPAL = "PAYPAL",
 }
+
 const PaymentProvidersArray = Object.values(PaymentProvidersEnum);
 
 export class PaymentInputDto {

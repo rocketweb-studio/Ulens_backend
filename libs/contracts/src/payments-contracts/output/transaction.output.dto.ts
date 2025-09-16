@@ -14,7 +14,7 @@ enum TransactionStatusEnum {
 	EXPIRED = "EXPIRED",
 }
 
-enum TransactionProviderEnum {
+enum PaymentProvidersEnum {
 	STRIPE = "STRIPE",
 	PAYPAL = "PAYPAL",
 }
@@ -44,11 +44,11 @@ export class TransactionOutputDto {
 	userId: string;
 	@ApiProperty({
 		description: "Provider of the transaction",
-		example: TransactionProviderEnum.STRIPE,
-		enum: TransactionProviderEnum,
+		example: PaymentProvidersEnum.STRIPE,
+		enum: PaymentProvidersEnum,
 		enumName: "TransactionProviderEnum",
 	})
-	provider: TransactionProviderEnum;
+	provider: PaymentProvidersEnum;
 	@ApiProperty({ description: "Expires at of the transaction", example: "2021-01-01T00:00:00.000Z" })
 	expiresAt: Date;
 }

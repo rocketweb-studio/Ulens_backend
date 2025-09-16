@@ -1,6 +1,6 @@
 import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { ITransactionQueryRepository } from "../transaction.interface";
-import { PaymentProvidersEnum, TransactionOutputDto } from "@libs/contracts/index";
+import { CurrencyEnum, PaymentProvidersEnum, TransactionOutputDto, TransactionStatusEnum } from "@libs/contracts/index";
 import { Transaction } from "@payments/core/prisma/generated/client";
 import { Injectable } from "@nestjs/common";
 
@@ -17,8 +17,8 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 		return {
 			id: transaction.id,
 			amount: transaction.amount,
-			currency: transaction.currency,
-			status: transaction.status,
+			currency: transaction.currency as CurrencyEnum,
+			status: transaction.status as TransactionStatusEnum,
 			provider: transaction.provider as PaymentProvidersEnum,
 			userId: transaction.userId,
 			createdAt: transaction.createdAt as Date,

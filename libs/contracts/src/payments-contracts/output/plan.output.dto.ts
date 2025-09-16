@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 
-enum PaymentIntervalsEnum {
+enum PaymentIntervalEnum {
 	MONTH = "month",
 	WEEK = "week",
 	DAY = "day",
@@ -26,10 +26,10 @@ export class PlanOutputDto {
 	@ApiProperty({
 		description: "Interval of the plan",
 		example: "month",
-		enum: PaymentIntervalsEnum,
+		enum: PaymentIntervalEnum,
 		enumName: "PaymentIntervalsEnum",
 	})
-	interval: PaymentIntervalsEnum;
+	interval: PaymentIntervalEnum;
 	@ApiProperty({
 		description: "Currency of the plan",
 		example: "usd",

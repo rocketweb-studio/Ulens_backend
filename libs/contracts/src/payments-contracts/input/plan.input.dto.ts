@@ -1,14 +1,14 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsNotEmpty, IsNumber, IsIn } from "class-validator";
 
-export enum PaymentIntervalsEnum {
+enum PaymentIntervalsEnum {
 	MONTH = "month",
 	WEEK = "week",
 	DAY = "day",
 	YEAR = "year",
 }
 
-export enum CurrencyEnum {
+enum CurrencyEnum {
 	USD = "usd",
 	EUR = "eur",
 	BYN = "byn",

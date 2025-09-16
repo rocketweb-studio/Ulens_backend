@@ -1,4 +1,4 @@
-import { MeUserViewDto, PaymentInputDto, PaymentInterval, PaymentProvidersEnum, PlanOutputDto } from "@libs/contracts/index";
+import { MeUserViewDto, PaymentInputDto, PaymentIntervalEnum, PaymentProvidersEnum, PlanOutputDto } from "@libs/contracts/index";
 import { Injectable } from "@nestjs/common";
 import { StripeService } from "@payments/core/stripe/stripe.service";
 import { PaymentOutputDto } from "@libs/contracts/index";
@@ -85,7 +85,7 @@ export class TransactionService {
 						currency: plan.currency,
 						// данные о периоде(день, неделя, месяц, год) - берем из плана
 						recurring: {
-							interval: plan.interval as PaymentInterval,
+							interval: plan.interval as PaymentIntervalEnum,
 						},
 					},
 					// количество товаров

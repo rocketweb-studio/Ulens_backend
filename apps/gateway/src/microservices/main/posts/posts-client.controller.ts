@@ -11,8 +11,9 @@ import { CreatePostSwagger } from "@gateway/core/decorators/swagger/main/create-
 import { DeletePostSwagger } from "@gateway/core/decorators/swagger/main/delete-post-swagger.decorator";
 import { UpdatePostSwagger } from "@gateway/core/decorators/swagger/main/update-post-swagger.decorator";
 import { GetUserPostsSwagger } from "@gateway/core/decorators/swagger/main/get-user-posts-swagger.decorator";
-import { UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
+import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ApiTags } from "@nestjs/swagger";
+import { GetPostSwagger } from "@gateway/core/decorators/swagger/main/get-post.decorator";
 
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
@@ -56,9 +57,16 @@ export class PostsClientController {
 	}
 
 	@GetUserPostsSwagger()
-	@Get(RouteParams.USER_ID)
+	@Get(`user/${RouteParams.USER_ID}`)
 	@HttpCode(HttpStatus.OK)
 	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
 		return await this.postsClientService.getUserPosts(userId, query);
+	}
+
+	@GetPostSwagger()
+	@Get(RouteParams.POST_ID)
+	@HttpCode(HttpStatus.OK)
+	async getPost(@Param() { postId }: PostIdParamDto): Promise<PostOutputDto> {
+		return await this.postsClientService.getPost(postId);
 	}
 }

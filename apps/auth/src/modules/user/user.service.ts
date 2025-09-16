@@ -132,6 +132,10 @@ export class UserService {
 			throw new BadRequestRpcException("User with this email was not found", "email");
 		}
 
+		if (user.confirmationCodeConfirmed) {
+			throw new BadRequestRpcException("User with this email already confirmed", "email");
+		}
+
 		const newConfirmationCodeBody: ConfirmationCodeInputRepoDto = {
 			confirmationCode: randomUUID(),
 			confirmationCodeExpDate: add(new Date(), { hours: 1 }).toISOString(),

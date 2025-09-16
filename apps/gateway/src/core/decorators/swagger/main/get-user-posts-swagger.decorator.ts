@@ -1,6 +1,6 @@
 import { applyDecorators } from "@nestjs/common";
 import { ApiExtraModels, ApiOkResponse, ApiOperation, ApiQuery, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { ImageDto, LocationDto, OwnerDto, PageInfoDto, PostItemDto, UserPostsOutputDto } from "@libs/contracts/index";
+import { ImageDto, LocationDto, OwnerDto, PageInfoDto, PostOutputDto, UserPostsOutputDto } from "@libs/contracts/index";
 
 /**
  * @swagger
@@ -9,7 +9,7 @@ import { ImageDto, LocationDto, OwnerDto, PageInfoDto, PostItemDto, UserPostsOut
  */
 export const GetUserPostsSwagger = () => {
 	const decorators = [
-		ApiExtraModels(UserPostsOutputDto, PostItemDto, ImageDto, LocationDto, OwnerDto, PageInfoDto),
+		ApiExtraModels(UserPostsOutputDto, PostOutputDto, ImageDto, LocationDto, OwnerDto, PageInfoDto),
 		ApiQuery({
 			name: "pageSize",
 			required: false,

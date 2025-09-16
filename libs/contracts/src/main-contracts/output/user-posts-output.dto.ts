@@ -39,7 +39,7 @@ export class OwnerDto {
 	lastName: string | null;
 }
 
-export class PostItemDto {
+export class PostOutputDto {
 	@ApiProperty({ example: "6e8180bd-a89b-479e-a317-ae317dfcc464" })
 	id: string;
 
@@ -95,8 +95,8 @@ export class UserPostsOutputDto {
 	@ApiProperty({ example: 8 })
 	pageSize: number;
 
-	@ApiProperty({ type: [PostItemDto] })
-	items: PostItemDto[];
+	@ApiProperty({ type: [PostOutputDto] })
+	items: PostOutputDto[];
 
 	@ApiProperty({ type: PageInfoDto })
 	pageInfo: PageInfoDto;

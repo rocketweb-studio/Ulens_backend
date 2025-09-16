@@ -41,10 +41,12 @@ export class TransactionService {
 		}
 
 		// создаем сессию для оплаты
-		let session: Stripe.Checkout.Session;
+		let session: any | Stripe.Checkout.Session;
 		// для работы с разными провайдерами
 		if (payment.provider === PaymentProvidersEnum.STRIPE) {
 			session = await this.makeStripePayment(user, plan);
+		} else if (payment.provider === PaymentProvidersEnum.PAYPAL) {
+			session = await this.makePaypalPayment(user, plan);
 		} else {
 			throw new Error("Provider not supported");
 		}
@@ -116,5 +118,9 @@ export class TransactionService {
 		}
 
 		return session;
+	}
+
+	private async makePaypalPayment(user: MeUserViewDto, plan: PlanOutputDto): Promise<string> {
+		return "paypal";
 	}
 }

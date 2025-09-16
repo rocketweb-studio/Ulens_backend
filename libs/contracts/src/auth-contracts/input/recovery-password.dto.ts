@@ -11,7 +11,7 @@ export class RecoveryPasswordDto {
 	email: string;
 
 	@ApiProperty({
-		example: "123456",
+		example: "qweashgj123456",
 	})
 	@IsString()
 	recaptchaToken: string;

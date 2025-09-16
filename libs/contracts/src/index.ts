@@ -40,3 +40,4 @@ export * from "./payments-contracts/input/payment.input.dto";
 export * from "./payments-contracts/output/payment.output.dto";
 export * from "./payments-contracts/output/transaction.output.dto";
 export * from "./payments-contracts/output/subscription.output.dto";
+export * from "./main-contracts/output/post-db.output.dto";

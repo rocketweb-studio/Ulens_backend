@@ -32,6 +32,31 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-payments-production-config-secret
                    key: RMQ_URL
+             - name: PAYMENTS_POSTGRES_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-payments-production-config-secret
+                   key: PAYMENTS_POSTGRES_URL
+             - name: FRONTEND_PAYMENTS_REDIRECT_URL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-payments-production-config-secret
+                   key: FRONTEND_PAYMENTS_REDIRECT_URL
+             - name: STRIPE_SECRET_KEY
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-payments-production-config-secret
+                   key: STRIPE_SECRET_KEY
+             - name: STRIPE_API_VERSION
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-payments-production-config-secret
+                   key: STRIPE_API_VERSION
+             - name: STRIPE_WEBHOOK_SECRET
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-payments-production-config-secret
+                   key: STRIPE_WEBHOOK_SECRET
              - name: PAYMENTS_TCP_PORT
                valueFrom:
                  secretKeyRef:

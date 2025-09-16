@@ -59,6 +59,7 @@ export class AuthClientController {
 	@Post(AuthRouterPaths.REGISTRATION_EMAIL_RESENDING)
 	@HttpCode(HttpStatuses.NO_CONTENT_204)
 	async registrationEmailResending(@Body() resendEmailDto: ResendEmailDto): Promise<void> {
+		console.log("resendEmailDto");
 		await this.authClientService.resendEmail(resendEmailDto);
 		return;
 	}

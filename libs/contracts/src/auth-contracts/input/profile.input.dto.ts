@@ -2,7 +2,7 @@ import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString, Matches, MaxLength, MinLength, IsNotEmpty, ValidationArguments, registerDecorator } from "class-validator";
 
 export class ProfileInputDto {
-	@ApiProperty({ description: "User name", example: "John Doe" })
+	@ApiProperty({ description: "User name", example: "JohnDoe" })
 	@MaxLength(30)
 	@MinLength(6)
 	@Matches(/^[a-zA-Z0-9_-]*$/)

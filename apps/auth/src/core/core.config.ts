@@ -40,12 +40,28 @@ export class CoreEnvConfig {
 	})
 	redisUri: string;
 
+	@IsString()
+	@IsNotEmpty({ message: "Set AUTH_KAFKA_CLIENT_ID (e.g. auth)" })
+	kafkaClientId: string;
+
+	@IsString()
+	@IsNotEmpty({ message: "Set AUTH_KAFKA_GROUP_ID (e.g. auth-events)" })
+	kafkaGroupId: string;
+
+	@IsString()
+	kafkaEventsTopic: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.databaseUrl = this.configService.get<string>("AUTH_POSTGRES_URL");
 		this.tcpHost = this.configService.get<string>("AUTH_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("AUTH_TCP_PORT");
 		this.redisUri = this.configService.get<string>("REDIS_URI");
+		this.kafkaClientId = this.configService.get<string>("AUTH_KAFKA_CLIENT_ID") ?? this.configService.get<string>("KAFKA_CLIENT_ID") ?? "auth";
+
+		this.kafkaGroupId = this.configService.get<string>("AUTH_KAFKA_GROUP_ID") ?? this.configService.get<string>("KAFKA_GROUP_ID") ?? "auth-events";
+
+		this.kafkaEventsTopic = this.configService.get<string>("KAFKA_EVENTS_TOPIC") ?? "app.events.v1";
 
 		configValidationUtility.validateConfig(this);
 	}

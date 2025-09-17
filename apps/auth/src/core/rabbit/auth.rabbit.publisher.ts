@@ -4,7 +4,7 @@ import { EventEnvelope } from "@libs/contracts/index";
 import { EventBus } from "@libs/rabbit/rabbit.event-bus"; //  интерфейс из либы
 
 @Injectable()
-export class EventsPublisher {
+export class RabbitEventsPublisher {
 	constructor(@Inject("EVENT_BUS") private readonly bus: EventBus) {}
 
 	async publishUserPremiumActivated(payload: {
@@ -34,7 +34,7 @@ export class EventsPublisher {
 			traceId: randomUUID(),
 			type: "auth.user.registered.v1",
 			occurredAt: new Date().toISOString(),
-			producer: "auth", // теперь производитель — сам auth
+			producer: "auth",
 			payload,
 		};
 

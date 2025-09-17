@@ -18,6 +18,12 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 	}
 
 	async createTransaction(dto: CreateTransactionInternalDto): Promise<any> {
+		console.log("[PAYMENTS][Repo][createTransaction][IN]", {
+			txId: dto.id,
+			userId: dto.userId,
+			planCode: dto.metadata?.planCode,
+			corr: dto.correlationId,
+		});
 		return this.prisma.$transaction(async (tx) => {
 			// 1.Создаем транзакцию
 			const createdTx = await tx.transaction.create({
@@ -32,6 +38,10 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 					correlationId: dto.correlationId,
 					metadata: dto.metadata, // { planCode: ... }
 				},
+			});
+			console.log("[PAYMENTS][Repo][createTransaction][TX_CREATED]", {
+				txId: createdTx.id,
+				status: createdTx.status,
 			});
 
 			// 2.пишем outbox-coбытие (PENDING) в той же транзакции
@@ -60,13 +70,25 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 					topic: "app.events", // !!топик в который полетят сообщения; опционально: имя exchange/route для паблишера
 				},
 			});
-
+			console.log("[PAYMENTS][Repo][createTransaction][OUTBOX_WRITTEN]", {
+				messageId,
+				eventType: "payment.succeeded",
+				topic: "app.events",
+				corr: dto.correlationId,
+			});
+			console.log("[PAYMENTS][Repo][createTransaction][RETURN]", { txId: createdTx.id });
 			return createdTx;
 		});
 	}
 
 	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
 		const { messageId, transactionId, userId, planCode } = input;
+		console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][IN]", {
+			messageId,
+			transactionId,
+			userId,
+			planCode,
+		});
 
 		await this.prisma.$transaction(async (tx) => {
 			// 1) Inbox идемпотентно
@@ -82,11 +104,19 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 				],
 				skipDuplicates: true,
 			});
-			if (ins.count === 0) return; // уже обработали
+			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][INBOX_CREATE_MANY]", {
+				messageId,
+				inserted: ins.count,
+			});
+			if (ins.count === 0) {
+				console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][DUPLICATE_SKIP]", { messageId });
+				return; // уже обработали
+			}
 
 			// 2) Проверяем транзакцию и план
 			const trx = await tx.transaction.findUnique({ where: { id: transactionId } });
 			if (!trx) {
+				console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][TX_NOT_FOUND]", { transactionId });
 				await tx.inboxMessage.update({
 					where: { id: messageId },
 					data: { status: "FAILED", error: `Transaction ${transactionId} not found`, processedAt: new Date() },
@@ -96,6 +126,7 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 
 			const plan = await tx.plan.findUnique({ where: { code: planCode } });
 			if (!plan) {
+				console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][PLAN_NOT_FOUND]", { planCode });
 				await tx.inboxMessage.update({
 					where: { id: messageId },
 					data: { status: "FAILED", error: `Plan ${planCode} not found`, processedAt: new Date() },
@@ -112,6 +143,7 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 					// возможно позже: currentPeriodEnd: new Date(input.premiumUntil ?? new Date()),
 				},
 			});
+			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][SUB_CREATED]", { subId: sub.id });
 
 			// 4) Обновляем транзакцию → SUCCESS + линкуем подписку
 			await tx.transaction.update({
@@ -121,12 +153,18 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 					subscriptionId: sub.id,
 				},
 			});
+			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][TX_UPDATED]", {
+				txId: trx.id,
+				status: "SUCCEEDED",
+				subId: sub.id,
+			});
 
 			// 5) Inbox → PROCESSED
 			await tx.inboxMessage.update({
 				where: { id: messageId },
 				data: { status: "PROCESSED", processedAt: new Date() },
 			});
+			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][INBOX_PROCESSED]", { messageId });
 		});
 	}
 }

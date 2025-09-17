@@ -58,7 +58,7 @@ export class RabbitPaymentsConsumer implements OnModuleInit {
 					});
 
 					this.ch.ack(msg);
-				} catch (e) {
+				} catch (_e) {
 					// простые ретраи → DLQ
 					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
 					if (retries < 3) {

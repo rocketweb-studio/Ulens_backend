@@ -5,12 +5,14 @@ import { PrismaModule } from "@payments/core/prisma/prisma.module";
 import { RedisModule } from "@libs/redis/redis.module";
 import { RabbitModule } from "@libs/rabbit/index";
 import { SubscriptionModule } from "../modules/subscriptions/subscription.module";
-import { RabbitPaymentsConsumer } from "./outbox/outbox-consumer.service";
+import { RabbitPaymentsConsumer } from "./rabbit/outbox-consumer.rabbit.service";
+import { KafkaModule } from "@libs/kafka/index";
+import { PaymentsKafkaConsumer } from "./kafka/outbox-consumer.kafka.service";
 
 @Module({
-	imports: [configModule, PrismaModule, RedisModule.forRoot(), RabbitModule, forwardRef(() => SubscriptionModule)],
+	imports: [configModule, PrismaModule, RedisModule.forRoot(), RabbitModule, forwardRef(() => SubscriptionModule), KafkaModule],
 	controllers: [],
-	providers: [CoreEnvConfig, RabbitPaymentsConsumer],
+	providers: [CoreEnvConfig, RabbitPaymentsConsumer, PaymentsKafkaConsumer],
 	exports: [CoreEnvConfig],
 })
 export class CoreModule {}

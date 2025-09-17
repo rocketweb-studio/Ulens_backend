@@ -1,14 +1,14 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import * as amqp from "amqplib";
 import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
-import { EventsPublisher } from "./events.publisher";
+import { RabbitEventsPublisher } from "./auth.rabbit.publisher";
 
 @Injectable()
 export class RabbitAuthConsumer implements OnModuleInit {
 	constructor(
 		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
 		private readonly userCommandRepository: IUserCommandRepository,
-		private readonly eventsPublisher: EventsPublisher,
+		private readonly eventsPublisher: RabbitEventsPublisher,
 	) {}
 
 	async onModuleInit() {

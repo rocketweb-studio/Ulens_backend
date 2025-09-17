@@ -176,6 +176,14 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async applyPaymentSucceeded(dto: PaymentSucceededInput): Promise<{ premiumUntil: Date }> {
 		const { messageId, userId, planCode, occurredAt } = dto;
+		console.log("[AUTH][Repo][applyPaymentSucceeded][IN]", {
+			messageId,
+			userId,
+			planCode,
+			occurredAt,
+			tx: dto.transactionId,
+			corr: dto.correlationId,
+		});
 
 		return this.prisma.$transaction(async (tx) => {
 			// 1) Inbox (идемпотентность)
@@ -189,15 +197,19 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 						status: "RECEIVED",
 					},
 				});
+				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_CREATED]", { messageId });
 			} catch (e) {
 				if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+					console.log("[AUTH][Repo][applyPaymentSucceeded][DUPLICATE_INBOX]", { messageId });
 					// уже обработали — просто вернём текущее premiumUntil
 					const u = await tx.user.findUnique({
 						where: { id: userId },
 						select: { premiumUntil: true },
 					});
+					console.log("[AUTH][Repo][applyPaymentSucceeded][RETURN_EXISTING]", { premiumUntil: u?.premiumUntil });
 					return { premiumUntil: u?.premiumUntil ?? new Date() };
 				}
+				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_ERROR]", { messageId, err: (e as Error)?.message });
 				throw e;
 			}
 
@@ -207,22 +219,30 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 				where: { id: userId },
 				select: { premiumUntil: true },
 			});
+			console.log("[AUTH][Repo][applyPaymentSucceeded][CALC_BASE]", {
+				currentPremiumUntil: current?.premiumUntil,
+				now,
+			});
+
 			const base = current?.premiumUntil && current.premiumUntil > now ? current.premiumUntil : now;
 			const premiumUntil = new Date(base);
 			if (planCode === "PREMIUM_YEAR") premiumUntil.setFullYear(premiumUntil.getFullYear() + 1);
 			else premiumUntil.setMonth(premiumUntil.getMonth() + 1);
+			console.log("[AUTH][Repo][applyPaymentSucceeded][CALC_DONE]", { premiumUntil });
 
 			// 3) Обновляем пользователя
 			await tx.user.update({
 				where: { id: userId },
 				data: { isPremium: true, premiumUntil },
 			});
+			console.log("[AUTH][Repo][applyPaymentSucceeded][USER_UPDATED]", { userId, premiumUntil });
 
 			// 4) Inbox → PROCESSED
 			await tx.inboxMessage.update({
 				where: { id: messageId },
 				data: { status: "PROCESSED", processedAt: new Date() },
 			});
+			console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_PROCESSED]", { messageId });
 
 			return { premiumUntil };
 		});

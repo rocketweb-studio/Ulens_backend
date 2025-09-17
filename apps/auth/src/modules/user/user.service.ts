@@ -32,7 +32,7 @@ import { Oauth2Providers } from "@libs/constants/auth-messages";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
-import { EventsPublisher } from "@auth/core/rabbit/events.publisher";
+import { RabbitEventsPublisher } from "@auth/core/rabbit/auth.rabbit.publisher";
 // import { RedisService } from "@libs/redis/redis.service";
 import { AuthKafkaPublisher } from "@auth/core/kafka/auth.kafka.publisher";
 
@@ -44,7 +44,7 @@ export class UserService {
 		private readonly userEnvConfig: UserEnvConfig,
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
-		private readonly authEventsPublisher: EventsPublisher,
+		private readonly authEventsPublisher: RabbitEventsPublisher,
 		// private readonly redisService: RedisService,
 		private readonly authKafkaPublisher: AuthKafkaPublisher,
 	) {}

@@ -1,6 +1,5 @@
 import { Inject, Injectable, Logger, OnModuleDestroy, OnModuleInit } from "@nestjs/common";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-// import { EventBus } from "../../../../../libs/rabbit/src";
 import { EventBus } from "@libs/rabbit/rabbit.event-bus";
 
 @Injectable()

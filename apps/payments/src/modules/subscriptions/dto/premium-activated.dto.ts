@@ -5,4 +5,5 @@ export type PremiumActivatedInput = {
 	planCode: string;
 	premiumUntil?: string;
 	correlationId?: string;
+	occurredAt?: string;
 };

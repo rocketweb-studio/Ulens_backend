@@ -12,21 +12,36 @@ import { Kafka, Partitioners, logLevel, type Producer, type Consumer } from "kaf
 		// Kafka client
 		{
 			provide: "KAFKA",
-			useFactory: (cfg: ConfigService) =>
-				new Kafka({
-					clientId: cfg.get<string>("KAFKA_CLIENT_ID") || "app",
-					brokers: (cfg.get<string>("KAFKA_BROKERS") || cfg.get<string>("KAFKA_BROKER") || "localhost:9094")
-						.split(",")
-						.map((s) => s.trim())
-						.filter(Boolean),
+			useFactory: (cfg: ConfigService) => {
+				// ! значение 'SERVICE' задаем при помощи скрипта во время выполнения команд запуска yarn start:...
+				// ! потому что разным микросервисам нужны разные переменные, а модуль Kafka глобальный
+				const svc = (cfg.get<string>("SERVICE") || "").toUpperCase(); // 'AUTH' | 'PAYMENTS' | ''
+				const prefer = (name: string) => (svc ? cfg.get<string>(`${svc}_${name}`) : undefined);
+
+				// clientId/groupId резолвим одинаково во всех фабриках
+				const clientId = prefer("KAFKA_CLIENT_ID") ?? cfg.get<string>("KAFKA_CLIENT_ID") ?? "app";
+
+				const groupId = prefer("KAFKA_GROUP_ID") ?? cfg.get<string>("KAFKA_GROUP_ID") ?? `${clientId}-events`;
+
+				const brokers = (cfg.get<string>("KAFKA_BROKERS") ?? cfg.get<string>("KAFKA_BROKER") ?? "localhost:9094")
+					.split(",")
+					.map((s) => s.trim())
+					.filter(Boolean);
+
+				const kafka = new Kafka({
+					clientId,
+					brokers,
 					logLevel: logLevel.NOTHING,
 					retry: { retries: 5 },
 					requestTimeout: 30_000,
 					connectionTimeout: 10_000,
-				}),
+				});
+
+				console.log(`[KAFKA] init clientId=${clientId}, groupId=${groupId}, brokers=${brokers.join(",")}`);
+				return kafka;
+			},
 			inject: [ConfigService],
 		},
-
 		// Producer (подключаем сразу)
 		{
 			provide: "KAFKA_PRODUCER",
@@ -45,12 +60,20 @@ import { Kafka, Partitioners, logLevel, type Producer, type Consumer } from "kaf
 		{
 			provide: "KAFKA_CONSUMER",
 			useFactory: async (kafka: Kafka, cfg: ConfigService) => {
-				const groupId = cfg.get<string>("KAFKA_GROUP_ID") || "app-consumer";
+				const svc = (cfg.get<string>("SERVICE") || "").toUpperCase(); // 'AUTH' | 'PAYMENTS' | ''
+				const prefer = (name: string) => (svc ? cfg.get<string>(`${svc}_${name}`) : undefined);
+
+				const clientId = prefer("KAFKA_CLIENT_ID") ?? cfg.get<string>("KAFKA_CLIENT_ID") ?? "app";
+
+				const groupId = prefer("KAFKA_GROUP_ID") ?? cfg.get<string>("KAFKA_GROUP_ID") ?? `${clientId}-events`;
+
 				const consumer = kafka.consumer({
 					groupId,
 					allowAutoTopicCreation: false,
 				});
 				await consumer.connect();
+
+				console.log(`[KAFKA] consumer connected clientId=${clientId}, groupId=${groupId}, service=${svc || "-"}`);
 				return consumer;
 			},
 			inject: ["KAFKA", ConfigService],

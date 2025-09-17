@@ -3,10 +3,10 @@ import { SessionService } from "@auth/modules/session/session.service";
 import { PrismaSessionCommandRepository } from "@auth/modules/session/repositories/session.command.repository";
 import { PrismaSessionQueryRepository } from "@auth/modules/session/repositories/session.query.repository";
 import { ISessionCommandRepository, ISessionQueryRepository } from "@auth/modules/session/session.interfaces";
-
+import { SessionController } from "@auth/modules/session/session.controller";
 @Module({
 	imports: [],
-	controllers: [],
+	controllers: [SessionController],
 	providers: [
 		SessionService,
 		{

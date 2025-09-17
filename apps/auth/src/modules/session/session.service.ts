@@ -1,7 +1,9 @@
 import { Injectable, Inject } from "@nestjs/common";
 import { ISessionCommandRepository } from "@auth/modules/session/session.interfaces";
-import { SessionMetadataDto } from "@libs/contracts/index";
+import { PayloadFromRequestDto, SessionMetadataDto } from "@libs/contracts/index";
 import { SessionInputRepoDto } from "@auth/modules/session/dto/session-repo.input.dto";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class SessionService {
@@ -41,10 +43,24 @@ export class SessionService {
 		await this.sessionCommandRepository.updateSession(deviceId, updatedSession);
 	}
 
-	async deleteSession(deviceId: string): Promise<any> {
+	async deleteSession(deviceId: string): Promise<boolean> {
+		const session = await this.sessionCommandRepository.findSessionByDeviceId(deviceId);
+		if (!session) {
+			throw new NotFoundRpcException("Session not found");
+		}
 		return await this.sessionCommandRepository.deleteSession(deviceId);
 	}
-	async deleteSessions(userId: string): Promise<any> {
-		return await this.sessionCommandRepository.deleteSessions(userId);
+	async deleteOtherSessions(user: PayloadFromRequestDto): Promise<boolean> {
+		const { userId, deviceId } = user;
+		return await this.sessionCommandRepository.deleteOtherSessions(userId, deviceId);
+	}
+
+	async deleteAllSessions(userId: string): Promise<boolean> {
+		return await this.sessionCommandRepository.deleteAllSessions(userId);
+	}
+
+	@Cron(CronExpression.EVERY_HOUR)
+	async deleteExpiredSessions() {
+		await this.sessionCommandRepository.deleteExpiredSessions();
 	}
 }

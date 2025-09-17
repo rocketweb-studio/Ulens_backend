@@ -41,3 +41,4 @@ export * from "./payments-contracts/output/transaction.output.dto";
 export * from "./payments-contracts/output/subscription.output.dto";
 export * from "./main-contracts/output/post-db.output.dto";
 export * from "./payments-contracts/payment-constants";
+export * from "./auth-contracts/output/session.output.dto";

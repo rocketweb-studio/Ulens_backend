@@ -15,6 +15,8 @@ import { ProfileAuthClientController } from "./profile/profile-auth-client.contr
 import { ProfileAuthClientService } from "./profile/profile-auth-clien.service";
 import { FilesClientModule } from "../files/files-client.module";
 import { MainClientEnvConfig } from "../main/main-client.config";
+import { SessionAuthClientController } from "./session/session-auth-client.controller";
+import { SessionAuthClientService } from "./session/session-auth-clien.service";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -59,8 +61,8 @@ import { MainClientEnvConfig } from "../main/main-client.config";
 		NotificationsClientModule,
 		FilesClientModule,
 	],
-	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService],
+	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController, SessionAuthClientController],
+	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService, SessionAuthClientService],
 	exports: [ProfileAuthClientService, AuthClientService],
 })
 export class AuthClientModule {}

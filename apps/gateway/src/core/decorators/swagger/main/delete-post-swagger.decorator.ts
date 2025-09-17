@@ -1,3 +1,4 @@
+import { DefaultErrorResponse } from "@libs/constants/errors";
 import { applyDecorators } from "@nestjs/common";
 import {
 	ApiBearerAuth,
@@ -24,7 +25,7 @@ export const DeletePostSwagger = () => {
 		ApiNoContentResponse({ description: "The post has been successfully deleted" }),
 		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
 		ApiForbiddenResponse({ description: "You are not allowed to delete this post" }),
-		ApiNotFoundResponse({ description: "The post has not been found" }),
+		ApiNotFoundResponse({ description: "The post has not been found", type: DefaultErrorResponse }),
 	];
 
 	return applyDecorators(...decorators);

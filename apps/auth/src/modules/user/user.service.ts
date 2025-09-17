@@ -194,7 +194,7 @@ export class UserService {
 		if (!result) {
 			throw new BadRequestRpcException("New password was not set");
 		}
-		await this.sessionService.deleteSessions(user.id);
+		await this.sessionService.deleteAllSessions(user.id);
 
 		return true;
 	}

@@ -28,6 +28,10 @@ export enum ProfileRouterPaths {
 	AVATAR = "avatar",
 }
 
+export enum SessionRouterPaths {
+	SESSIONS = "sessions",
+}
+
 export enum MainRouterPaths {
 	POSTS = "posts",
 	IMAGES = ":postId/images",
@@ -45,4 +49,5 @@ export enum ApiTagsNames {
 	FILES = "Files",
 	POSTS = "Posts",
 	PAYMENTS = "Payments",
+	SESSIONS = "Sessions",
 }

@@ -7,6 +7,17 @@ import { SessionInputRepoDto } from "@auth/modules/session/dto/session-repo.inpu
 export class PrismaSessionCommandRepository implements ISessionCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
+	async findSessionByDeviceId(deviceId: string): Promise<string | null> {
+		const session = await this.prisma.session.findUnique({
+			where: { deviceId, deletedAt: null },
+			select: {
+				deviceId: true,
+			},
+		});
+
+		return session?.deviceId || null;
+	}
+
 	async createSession(sessionDto: SessionInputRepoDto): Promise<void> {
 		await this.prisma.session.create({
 			data: sessionDto,
@@ -14,12 +25,12 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 		return;
 	}
 
-	async deleteSession(deviceId: string) {
+	async deleteSession(deviceId: string): Promise<boolean> {
 		const session = await this.prisma.session.update({
-			where: { deviceId },
+			where: { deviceId, deletedAt: null },
 			data: { deletedAt: new Date() },
 		});
-		return session;
+		return !!session;
 	}
 
 	async updateSession(deviceId: string, payload: { exp: Date; iat: Date }) {
@@ -29,10 +40,27 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 		});
 	}
 
-	async deleteSessions(userId: string) {
-		await this.prisma.session.updateMany({
-			where: { userId },
+	async deleteOtherSessions(userId: string, deviceId: string): Promise<boolean> {
+		const result = await this.prisma.session.updateMany({
+			where: { userId, deletedAt: null, deviceId: { not: deviceId } },
 			data: { deletedAt: new Date() },
 		});
+		return result.count >= 0;
+	}
+
+	async deleteAllSessions(userId: string): Promise<boolean> {
+		const result = await this.prisma.session.updateMany({
+			where: { userId, deletedAt: null },
+			data: { deletedAt: new Date() },
+		});
+		return result.count >= 0;
+	}
+
+	async deleteExpiredSessions(): Promise<boolean> {
+		const result = await this.prisma.session.updateMany({
+			where: { exp: { lt: new Date() }, deletedAt: null },
+			data: { deletedAt: new Date() },
+		});
+		return result.count >= 0;
 	}
 }

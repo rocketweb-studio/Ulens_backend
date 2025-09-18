@@ -3,7 +3,7 @@
  *   so your service can inject by type without @Inject()
  */
 
-import { TransactionOutputDto } from "@libs/contracts/index";
+import { PaymentProvidersEnum, TransactionOutputDto } from "@libs/contracts/index";
 import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
 
@@ -12,6 +12,8 @@ export abstract class ITransactionQueryRepository {
 }
 
 export abstract class ITransactionCommandRepository {
-	abstract createTransaction(dto: CreateTransactionDto): Promise<string>;
-	abstract updateTransaction(sessionId: string, data: Partial<UpdateTransactionDto>): Promise<boolean>;
+	abstract createTransaction(dto: CreateTransactionDto): Promise<number>;
+	abstract updateTransaction(id: string | number, provider: PaymentProvidersEnum, data: Partial<UpdateTransactionDto>): Promise<boolean>;
+	abstract findTransactionById(id: number): Promise<any>;
+	abstract changeStatusOfExpiredTransactions(): Promise<void>;
 }

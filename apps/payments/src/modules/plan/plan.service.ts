@@ -12,46 +12,49 @@ export class PlanService {
 		private readonly prismaPlanCommandRepository: IPlanCommandRepository,
 	) {}
 
-	async createPlan(plan: PlanInputDto) {
-		// create product in paypal
-		// @ts-expect-error
-		const response = await this.paypalService.client.execute({
-			method: "POST",
-			url: "/v1/catalogs/products",
-			headers: {
-				"Content-Type": "application/json",
-			},
-			body: {
-				name: "Test Product",
-				description: "Test Description",
-				type: "SERVICE",
-				category: "SOFTWARE",
-				image_url: "https://example.com/image.png",
-				home_url: "https://example.com",
+	async createPlan(plan: PlanInputDto): Promise<number> {
+		// создаем продукт в paypal
+		const paypalProduct = await this.paypalService.createProduct({
+			name: plan.title,
+			description: plan.description,
+		});
+
+		// создаем план в paypal
+		const paypalPlan = await this.paypalService.createPlan({
+			product_id: paypalProduct.id,
+			name: plan.title,
+			description: plan.description,
+			interval: plan.interval,
+			price: plan.price,
+			currency: plan.currency,
+		});
+
+		// создаем план в stripe
+		const stripePlan = await this.stripeService.plans.create({
+			amount: Math.round(plan.price * 100),
+			currency: plan.currency,
+			interval: plan.interval,
+			product: {
+				name: plan.title,
 			},
 		});
 
-		console.log(response);
-
-		// создаем план в stripe
-		// const stripePlan = await this.stripeService.plans.create({
-		// 	amount: Math.round(plan.price * 100),
-		// 	currency: plan.currency,
-		// 	interval: plan.interval,
-		// 	product: {
-		// 		name: plan.title,
-		// 	},
-		// });
-
 		// создаем план в локальной бд
-		// const createdPlan = await this.prismaPlanCommandRepository.createPlan(plan, stripePlan.id, stripePlan.product?.toString() || "");
+		const createdPlan = await this.prismaPlanCommandRepository.createPlan({
+			plan: plan,
+			stripePlanId: stripePlan.id,
+			stripeProductId: stripePlan.product?.toString() || "",
+			paypalPlanId: paypalPlan.id,
+			paypalProductId: paypalProduct.id,
+		});
 
-		return null;
+		// return createdPlan;
+		return createdPlan;
 	}
 
 	async deletePlan(id: string) {
 		// получаем план из локальной бд
-		const plan = await this.prismaPlanCommandRepository.findPlanById(id);
+		const plan = await this.prismaPlanCommandRepository.findPlanById(+id);
 		if (!plan) {
 			throw new Error("Plan not found");
 		}
@@ -60,63 +63,22 @@ export class PlanService {
 		// удаляем продукт в stripe
 		await this.stripeService.products.del(plan.stripeProductId);
 
+		// Удалить продукт в paypal нельзя, поэтому деактивируем план
+		await this.paypalService.deactivatePlan(plan.paypalPlanId);
+
 		// удаляем план из локальной бд
-		const isDeleted = await this.prismaPlanCommandRepository.deletePlan(id);
+		const isDeleted = await this.prismaPlanCommandRepository.deletePlan(+id);
 		if (!isDeleted) {
 			throw new Error("Plan not deleted");
 		}
 		return isDeleted;
 	}
 
-	async findPlanById(id: string): Promise<any> {
+	async findPlanById(id: number): Promise<any> {
 		const plan = await this.prismaPlanCommandRepository.findPlanById(id);
 		if (!plan) {
 			throw new Error("Plan not found");
 		}
 		return plan;
-	}
-
-	async createPayPalProduct(options: { clientId: string; clientSecret: string; sandbox?: boolean; name: string; description?: string }) {
-		const baseUrl = options.sandbox ? "https://api-m.sandbox.paypal.com" : "https://api-m.paypal.com";
-
-		// 1. Получаем access token
-		const tokenRes = await fetch(`${baseUrl}/v1/oauth2/token`, {
-			method: "POST",
-			headers: {
-				Authorization: `Basic ${Buffer.from(`${options.clientId}:${options.clientSecret}`).toString("base64")}`,
-				"Content-Type": "application/x-www-form-urlencoded",
-			},
-			body: "grant_type=client_credentials",
-		});
-
-		if (!tokenRes.ok) {
-			throw new Error(`Failed to get access token: ${tokenRes.statusText}`);
-		}
-
-		const tokenData = await tokenRes.json();
-		const accessToken = tokenData.access_token;
-
-		// 2. Создаём продукт
-		const productRes = await fetch(`${baseUrl}/v1/catalogs/products`, {
-			method: "POST",
-			headers: {
-				Authorization: `Bearer ${accessToken}`,
-				"Content-Type": "application/json",
-			},
-			body: JSON.stringify({
-				name: options.name,
-				description: options.description || "",
-				type: "SERVICE", // SaaS или сервис
-				category: "SOFTWARE", // категория для продукта
-			}),
-		});
-
-		if (!productRes.ok) {
-			const err = await productRes.text();
-			throw new Error(`Failed to create product: ${err}`);
-		}
-
-		const product = await productRes.json();
-		return product;
 	}
 }

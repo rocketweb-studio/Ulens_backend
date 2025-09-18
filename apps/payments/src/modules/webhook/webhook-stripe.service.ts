@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import Stripe from "stripe";
 import { StripeService } from "@payments/core/stripe/stripe.service";
 import { StripeConfig } from "@payments/core/stripe/stripe.config";
-import { PaymentIntervalEnum, PaymentProvidersEnum, TransactionStatusEnum } from "@libs/contracts/index";
+import { PaymentProvidersEnum, planIntervalsInDays, TransactionStatusEnum } from "@libs/contracts/index";
 import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 import { PlanService } from "../plan/plan.service";
 import { TransactionService } from "../transaction/transaction.service";
@@ -73,37 +73,35 @@ export class WebhookStripeService {
 
 	// Обработка успешного checkout сессии
 	private async handleSuccessCheckoutSession(session: Stripe.Checkout.Session) {
-		const planIntervals = {
-			[PaymentIntervalEnum.MONTH]: 30,
-			[PaymentIntervalEnum.WEEK]: 7,
-			[PaymentIntervalEnum.DAY]: 1,
-			[PaymentIntervalEnum.YEAR]: 365,
-		};
-
 		// получаем данные из metadata
 		const planId = session.metadata?.planId;
 		const userId = session.metadata?.userId;
 		const startedAt = new Date(session.created * 1000);
 
+		if (!planId || !userId) {
+			throw new BadRequestRpcException("Plan ID is required");
+		}
+
 		// получаем план из БД
-		const plan = await this.planService.findPlanById(planId as string);
+		const plan = await this.planService.findPlanById(+planId);
 
 		// вычисляем дату окончания подписки
 		const expiresAt = new Date(startedAt);
-		expiresAt.setDate(expiresAt.getDate() + planIntervals[plan.interval]);
+		expiresAt.setDate(expiresAt.getDate() + planIntervalsInDays[plan.interval]);
 
 		// todo нужно подумать как сделать транзакцию здесь если упадет updateTransaction
 		// создаем подписку
 		await this.subscriptionService.createSubscription({
-			planId: planId as string,
+			planId: +planId,
 			userId: userId as string,
 			stripeSubscriptionId: session.subscription as string,
+			paypalSubscriptionId: null,
 			createdAt: startedAt,
 			expiresAt: expiresAt,
 		});
 
 		// обновляем статус транзакции
-		await this.transactionService.updateTransaction(session.id, {
+		await this.transactionService.updateTransaction(session.id, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.SUCCESS,
 			stripeSubscriptionId: session.subscription as string,
 			createdAt: startedAt,
@@ -115,14 +113,14 @@ export class WebhookStripeService {
 
 	// Обработка неудачной checkout сессии
 	private async handleFailedCheckoutSession(session: Stripe.Checkout.Session) {
-		await this.transactionService.updateTransaction(session.id, {
+		await this.transactionService.updateTransaction(session.id, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.FAILED,
 		});
 	}
 
 	// Обработка истекшей checkout сессии
 	private async handleExpiredCheckoutSession(session: Stripe.Checkout.Session) {
-		await this.transactionService.updateTransaction(session.id, {
+		await this.transactionService.updateTransaction(session.id, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.EXPIRED,
 		});
 	}
@@ -136,7 +134,7 @@ export class WebhookStripeService {
 		const subscriptionId = session.parent?.subscription_details?.subscription || null;
 
 		// получаем план из БД
-		const plan = await this.planService.findPlanById(planId as string);
+		const plan = await this.planService.findPlanById(+planId);
 		// получаем подписку из БД
 		const currentSubscriptionFromDb = await this.subscriptionService.getSubscriptionByUserId(userId as string);
 
@@ -146,10 +144,12 @@ export class WebhookStripeService {
 			plan,
 			stripeSubscriptionId: subscriptionId as string,
 			stripeSessionId: session.id as string,
+			paypalSessionId: null,
+			paypalPlanId: null,
 			provider: PaymentProvidersEnum.STRIPE,
 		});
 		// обновляем статус транзакции(платежа) в бд
-		await this.transactionService.updateTransaction(session.id as string, {
+		await this.transactionService.updateTransaction(session.id as string, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.SUCCESS,
 			stripeSubscriptionId: subscriptionId as string,
 			createdAt: startedAt,
@@ -172,7 +172,7 @@ export class WebhookStripeService {
 		// получаем подписку из БД
 		const currentSubscriptionFromDb = await this.subscriptionService.getSubscriptionByUserId(userId as string);
 		// получаем план из БД
-		const plan = await this.planService.findPlanById(planId as string);
+		const plan = await this.planService.findPlanById(+planId);
 		// отменяем подписку в stripe
 		await this.stripeService.subscriptions.cancel(subscriptionId);
 		// создаем транзакцию(платеж) в бд
@@ -181,10 +181,12 @@ export class WebhookStripeService {
 			plan,
 			stripeSubscriptionId: subscriptionId,
 			stripeSessionId: session.id,
+			paypalSessionId: null,
+			paypalPlanId: null,
 			provider: PaymentProvidersEnum.STRIPE,
 		});
 		// обновляем статус транзакции(платежа) в бд
-		await this.transactionService.updateTransaction(session.id, {
+		await this.transactionService.updateTransaction(session.id, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.FAILED,
 			stripeSubscriptionId: session.subscriptionId as string,
 			createdAt: startedAt,

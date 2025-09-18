@@ -20,10 +20,16 @@ export class PayPalConfig {
 	})
 	isSandbox: boolean;
 
+	@IsNotEmpty({
+		message: "Set Env variable FRONTEND_PAYMENTS_REDIRECT_URL, example: http://localhost:3000",
+	})
+	redirectUrl: string;
+
 	constructor(private configService: ConfigService) {
 		this.paypalClientId = this.configService.get<string>("PAYPAL_CLIENT_ID") as string;
 		this.paypalSecretKey = this.configService.get<string>("PAYPAL_SECRET_KEY") as string;
 		this.isSandbox = this.configService.get<boolean>("PAYPAL_IS_SANDBOX") as boolean;
+		this.redirectUrl = this.configService.get<string>("FRONTEND_PAYMENTS_REDIRECT_URL") as string;
 
 		configValidationUtility.validateConfig(this);
 	}

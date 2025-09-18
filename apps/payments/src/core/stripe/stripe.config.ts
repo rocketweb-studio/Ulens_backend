@@ -20,10 +20,16 @@ export class StripeConfig {
 	})
 	stripeApiVerwion: string;
 
+	@IsNotEmpty({
+		message: "Set Env variable FRONTEND_PAYMENTS_REDIRECT_URL, example: http://localhost:3000",
+	})
+	redirectUrl: string;
+
 	constructor(private configService: ConfigService) {
 		this.stripeApiKey = this.configService.get<string>("STRIPE_SECRET_KEY") as string;
 		this.stripeWebhookSecret = this.configService.get<string>("STRIPE_WEBHOOK_SECRET") as string;
 		this.stripeApiVerwion = this.configService.get<string>("STRIPE_API_VERSION") as string;
+		this.redirectUrl = this.configService.get<string>("FRONTEND_PAYMENTS_REDIRECT_URL") as string;
 
 		configValidationUtility.validateConfig(this);
 	}

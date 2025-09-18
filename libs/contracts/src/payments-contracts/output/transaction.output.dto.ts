@@ -20,8 +20,8 @@ enum PaymentProvidersEnum {
 }
 
 export class TransactionOutputDto {
-	@ApiProperty({ description: "Id of the transaction", example: "123e4567-e89b-12d3-a456-426614174000" })
-	id: string;
+	@ApiProperty({ description: "Id of the transaction", example: 1 })
+	id: number;
 	@ApiProperty({ description: "Amount of the transaction", example: 100 })
 	amount: number;
 	@ApiProperty({

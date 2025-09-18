@@ -7,12 +7,12 @@ import { SubscriptionCreateDto } from "../dto/subscription-create.dto";
 export class PrismaSubscriptionCommandRepository implements ISubscriptionCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async createSubscription(subscription: SubscriptionCreateDto): Promise<string> {
+	async createSubscription(subscription: SubscriptionCreateDto): Promise<number> {
 		const createdSubscription = await this.prisma.subscription.create({ data: subscription });
 		return createdSubscription.id;
 	}
 
-	async updateSubscription(id: string, data: any): Promise<boolean> {
+	async updateSubscription(id: number, data: any): Promise<boolean> {
 		const updatedSubscription = await this.prisma.subscription.update({ where: { id, deletedAt: null }, data });
 		return updatedSubscription.id !== null;
 	}
@@ -22,7 +22,7 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 		return subscription;
 	}
 
-	async deleteSubscription(subscriptionId: string): Promise<boolean> {
+	async deleteSubscription(subscriptionId: number): Promise<boolean> {
 		const deletedSubscription = await this.prisma.subscription.update({ where: { id: subscriptionId }, data: { deletedAt: new Date() } });
 		return deletedSubscription.id !== null;
 	}

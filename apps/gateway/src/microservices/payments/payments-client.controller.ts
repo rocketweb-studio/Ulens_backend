@@ -15,7 +15,8 @@ import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-u
 import { GetCurrentSubscriptionSwagger } from "@gateway/core/decorators/swagger/payments/get-current-subscription.decorator";
 import { AutoRenewalSubscriptionSwagger } from "@gateway/core/decorators/swagger/payments/auto-renewal-subscription.decorator";
 import { RenewalInputDto } from "@libs/contracts/payments-contracts/input/renewal.input.dto";
-
+import { WebhookPayPalSwagger } from "@gateway/core/decorators/swagger/payments/webhook-paypal.decorator";
+import { PlanOutputDto } from "@libs/contracts/index";
 @ApiTags(ApiTagsNames.PAYMENTS)
 @Controller("payments")
 export class PaymentsClientController {
@@ -25,7 +26,7 @@ export class PaymentsClientController {
 	@UseGuards(JwtAccessAuthGuard)
 	@Get("plans")
 	@HttpCode(HttpStatus.OK)
-	async getPlans(): Promise<string> {
+	async getPlans(): Promise<PlanOutputDto[]> {
 		return this.paymentsClientService.getPlans();
 	}
 
@@ -51,6 +52,14 @@ export class PaymentsClientController {
 	@HttpCode(HttpStatus.OK)
 	async webhookStripe(@RawBody() rawBody: any, @Headers("stripe-signature") stripeSignature: string): Promise<void> {
 		await this.paymentsClientService.webhookStripe(rawBody, stripeSignature);
+		return;
+	}
+
+	@WebhookPayPalSwagger()
+	@Post("webhook/paypal")
+	@HttpCode(HttpStatus.OK)
+	async webhookPayPal(@Body() data: any): Promise<void> {
+		await this.paymentsClientService.webhookPayPal(data);
 		return;
 	}
 

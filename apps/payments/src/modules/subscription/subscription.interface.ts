@@ -2,10 +2,10 @@ import { SubscriptionOutputDto } from "@libs/contracts/index";
 import { SubscriptionCreateDto } from "./dto/subscription-create.dto";
 
 export abstract class ISubscriptionCommandRepository {
-	abstract createSubscription(subscription: SubscriptionCreateDto): Promise<string>;
-	abstract updateSubscription(id: string, data: any): Promise<boolean>;
+	abstract createSubscription(subscription: SubscriptionCreateDto): Promise<number>;
+	abstract updateSubscription(id: number, data: any): Promise<boolean>;
 	abstract getSubscriptionByUserId(userId: string): Promise<any>;
-	abstract deleteSubscription(subscriptionId: string): Promise<boolean>;
+	abstract deleteSubscription(subscriptionId: number): Promise<boolean>;
 }
 
 export abstract class ISubscriptionQueryRepository {

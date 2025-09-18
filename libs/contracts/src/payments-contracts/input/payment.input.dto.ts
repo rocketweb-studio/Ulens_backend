@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsIn, IsNotEmpty, IsString } from "class-validator";
+import { IsIn, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 enum PaymentProvidersEnum {
 	STRIPE = "STRIPE",
@@ -9,10 +9,10 @@ enum PaymentProvidersEnum {
 const PaymentProvidersArray = Object.values(PaymentProvidersEnum);
 
 export class PaymentInputDto {
-	@ApiProperty({ description: "Plan id", example: "5ab7f8c2-16f9-4dd5-9d52-49ecaed18b38" })
-	@IsString()
+	@ApiProperty({ description: "Plan id", example: 1 })
+	@IsNumber()
 	@IsNotEmpty()
-	planId: string;
+	planId: number;
 	@ApiProperty({
 		description: "Payment provider",
 		example: "STRIPE",

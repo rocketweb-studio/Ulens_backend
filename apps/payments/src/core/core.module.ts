@@ -6,7 +6,6 @@ import { StripeConfig } from "@payments/core/stripe/stripe.config";
 import Stripe from "stripe";
 import { PrismaModule } from "@payments/core/prisma/prisma.module";
 import { PayPalModule } from "./paypal/paypal.module";
-import { PayPalConfig } from "./paypal/paypal.config";
 
 @Module({
 	imports: [
@@ -20,15 +19,7 @@ import { PayPalConfig } from "./paypal/paypal.config";
 			}),
 			inject: [StripeConfig],
 		}),
-		PayPalModule.forRootAsync({
-			useFactory: async (config: PayPalConfig) => ({
-				clientId: config.paypalClientId,
-				clientSecret: config.paypalSecretKey,
-				isSandbox: config.isSandbox,
-				logLevel: "Info",
-			}),
-			inject: [PayPalConfig],
-		}),
+		PayPalModule,
 		PrismaModule,
 	],
 	controllers: [],

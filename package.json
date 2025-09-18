@@ -76,7 +76,6 @@
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/throttler": "^6.4.0",
-    "@paypal/paypal-server-sdk": "1.1.0",
     "@prisma/client": "6.13.0",
     "@types/geoip-lite": "^1.4.4",
     "amqplib": "^0.10.4",

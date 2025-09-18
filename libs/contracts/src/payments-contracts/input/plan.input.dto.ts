@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsNotEmpty, IsNumber, IsIn } from "class-validator";
 
-enum PaymentIntervalsEnum {
+enum PaymentIntervalEnum {
 	MONTH = "month",
 	WEEK = "week",
 	DAY = "day",
@@ -15,7 +15,7 @@ enum CurrencyEnum {
 	RUB = "rub",
 }
 
-const PaymentIntervalsArray = Object.values(PaymentIntervalsEnum);
+const PaymentIntervalsArray = Object.values(PaymentIntervalEnum);
 const CurrencyArray = Object.values(CurrencyEnum);
 export class PlanInputDto {
 	@ApiProperty({ description: "Title of the plan", example: "Basic" })
@@ -33,13 +33,13 @@ export class PlanInputDto {
 	@ApiProperty({
 		description: "Interval of the plan",
 		example: "month",
-		enum: PaymentIntervalsEnum,
-		enumName: "PaymentIntervalsEnum",
+		enum: PaymentIntervalEnum,
+		enumName: "PaymentIntervalEnum",
 	})
 	@IsIn(PaymentIntervalsArray)
 	@IsString()
 	@IsNotEmpty()
-	interval: PaymentIntervalsEnum;
+	interval: PaymentIntervalEnum;
 	@ApiProperty({
 		description: "Currency of the plan",
 		example: "usd",

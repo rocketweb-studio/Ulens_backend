@@ -15,8 +15,6 @@ export class SubscriptionController {
 
 	@MessagePattern({ cmd: PaymentsMessages.GET_SUBSCRIPTION })
 	async getSubscription(@Payload() payload: { userId: string }): Promise<SubscriptionOutputDto> {
-		console.log("SUBSCRIPTION CONTROLLER");
-
 		const subscription = await this.subscriptionQueryRepository.getSubscriptionByUserId(payload.userId);
 		if (!subscription) {
 			throw new NotFoundRpcException("Subscription not found");

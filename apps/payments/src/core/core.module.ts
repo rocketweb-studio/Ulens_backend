@@ -5,6 +5,7 @@ import { StripeModule } from "@payments/core/stripe/stripe.module";
 import { StripeConfig } from "@payments/core/stripe/stripe.config";
 import Stripe from "stripe";
 import { PrismaModule } from "@payments/core/prisma/prisma.module";
+import { PayPalModule } from "./paypal/paypal.module";
 
 @Module({
 	imports: [
@@ -18,6 +19,7 @@ import { PrismaModule } from "@payments/core/prisma/prisma.module";
 			}),
 			inject: [StripeConfig],
 		}),
+		PayPalModule,
 		PrismaModule,
 	],
 	controllers: [],

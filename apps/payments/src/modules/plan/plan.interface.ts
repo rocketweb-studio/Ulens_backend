@@ -3,15 +3,17 @@
  *   so your service can inject by type without @Inject()
  */
 
-import { PlanInputDto, PlanOutputDto } from "@libs/contracts/index";
+import { PlanOutputDto } from "@libs/contracts/index";
+import { PlanDto } from "./dto/plan.dto";
 
 export abstract class IPlanQueryRepository {
 	abstract getPlans(): Promise<PlanOutputDto[]>;
-	abstract findPlanById(id: string): Promise<PlanOutputDto | null>;
+	abstract findPlanById(id: number): Promise<PlanOutputDto | null>;
+	abstract findRawPlanById(id: number): Promise<any | null>;
 }
 
 export abstract class IPlanCommandRepository {
-	abstract createPlan(plan: PlanInputDto, stripePlanId: string, stripeProductId: string): Promise<string>;
-	abstract deletePlan(id: string): Promise<boolean>;
-	abstract findPlanById(id: string): Promise<any | null>;
+	abstract createPlan(plan: PlanDto): Promise<number>;
+	abstract deletePlan(id: number): Promise<boolean>;
+	abstract findPlanById(id: number): Promise<any | null>;
 }

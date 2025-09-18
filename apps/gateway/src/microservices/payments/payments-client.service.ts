@@ -41,6 +41,13 @@ export class PaymentsClientService {
 		return;
 	}
 
+	async webhookPayPal(data: any): Promise<void> {
+		const eventType = data.event_type;
+		const resource = data.resource;
+		await firstValueFrom(this.client.send({ cmd: PaymentsMessages.WEBHOOK_PAYPAL }, { eventType, resource }));
+		return;
+	}
+
 	async makePayment(payment: PaymentInputDto, userId: string): Promise<PaymentOutputDto> {
 		const user = await this.authClientService.me(userId);
 		const madePayment = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.MAKE_PAYMENT }, { payment, user }));

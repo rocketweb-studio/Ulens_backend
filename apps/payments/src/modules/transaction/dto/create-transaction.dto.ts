@@ -5,5 +5,7 @@ export class CreateTransactionDto {
 	plan: PlanOutputDto;
 	stripeSubscriptionId: string | null;
 	stripeSessionId: string | null;
+	paypalSessionId: string | null;
+	paypalPlanId: string | null;
 	provider: PaymentProvidersEnum;
 }

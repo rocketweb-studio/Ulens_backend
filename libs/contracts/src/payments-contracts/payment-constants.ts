@@ -23,3 +23,10 @@ export enum PaymentProvidersEnum {
 	STRIPE = "STRIPE",
 	PAYPAL = "PAYPAL",
 }
+
+export const planIntervalsInDays = {
+	[PaymentIntervalEnum.MONTH]: 30,
+	[PaymentIntervalEnum.WEEK]: 7,
+	[PaymentIntervalEnum.DAY]: 1,
+	[PaymentIntervalEnum.YEAR]: 365,
+};

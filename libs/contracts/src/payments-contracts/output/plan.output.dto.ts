@@ -15,8 +15,8 @@ enum CurrencyEnum {
 }
 
 export class PlanOutputDto {
-	@ApiProperty({ description: "Id of the plan", example: "123e4567-e89b-12d3-a456-426614174000" })
-	id: string;
+	@ApiProperty({ description: "Id of the plan", example: 1 })
+	id: number;
 	@ApiProperty({ description: "Title of the plan", example: "Basic" })
 	title: string;
 	@ApiProperty({ description: "Description of the plan", example: "Basic plan" })
@@ -27,7 +27,7 @@ export class PlanOutputDto {
 		description: "Interval of the plan",
 		example: "month",
 		enum: PaymentIntervalEnum,
-		enumName: "PaymentIntervalsEnum",
+		enumName: "PaymentIntervalEnum",
 	})
 	interval: PaymentIntervalEnum;
 	@ApiProperty({

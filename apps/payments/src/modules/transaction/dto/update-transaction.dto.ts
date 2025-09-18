@@ -5,4 +5,7 @@ export class UpdateTransactionDto {
 	createdAt?: Date;
 	expiresAt?: Date;
 	stripeSubscriptionId?: string;
+	paypalPlanId?: string;
+	paypalSessionId?: string;
+	stripeSessionId?: string;
 }

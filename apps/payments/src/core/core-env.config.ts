@@ -29,16 +29,10 @@ export class CoreEnvConfig {
 	})
 	rmqUrl: string;
 
-	@IsNotEmpty({
-		message: "Set Env variable FRONTEND_PAYMENTS_REDIRECT_URL, example: http://localhost:3000",
-	})
-	redirectUrl: string;
-
 	constructor(private configService: ConfigService<any, true>) {
 		this.tcpHost = this.configService.get<string>("PAYMENTS_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("PAYMENTS_TCP_PORT");
 		this.rmqUrl = this.configService.get<string>("RMQ_URL");
-		this.redirectUrl = this.configService.get<string>("FRONTEND_PAYMENTS_REDIRECT_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

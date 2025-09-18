@@ -15,7 +15,7 @@ datasource db {
 }
 
 model Transaction {
-  id String @id @default(uuid())
+  id        Int      @id @default(autoincrement())
 
   amount Float 
   currency String
@@ -24,8 +24,12 @@ model Transaction {
 	stripeSessionId String? 
   status TransactionStatus @default(PENDING)
 
+	paypalSessionId String?
+	paypalPlanId String?
+	
   createdAt DateTime @default(now())
 	expiresAt DateTime?
+	expiresLinkAt DateTime?
 
 	provider TransactionProvider
 
@@ -35,12 +39,14 @@ model Transaction {
 }
 
 model Subscription {
-	id String @id @default(uuid())
+	id Int @id @default(autoincrement())
 	userId String
-	planId String
+	planId Int
 	createdAt DateTime
 	expiresAt DateTime
   stripeSubscriptionId String? 
+
+	paypalSubscriptionId String?
 
 	isAutoRenewal Boolean @default(true)
 
@@ -52,7 +58,7 @@ model Subscription {
 }
 
 model Plan {
-	id String @id @default(uuid())
+	id Int @id @default(autoincrement())
 	title String
 	description String
 	stripeProductId String
@@ -60,6 +66,8 @@ model Plan {
 	price Float
 	currency String
 	interval String
+	paypalProductId String
+	paypalPlanId String
 
 	createdAt DateTime @default(now())
 

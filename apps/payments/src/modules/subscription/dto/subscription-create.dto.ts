@@ -1,7 +1,8 @@
 export class SubscriptionCreateDto {
-	planId: string;
+	planId: number;
 	userId: string;
 	createdAt: Date;
 	expiresAt: Date;
-	stripeSubscriptionId: string;
+	stripeSubscriptionId: string | null;
+	paypalSubscriptionId: string | null;
 }

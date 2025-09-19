@@ -22,7 +22,7 @@ export class ProfileOutputDto {
 	@ApiProperty({ description: "Region", example: "NY" })
 	region: string | null;
 	@ApiProperty({ description: "Date of birth", example: "2000-01-01" })
-	dateOfBirth: Date | null;
+	dateOfBirth: string | null;
 	@ApiProperty({ description: "About me", example: "I am a software engineer" })
 	aboutMe: string | null;
 	@ApiProperty({ description: "Created at", example: "2021-01-01T00:00:00.000Z" })

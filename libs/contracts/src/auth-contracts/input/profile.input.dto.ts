@@ -5,7 +5,7 @@ export class ProfileInputDto {
 	@ApiProperty({ description: "User name", example: "JohnDoe" })
 	@MaxLength(30)
 	@MinLength(6)
-	@Matches(/^[a-zA-Z0-9_-]*$/)
+	@Matches(/^[a-zA-Z0-9_-]*$/, { message: "User name allows only letters, numbers, _ and -" })
 	@IsString()
 	@IsNotEmpty()
 	userName: string;
@@ -38,7 +38,7 @@ export class ProfileInputDto {
 	@IsString()
 	@IsOptional()
 	region: string;
-	@ApiProperty({ description: "Date of birth", example: "2020-08-28" })
+	@ApiProperty({ description: "Date of birth", example: "2007-08-28" })
 	@MinLength(1)
 	@MaxLength(50)
 	@IsOptional()
@@ -59,6 +59,24 @@ export class ProfileInputDto {
 						const thirteenYearsAgo = new Date(today.getFullYear() - 13, today.getMonth(), today.getDate());
 
 						return birthDate <= thirteenYearsAgo;
+					},
+				},
+			});
+		})()
+	)
+	@(
+		(() => (object: any, propertyName: string) => {
+			registerDecorator({
+				name: "isNotInFuture",
+				target: object.constructor,
+				propertyName: propertyName,
+				options: { message: "Date of birth cannot be in the future." },
+				validator: {
+					validate(value: any, _args: ValidationArguments) {
+						const birthDate = new Date(value); // формат YYYY-MM-DD
+						const today = new Date();
+
+						return birthDate <= today;
 					},
 				},
 			});

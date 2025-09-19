@@ -26,6 +26,7 @@ export class PayPalService {
 		});
 	}
 
+	// Получаем access token для запросов к paypal
 	private async getAccessToken(): Promise<string> {
 		if (this.accessToken && this.tokenExpiry && new Date() < this.tokenExpiry) {
 			return this.accessToken;
@@ -55,6 +56,7 @@ export class PayPalService {
 		}
 	}
 
+	// Создаем продукт в paypal
 	async createProduct(product: PayPalProductDto): Promise<any> {
 		try {
 			// получаем access token
@@ -62,10 +64,15 @@ export class PayPalService {
 
 			// создаем body для запроса
 			const productBody = {
+				// название продукта
 				name: product.name,
+				// описание продукта
 				description: product.description,
+				// тип продукта - услуга или товар
 				type: "SERVICE",
+				// категория продукта - программное обеспечение
 				category: "SOFTWARE",
+				// url на который будет перенаправлен пользователь после оплаты
 				home_url: this.paypalConfig.redirectUrl,
 			};
 
@@ -83,6 +90,7 @@ export class PayPalService {
 		}
 	}
 
+	// Создаем план в paypal
 	async createPlan(plan: PayPalPlanDto): Promise<any> {
 		try {
 			// получаем access token
@@ -90,20 +98,32 @@ export class PayPalService {
 
 			// создаем body для запроса
 			const planBody = {
+				// название плана
 				name: plan.name,
+				// описание плана
 				description: plan.description,
+				// id продукта
 				product_id: plan.product_id,
+				// статус плана - должно быть "ACTIVE", чтобы план можно было продавать. Иначе его нельзя будет использовать при создании подписки.
 				status: "ACTIVE",
+				// фазы подписки - PayPal позволяет составлять подписку из нескольких фаз (циклов), например, TRIAL → REGULAR. Здесь — один регулярный цикл.
 				billing_cycles: [
 					{
+						// Периодичность списаний
 						frequency: {
+							// Единица измерения периодичности(день, неделя, месяц, год)
 							interval_unit: plan.interval.toUpperCase(),
+							// Количество периодов
 							interval_count: 1,
 						},
+						// тип периода - REGULAR - регулярный период
 						tenure_type: "REGULAR",
+						// последовательность фаз - 1 - первая фаза, 2 - вторая фаза и т.д.
 						sequence: 1,
+						// общее количество периодов
 						total_cycles: 0,
 						pricing_scheme: {
+							// схема ценообразования - фиксированная цена
 							fixed_price: {
 								value: plan.price.toString(),
 								currency_code: plan.currency.toUpperCase(),
@@ -112,7 +132,9 @@ export class PayPalService {
 					},
 				],
 				payment_preferences: {
+					// автоматически списывать долг, если пользователь не оплатил платеж
 					auto_bill_outstanding: true,
+					// количество попыток оплаты после неудачного платежа
 					payment_failure_threshold: 3,
 				},
 			};
@@ -131,6 +153,7 @@ export class PayPalService {
 		}
 	}
 
+	// Деактивируем план в paypal
 	async deactivatePlan(planId: string): Promise<any> {
 		try {
 			const accessToken = await this.getAccessToken();
@@ -149,27 +172,36 @@ export class PayPalService {
 		}
 	}
 
+	// Создаем подписку в paypal
 	async createPayPalSubscription(subscription: PayPalSubscriptionDto): Promise<any> {
 		try {
 			const accessToken = await this.getAccessToken();
 
+			// конфигурация нашей подписки
 			const subscriptionBody = {
+				// id плана в paypal
 				plan_id: subscription.paypalPlanId,
+				// подписчик и его данные
 				subscriber: {
 					name: { given_name: subscription.userName, surname: "" },
 					email_address: subscription.userEmail,
 				},
-				// custom_id - аналог metadata в stripe. максимум 127 символов
+				// custom_id - аналог metadata в stripe. максимум 127 символов. Передаем id юзера, id плана и id транзакции в базе данных
 				custom_id: JSON.stringify({
 					userId: subscription.userId,
 					planId: subscription.planId,
 					transactId: subscription.transactId,
 				}),
+				// контекст приложения
 				application_context: {
 					brand_name: "Ulens",
+					// Не запрашивать адрес доставки у покупателя
 					shipping_preference: "NO_SHIPPING",
+					// действие пользователя - указывавется на кнопке при оплате. SUBSCRIBE_NOW - подписаться на подписку
 					user_action: "SUBSCRIBE_NOW",
+					// url на который будет перенаправлен пользователь после оплаты
 					return_url: `${this.paypalConfig.redirectUrl}?success=true`,
+					// url на который будет перенаправлен пользователь если он отменит оплату
 					cancel_url: `${this.paypalConfig.redirectUrl}?success=false`,
 				},
 			};
@@ -186,26 +218,7 @@ export class PayPalService {
 		}
 	}
 
-	// async cancelSubscription(subscriptionId: string): Promise<void> {
-	// 	try {
-	// 		const accessToken = await this.getAccessToken();
-
-	// 		await this.axiosInstance.post(
-	// 			`/v1/billing/subscriptions/${subscriptionId}/cancel`,
-	// 			{ reason: 'User requested cancellation' },
-	// 			{
-	// 				headers: {
-	// 					Authorization: `Bearer ${accessToken}`,
-	// 					'Content-Type': 'application/json',
-	// 				},
-	// 			}
-	// 		);
-	// 	} catch (error) {
-	// 		throw new BadRequestRpcException(
-	// 			`Failed to cancel PayPal subscription: ${error.response?.data?.message || error.message}`
-	// 		);
-	// 	}
-	// }
+	// Приостанавливаем подписку в paypal
 	async suspendSubscription(subscriptionId: string, reason?: string) {
 		const accessToken = await this.getAccessToken();
 		await this.axiosInstance.post(
@@ -215,6 +228,7 @@ export class PayPalService {
 		);
 	}
 
+	// Активируем подписку в paypal
 	async activateSubscription(subscriptionId: string, reason?: string) {
 		const accessToken = await this.getAccessToken();
 		await this.axiosInstance.post(

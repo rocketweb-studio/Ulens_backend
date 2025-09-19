@@ -1,14 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { IProfileCommandRepository } from "../profile.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { ProfileInputDto } from "@libs/contracts/index";
-import { Profile } from "@auth/core/prisma/generated/client";
 @Injectable()
 export class PrismaProfileCommandRepository implements IProfileCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async updateProfile(userId: string, dto: ProfileInputDto): Promise<ProfileOutputDto> {
+	async updateProfile(userId: string, dto: ProfileInputDto): Promise<string> {
 		const profile = await this.prisma.profile.update({
 			where: { userId },
 			data: {
@@ -22,7 +20,7 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 				aboutMe: dto.aboutMe,
 			},
 		});
-		return this._mapToView(profile);
+		return profile.userId;
 	}
 
 	async deleteProfile(userId: string): Promise<boolean> {
@@ -31,20 +29,5 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 			data: { deletedAt: new Date() },
 		});
 		return count === 1;
-	}
-
-	private _mapToView(profile: Profile): ProfileOutputDto {
-		return {
-			userName: profile.userName,
-			id: profile.id,
-			firstName: profile.firstName,
-			lastName: profile.lastName,
-			city: profile.city,
-			country: profile.country,
-			region: profile.region,
-			dateOfBirth: profile.dateOfBirth,
-			aboutMe: profile.aboutMe,
-			createdAt: profile.createdAt,
-		};
 	}
 }

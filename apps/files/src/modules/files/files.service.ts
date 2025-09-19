@@ -1,7 +1,7 @@
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { IFilesCommandRepository } from "@files/modules/files/files.interfaces";
 import { Injectable } from "@nestjs/common";
-import { UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
+import { NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { StorageAdapter } from "@files/core/storage/storage.adapter";
 import { ImageOutputDto } from "@libs/contracts/index";
 
@@ -32,6 +32,9 @@ export class FilesService {
 	}
 
 	async deleteAvatarsByUserId(userId: string, avatars: ImageOutputDto[]): Promise<boolean> {
+		if (avatars.length === 0) {
+			throw new NotFoundRpcException("Avatar not found");
+		}
 		avatars.forEach(async (avatar) => {
 			await this.storageService.deleteFile(avatar.url);
 		});

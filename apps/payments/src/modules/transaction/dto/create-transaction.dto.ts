@@ -1,4 +1,4 @@
-import { PaymentProvidersEnum, PlanOutputDto } from "@libs/contracts/index";
+import { PaymentProvidersEnum, PlanOutputDto, TransactionStatusEnum } from "@libs/contracts/index";
 
 export class CreateTransactionDto {
 	userId: string;
@@ -8,4 +8,7 @@ export class CreateTransactionDto {
 	paypalSessionId: string | null;
 	paypalPlanId: string | null;
 	provider: PaymentProvidersEnum;
+	status?: TransactionStatusEnum;
+	createdAt?: Date;
+	expiresAt?: Date;
 }

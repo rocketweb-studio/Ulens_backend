@@ -4,7 +4,7 @@ import { ApiBearerAuth, ApiNoContentResponse, ApiNotFoundResponse, ApiOperation,
 
 export const DeletePlanSwagger = () => {
 	const decorators = [
-		ApiOperation({ summary: "Delete price plan" }),
+		ApiOperation({ summary: "Delete price plan", description: "Delete price plan - NOT FOR FRONTEND, USE ONLY FOR ADMIN" }),
 		ApiParam({ name: "id", type: "string", format: "uuid" }),
 		ApiBearerAuth(),
 		ApiNoContentResponse({ description: "Price plan was successfully deleted" }),

@@ -67,7 +67,7 @@ export class WebhookStripeService {
 		if (!this.stripeConfig.stripeWebhookSecret) {
 			throw new BadRequestRpcException("Stripe webhook secret not configured");
 		}
-
+		// библиотека сама валидирует подпись
 		return this.stripeService.webhooks.constructEvent(payload, signature, this.stripeConfig.stripeWebhookSecret);
 	}
 
@@ -138,7 +138,7 @@ export class WebhookStripeService {
 		// получаем подписку из БД
 		const currentSubscriptionFromDb = await this.subscriptionService.getSubscriptionByUserId(userId as string);
 
-		// создаем транзакцию(платеж) в бд
+		// создаем успешную транзакцию(платеж) в бд
 		await this.transactionService.createTransaction({
 			userId,
 			plan,
@@ -147,11 +147,7 @@ export class WebhookStripeService {
 			paypalSessionId: null,
 			paypalPlanId: null,
 			provider: PaymentProvidersEnum.STRIPE,
-		});
-		// обновляем статус транзакции(платежа) в бд
-		await this.transactionService.updateTransaction(session.id as string, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.SUCCESS,
-			stripeSubscriptionId: subscriptionId as string,
 			createdAt: startedAt,
 			expiresAt: expiresAt,
 		});
@@ -175,7 +171,7 @@ export class WebhookStripeService {
 		const plan = await this.planService.findPlanById(+planId);
 		// отменяем подписку в stripe
 		await this.stripeService.subscriptions.cancel(subscriptionId);
-		// создаем транзакцию(платеж) в бд
+		// создаем неудачную транзакцию(платеж) в бд
 		await this.transactionService.createTransaction({
 			userId,
 			plan,
@@ -184,14 +180,11 @@ export class WebhookStripeService {
 			paypalSessionId: null,
 			paypalPlanId: null,
 			provider: PaymentProvidersEnum.STRIPE,
-		});
-		// обновляем статус транзакции(платежа) в бд
-		await this.transactionService.updateTransaction(session.id, PaymentProvidersEnum.STRIPE, {
 			status: TransactionStatusEnum.FAILED,
-			stripeSubscriptionId: session.subscriptionId as string,
 			createdAt: startedAt,
 			expiresAt: expiresAt,
 		});
+
 		// удаляем подписку в бд
 		await this.subscriptionService.deleteSubscription(currentSubscriptionFromDb.id);
 

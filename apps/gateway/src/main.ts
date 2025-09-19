@@ -6,6 +6,7 @@ import { configApp } from "@gateway/gateway.setup";
 async function bootstrap() {
 	const dynamicAppModule = await initGatewayModule();
 
+	// { rawBody: true } - нужно для работы с raw body в вебхуках
 	const app = await NestFactory.create(dynamicAppModule, { rawBody: true });
 	const config = app.get<CoreEnvConfig>(CoreEnvConfig);
 

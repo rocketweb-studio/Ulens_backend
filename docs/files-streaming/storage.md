@@ -1,5 +1,7 @@
 # Архитектура файлового хранилища
 
+![Схема](./streaming.png)
+
 ## 1. Получение файла на Gateway (NestJS)
 
 ### Интерцептор StreamingFileInterceptor

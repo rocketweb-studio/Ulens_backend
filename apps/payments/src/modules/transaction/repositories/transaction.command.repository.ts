@@ -10,7 +10,7 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 	constructor(private readonly prisma: PrismaService) {}
 
 	async createTransaction(dto: CreateTransactionDto): Promise<number> {
-		const { userId, plan, stripeSubscriptionId, stripeSessionId, paypalSessionId, paypalPlanId, provider } = dto;
+		const { userId, plan, stripeSubscriptionId, stripeSessionId, paypalSessionId, paypalPlanId, provider, status, createdAt, expiresAt } = dto;
 		const expiresLinkAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 часа
 		const createdTransaction = await this.prisma.transaction.create({
 			data: {
@@ -23,6 +23,9 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 				paypalPlanId: paypalPlanId,
 				provider: provider,
 				expiresLinkAt: expiresLinkAt,
+				status: status || TransactionStatusEnum.PENDING,
+				createdAt: createdAt || new Date(),
+				expiresAt: expiresAt || null,
 			},
 		});
 		return createdTransaction.id;

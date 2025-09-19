@@ -9,7 +9,7 @@ import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getProfile(userId: string): Promise<ProfileOutputDto> {
+	async getProfileByUserId(userId: string): Promise<ProfileOutputDto> {
 		const profile = await this.prisma.profile.findFirst({
 			where: { userId },
 		});
@@ -26,7 +26,7 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 			city: profile.city,
 			country: profile.country,
 			region: profile.region,
-			dateOfBirth: profile.dateOfBirth,
+			dateOfBirth: profile.dateOfBirth?.toISOString().split("T")[0] || null,
 			aboutMe: profile.aboutMe,
 			createdAt: profile.createdAt,
 		};

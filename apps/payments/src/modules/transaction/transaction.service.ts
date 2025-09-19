@@ -56,6 +56,7 @@ export class TransactionService {
 				paypalPlanId: null,
 				provider: payment.provider,
 			});
+			// получаем ссылку на оплату из ответа stripe
 			payment_url = stripeSession.url as string;
 		} else if (payment.provider === PaymentProvidersEnum.PAYPAL) {
 			// создаем транзакцию в бд
@@ -77,12 +78,7 @@ export class TransactionService {
 				userName: user.userName,
 				userEmail: user.email,
 			});
-
-			// // обновляем транзакцию в бд
-			// await this.transactionCommandRepository.updateTransaction(transactionId, PaymentProvidersEnum.PAYPAL, {
-			// 	paypalSessionId: paypalSession.id,
-			// });
-
+			// получаем ссылку на оплату из ответа paypal
 			payment_url = paypalSession.links.find((link) => link.rel === "approve")?.href as string;
 		} else {
 			throw new Error("Provider not supported");

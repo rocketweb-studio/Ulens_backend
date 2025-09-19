@@ -15,12 +15,13 @@ export class ProfileController {
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILE })
 	async getProfile(@Payload() payload: { userId: string }): Promise<ProfileOutputDto> {
-		return await this.profileQueryRepository.getProfile(payload.userId);
+		return await this.profileQueryRepository.getProfileByUserId(payload.userId);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.UPDATE_PROFILE })
 	async updateProfile(@Payload() payload: { userId: string; dto: ProfileInputDto }): Promise<ProfileOutputDto> {
-		return await this.profileService.updateProfile(payload.userId, payload.dto);
+		const profileUserId = await this.profileService.updateProfile(payload.userId, payload.dto);
+		return await this.profileQueryRepository.getProfileByUserId(profileUserId);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.DELETE_PROFILE })

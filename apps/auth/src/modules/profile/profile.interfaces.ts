@@ -8,4 +8,5 @@ export abstract class IProfileQueryRepository {
 export abstract class IProfileCommandRepository {
 	abstract updateProfile(userId: string, dto: ProfileInputDto): Promise<string>;
 	abstract deleteProfile(userId: string): Promise<boolean>;
+	abstract findProfileByUsername(userName: string): Promise<boolean>;
 }

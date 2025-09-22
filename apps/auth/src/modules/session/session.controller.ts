@@ -22,7 +22,7 @@ export class SessionController {
 		return this.sessionService.deleteSession(payload.deviceId);
 	}
 
-	@MessagePattern(AuthMessages.LOGOUT_OTHER_SESSIONS)
+	@MessagePattern({ cmd: AuthMessages.LOGOUT_OTHER_SESSIONS })
 	async logoutOtherSessions(@Payload() payload: { user: PayloadFromRequestDto }): Promise<boolean> {
 		return this.sessionService.deleteOtherSessions(payload.user);
 	}

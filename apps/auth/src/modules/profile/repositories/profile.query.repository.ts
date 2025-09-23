@@ -18,6 +18,12 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 	}
 
 	private _mapToView(profile: Profile): ProfileOutputDto {
+		const formatDate = (date: Date): string => {
+			const day = String(date.getDate()).padStart(2, "0");
+			const month = String(date.getMonth() + 1).padStart(2, "0");
+			const year = date.getFullYear();
+			return `${day}.${month}.${year}`;
+		};
 		return {
 			id: profile.userId,
 			userName: profile.userName,
@@ -26,7 +32,7 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 			city: profile.city,
 			country: profile.country,
 			region: profile.region,
-			dateOfBirth: profile.dateOfBirth?.toISOString().split("T")[0] || null,
+			dateOfBirth: profile.dateOfBirth ? formatDate(profile.dateOfBirth) : null,
 			aboutMe: profile.aboutMe,
 			createdAt: profile.createdAt,
 		};

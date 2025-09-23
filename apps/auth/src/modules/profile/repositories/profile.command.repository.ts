@@ -31,13 +31,13 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 		return count === 1;
 	}
 
-	async findProfileByUsername(userName: string): Promise<boolean> {
+	async findProfileByUsername(userName: string): Promise<string | null> {
 		const profile = await this.prisma.profile.findFirst({
 			where: { userName, deletedAt: null },
 			select: {
-				userName: true,
+				userId: true,
 			},
 		});
-		return !!profile;
+		return profile?.userId || null;
 	}
 }

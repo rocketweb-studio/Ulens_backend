@@ -39,7 +39,7 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		});
 
 		if (!user) {
-			throw new NotFoundRpcException();
+			throw new NotFoundRpcException("User not found");
 		}
 
 		return this._mapToView(user);

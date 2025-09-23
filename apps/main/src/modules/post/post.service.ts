@@ -19,7 +19,7 @@ export class PostService {
 
 		const post = await this.postCommandRepository.getPostById(postId);
 
-		if (!post) throw new NotFoundRpcException();
+		if (!post) throw new NotFoundRpcException("Post not found");
 
 		if (post.userId !== userId) throw new ForbiddenRpcException();
 
@@ -32,7 +32,7 @@ export class PostService {
 
 		const post = await this.postCommandRepository.getPostById(postId);
 
-		if (!post) throw new NotFoundRpcException();
+		if (!post) throw new NotFoundRpcException("Post not found");
 
 		if (post.userId !== userId) throw new ForbiddenRpcException();
 

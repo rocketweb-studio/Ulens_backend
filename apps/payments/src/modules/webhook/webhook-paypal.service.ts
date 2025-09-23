@@ -126,6 +126,15 @@ export class WebhookPaypalService {
 				expiresAt: expiresAt,
 			});
 		}
+
+		// создаем событие в таблице outboxEvents
+		await this.transactionService.createOutboxTransactionEvent({
+			sessionId: transactId,
+			planId: +planId,
+			userId: userId as string,
+			provider: "STRIPE",
+			expiresAt: expiresAt,
+		});
 	}
 
 	private async handlePaymentFailed(resource: any) {

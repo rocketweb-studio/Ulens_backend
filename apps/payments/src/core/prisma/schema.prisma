@@ -82,7 +82,6 @@ model OutboxEvent {
   id             String       @id @default(uuid())
   // Для маршрутизации/реплея:
   aggregateType  String       // "subscription" | "transaction" | "user"
-  aggregateId    String
   eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
   payload        Json
   headers        Json?
@@ -90,7 +89,6 @@ model OutboxEvent {
   attempts       Int          @default(0)
   nextAttemptAt  DateTime?
   topic          String?      // опционально: имя топика/роутинга
-  correlationId  String       // наследуем из Transaction/Subscription
   createdAt      DateTime     @default(now())
   publishedAt    DateTime?
 

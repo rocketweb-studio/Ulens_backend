@@ -10,6 +10,7 @@ import { CreateTransactionDto } from "./dto/create-transaction.dto";
 import { PayPalService } from "@payments/core/paypal/paypal.service";
 import Stripe from "stripe";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { CreateOutBoxTransactionEventDto } from "./dto/create-outbox-transaction-event.dto";
 
 @Injectable()
 export class TransactionService {
@@ -90,6 +91,11 @@ export class TransactionService {
 	async findTransactionById(id: string): Promise<any> {
 		const transaction = await this.transactionCommandRepository.findTransactionById(+id);
 		return transaction;
+	}
+
+	async createOutboxTransactionEvent(dto: CreateOutBoxTransactionEventDto): Promise<string> {
+		const createdOutboxTransactionEvent = await this.transactionCommandRepository.createOutboxTransactionEvent(dto);
+		return createdOutboxTransactionEvent;
 	}
 
 	// крон для изменения статуса транзакций на expired, если не произвели оплату

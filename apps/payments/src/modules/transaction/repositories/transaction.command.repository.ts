@@ -4,6 +4,9 @@ import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { UpdateTransactionDto } from "../dto/update-transaction.dto";
 import { CreateTransactionDto } from "../dto/create-transaction.dto";
+import { CreateOutBoxTransactionEventDto } from "../dto/create-outbox-transaction-event.dto";
+import { randomUUID } from "crypto";
+import { PremiumActivatedInput } from "../dto/permium-activated.input.dto";
 
 @Injectable()
 export class TransactionCommandRepository implements ITransactionCommandRepository {
@@ -69,6 +72,68 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 			data: {
 				status: TransactionStatusEnum.EXPIRED,
 			},
+		});
+	}
+
+	async createOutboxTransactionEvent(dto: CreateOutBoxTransactionEventDto): Promise<string> {
+		const { sessionId, userId, planId, provider, expiresAt } = dto;
+		const messageId = randomUUID();
+		const createdOutboxTransactionEvent = await this.prisma.outboxEvent.create({
+			data: {
+				aggregateType: "transaction",
+				eventType: "payment.succeeded", // !! ивент тайп по которому будем консьюмить сообщение
+				attempts: 0,
+				topic: "app.events", // !!топик в который полетят сообщения; опционально: имя exchange/route для паблишера
+				// status: PENDING — по умолчанию из Prisma-схемы
+				payload: {
+					messageId,
+					sessionId,
+					userId,
+					planId,
+					provider,
+					expiresAt,
+				},
+			},
+		});
+		return createdOutboxTransactionEvent.id;
+	}
+
+	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
+		const { messageId, sessionId } = input;
+
+		await this.prisma.$transaction(async (tx) => {
+			// 1) Создаем Inbox
+			const ins = await tx.inboxMessage.createMany({
+				data: [
+					{
+						id: messageId,
+						type: "auth.user.premium.activated.v1",
+						source: "auth-service",
+						payload: input,
+						status: "RECEIVED",
+					},
+				],
+				skipDuplicates: true,
+			});
+			if (ins.count === 0) {
+				console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][DUPLICATE_SKIP]", { messageId });
+				return; // уже обработали
+			}
+
+			// 2) Обновляем outboxFlowStatus
+			await tx.transaction.update({
+				where: { id: Number(sessionId) },
+				data: {
+					outboxFlowStatus: "PROCESSED",
+				},
+			});
+
+			// 3) Обновляем Inbox -> PROCESSED
+			await tx.inboxMessage.update({
+				where: { id: messageId },
+				data: { status: "PROCESSED", processedAt: new Date() },
+			});
+			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][INBOX_PROCESSED]", { messageId });
 		});
 	}
 }

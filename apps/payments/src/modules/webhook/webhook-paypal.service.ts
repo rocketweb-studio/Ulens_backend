@@ -129,7 +129,7 @@ export class WebhookPaypalService {
 
 		// создаем событие в таблице outboxEvents
 		await this.transactionService.createOutboxTransactionEvent({
-			sessionId: transactId,
+			sessionId: resource.id,
 			planId: +planId,
 			userId: userId as string,
 			provider: "STRIPE",

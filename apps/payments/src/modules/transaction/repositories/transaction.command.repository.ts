@@ -99,7 +99,7 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 	}
 
 	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
-		const { messageId, sessionId } = input;
+		const { messageId, sessionId, userId } = input;
 
 		await this.prisma.$transaction(async (tx) => {
 			// 1) Создаем Inbox
@@ -121,8 +121,11 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 			}
 
 			// 2) Обновляем outboxFlowStatus
-			await tx.transaction.update({
-				where: { id: Number(sessionId) },
+			await tx.transaction.updateMany({
+				where: {
+					userId,
+					OR: [{ stripeSessionId: sessionId }, { paypalSessionId: sessionId }],
+				},
 				data: {
 					outboxFlowStatus: "PROCESSED",
 				},

@@ -1,4 +1,5 @@
 import { Module } from "@nestjs/common";
+import { RabbitEventBus } from "@libs/rabbit/index";
 import { TransactionService } from "@payments/modules/transaction/transaction.service";
 import { TransactionController } from "@payments/modules/transaction/transaction.controller";
 import { CoreEnvConfig } from "@payments/core/core-env.config";
@@ -8,6 +9,7 @@ import { ITransactionCommandRepository, ITransactionQueryRepository } from "./tr
 import { IPlanQueryRepository } from "../plan/plan.interface";
 import { PrismaPlanQueryRepository } from "../plan/repositories/plan.query.repository";
 import { SubscriptionModule } from "../subscription/subscription.module";
+import { OutboxPublisherService } from "@payments/core/rabbit/outbox-publisher.rabbit.service";
 
 @Module({
 	imports: [SubscriptionModule],
@@ -18,7 +20,9 @@ import { SubscriptionModule } from "../subscription/subscription.module";
 		{ provide: ITransactionCommandRepository, useClass: TransactionCommandRepository },
 		{ provide: ITransactionQueryRepository, useClass: TransactionQueryRepository },
 		{ provide: IPlanQueryRepository, useClass: PrismaPlanQueryRepository },
+		OutboxPublisherService, // если используем Rabbit  switchMessageBroker**
+		{ provide: "EVENT_BUS", useClass: RabbitEventBus }, // если используем Rabbit  switchMessageBroker**
 	],
-	exports: [TransactionService],
+	exports: [TransactionService, ITransactionCommandRepository],
 })
 export class TransactionModule {}

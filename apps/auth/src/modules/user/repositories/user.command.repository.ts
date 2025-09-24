@@ -8,8 +8,9 @@ import { ConfirmationCodeInputRepoDto } from "../dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
 import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
-import { Prisma } from "@auth/core/prisma/generated/client";
+import { Prisma } from "@auth/core/prisma/generated";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
+import { PaymentSucceededInput } from "../dto/payment-succeeded.input.dto";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -171,6 +172,55 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		});
 
 		console.log(`Deleted not confirmed users: [${count}]`);
+	}
+
+	async applyPaymentSucceeded(dto: PaymentSucceededInput): Promise<{ premiumExpDate: string }> {
+		const { messageId, userId, expiresAt } = dto;
+
+		return this.prisma.$transaction(async (tx) => {
+			// 1) Inbox (идемпотентность)
+			try {
+				await tx.inboxMessage.create({
+					data: {
+						id: messageId,
+						type: "payment.succeeded",
+						source: "payments-service",
+						payload: dto as unknown as Prisma.InputJsonValue,
+						status: "RECEIVED",
+					},
+				});
+				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_CREATED]", { messageId });
+			} catch (e) {
+				if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+					console.log("[AUTH][Repo][applyPaymentSucceeded][DUPLICATE_INBOX]", { messageId });
+					// уже обработали — просто вернём текущее premiumUntil
+					const u = await tx.user.findUnique({
+						where: { id: userId },
+						select: { premiumExpDate: true },
+					});
+					const premiumExpDate = u?.premiumExpDate ? u.premiumExpDate.toISOString() : "";
+					return { premiumExpDate };
+				}
+				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_ERROR]", { messageId, err: (e as Error)?.message });
+				throw e;
+			}
+
+			// 2)Обновляем пользователя
+			await tx.user.update({
+				where: { id: userId },
+				data: { premiumExpDate: expiresAt },
+			});
+			console.log("[AUTH][Repo][applyPaymentSucceeded][USER_UPDATED]", { userId, expiresAt });
+
+			// 3) Inbox → PROCESSED
+			await tx.inboxMessage.update({
+				where: { id: messageId },
+				data: { status: "PROCESSED", processedAt: new Date() },
+			});
+			console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_PROCESSED]", { messageId });
+
+			return { premiumExpDate: expiresAt };
+		});
 	}
 
 	private _mapToUse(user: UserWithProfile): UserOutputRepoDto {

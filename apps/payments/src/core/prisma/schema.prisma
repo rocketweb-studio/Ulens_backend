@@ -33,6 +33,8 @@ model Transaction {
 
 	provider TransactionProvider
 
+	outboxFlowStatus OutboxFlowStatus @default(PENDING)
+
   userId String
 
   @@map("transactions")
@@ -76,6 +78,40 @@ model Plan {
 	@@map("plans")
 }
 
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  // Для маршрутизации/реплея:
+  aggregateType  String       // "subscription" | "transaction" | "user"
+  eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?      // опционально: имя топика/роутинга
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+
+/**
+ * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
+ * Если messageId уже есть — повтор не обрабатываем.
+ */
+model InboxMessage {
+  id            String      @id                 // используйте messageId из брокера/вебхука
+  type          String
+  source        String                           // "stripe", "paypal", "auth-service", ...
+  payload       Json
+  status        InboxStatus  @default(RECEIVED)
+  error         String?
+  receivedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  @@map("inbox_messages")
+}
+
 enum TransactionStatus {
   PENDING
   SUCCESS
@@ -91,3 +127,24 @@ enum TransactionProvider {
 
   @@map("transaction_providers")
 }
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+enum OutboxFlowStatus {
+	PENDING
+  PUBLISHED
+	PROCESSED
+  FAILED
+}
+
+

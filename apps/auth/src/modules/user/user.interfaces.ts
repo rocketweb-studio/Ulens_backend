@@ -6,6 +6,7 @@ import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.in
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
+import { PaymentSucceededInput } from "./dto/payment-succeeded.input.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -32,4 +33,5 @@ export abstract class IUserCommandRepository {
 	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null>;
 	abstract setOauthUserId(email: string, payload: { [key: string]: string }): Promise<boolean>;
 	abstract deleteNotConfirmedUsers(): Promise<void>;
+	abstract applyPaymentSucceeded(dto: PaymentSucceededInput): Promise<{ premiumExpDate: string }>;
 }

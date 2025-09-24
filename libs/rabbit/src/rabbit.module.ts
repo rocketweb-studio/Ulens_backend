@@ -22,7 +22,11 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 			// Канал RabbitMQ (используется для publish/consume)
 			provide: "RMQ_CHANNEL",
 			useFactory: async (conn: amqp.Connection) => {
-				const ch = await (conn as any).createChannel(); // todo type fix
+				/* Этот тип канала заменили на createConfirmChannel потому, что он дает возможность подтверждать и гарантировать
+					доставку сообщений. При этом методы, которые были написаны без требований подтверждения работают как обычно */
+				// const ch = await (conn as any).createChannel();
+
+				const ch = await (conn as any).createConfirmChannel();
 
 				// Создаём основной exchange для бизнес-событий.
 				// Тип = "topic" → поддерживает гибкую маршрутизацию по ключам (например, "order.created", "payment.failed").

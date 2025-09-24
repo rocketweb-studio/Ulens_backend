@@ -108,6 +108,15 @@ export class WebhookStripeService {
 			expiresAt: expiresAt,
 		});
 
+		// создаем событие в таблице outboxEvents
+		await this.transactionService.createOutboxTransactionEvent({
+			sessionId: session.id as string,
+			planId: +planId,
+			userId: userId as string,
+			provider: "STRIPE",
+			expiresAt: expiresAt,
+		});
+
 		// todo отправить юзеру письмо о подписке. пометить юзера в бд как премиум
 	}
 
@@ -154,6 +163,15 @@ export class WebhookStripeService {
 
 		// обновляем подписку в бд - продлеваем подписку
 		await this.subscriptionService.updateSubscription(currentSubscriptionFromDb.id, {
+			expiresAt: expiresAt,
+		});
+
+		// создаем событие в таблице outboxEvents
+		await this.transactionService.createOutboxTransactionEvent({
+			sessionId: session.id as string,
+			planId: +planId,
+			userId: userId as string,
+			provider: "STRIPE",
 			expiresAt: expiresAt,
 		});
 	}

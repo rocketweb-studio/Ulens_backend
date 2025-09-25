@@ -4,7 +4,7 @@ import * as sharp from "sharp";
 import { PassThrough } from "stream";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { randomUUID } from "crypto";
-import { ImageSizesDto } from "./dto/image-sizes.dto";
+import { ImageSizesDto } from "@libs/contracts/index";
 
 // TCP сервер для потоковой загрузки файлов
 export class StreamingServer {

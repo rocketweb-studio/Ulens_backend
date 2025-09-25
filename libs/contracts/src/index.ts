@@ -44,3 +44,4 @@ export * from "./payments-contracts/payment-constants";
 export * from "./auth-contracts/output/session.output.dto";
 export * from "./files-contracts/output/avatar-images.output.dto";
 export * from "./files-contracts/output/post-images.output.dto";
+export * from "./files-contracts/input/image-sizes.dto";

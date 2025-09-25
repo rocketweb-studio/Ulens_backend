@@ -1,9 +1,5 @@
 import { FilesSizes } from "@libs/constants/index";
-
-export class FileSizesDto {
-	type: FilesSizes;
-	width: string;
-}
+import { ImageSizesDto } from "@libs/contracts/index";
 
 export class FileUploadOptionsDto {
 	fieldName: string; // Имя поля в form-data (avatar, images, etc.)
@@ -11,7 +7,7 @@ export class FileUploadOptionsDto {
 	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
 	allowedTypes: string[]; // Разрешенные MIME типы
 	maxSize: number; // Максимальный размер файла в байтах
-	fileSizes: FileSizesDto[]; // Размеры файлов
+	fileSizes: ImageSizesDto[]; // Размеры файлов
 }
 
 export class FileUploadConfigs {

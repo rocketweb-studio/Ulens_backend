@@ -42,7 +42,7 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 	async savePostImages(data: any): Promise<boolean> {
 		const result = await this.prisma.post.createMany({
 			data: data.versions.map((version) => ({
-				parentId: data.userId,
+				parentId: data.postId,
 				url: version.url,
 				width: version.width,
 				height: version.height,

@@ -114,7 +114,6 @@ export class PostsClientService {
 						width: img.width,
 						height: img.height,
 						fileSize: img.fileSize,
-						size: img.size,
 						createdAt: img.createdAt,
 						uploadId: img.id,
 					}))
@@ -126,7 +125,6 @@ export class PostsClientService {
 						width: img.width,
 						height: img.height,
 						fileSize: img.fileSize,
-						size: img.size,
 						createdAt: img.createdAt,
 						uploadId: img.id,
 					}))

@@ -19,8 +19,8 @@ export class FilesClientService {
 		return fileResult;
 	}
 
-	async savePostImagesToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<PostImagesOutputDto> {
-		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.POST_IMAGES_UPLOAD }, { userId, versions: uploadResult.versions }));
+	async savePostImagesToDB(postId: string, uploadResult: UploadFileOutputDto): Promise<PostImagesOutputDto> {
+		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.POST_IMAGES_UPLOAD }, { postId, versions: uploadResult.versions }));
 		return fileResult;
 	}
 

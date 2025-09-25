@@ -107,7 +107,7 @@ export class StreamingServer {
 	}
 
 	// Генерация имени файла с суффиксом размера
-	private generateFilename(folder: string, width: number): string {
+	private generateFilename(folder: string, width: string): string {
 		const uniqueId = randomUUID();
 
 		return `${folder}/${uniqueId}_${width}.webp`;
@@ -131,7 +131,7 @@ export class StreamingServer {
 
 			const transformers = imagesParams.map((fs, index) => {
 				return sharp()
-					.resize(fs.width)
+					.resize(Number(fs.width))
 					.webp()
 					.on("info", (info) => {
 						console.log(`[SHARP-${fs.width}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
@@ -217,7 +217,7 @@ export class StreamingServer {
 				success: true,
 				versions: imagesParams.map((fs, index) => ({
 					url: fileNames[index],
-					width: fs.width,
+					width: Number(fs.width),
 					height: fs.height,
 					fileSize: imagesParams[index].fileSize,
 					size: fs.size,

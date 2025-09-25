@@ -1,12 +1,17 @@
 import { FilesSizes } from "@libs/constants/index";
 
+export class FileSizesDto {
+	type: FilesSizes;
+	width: string;
+}
+
 export class FileUploadOptionsDto {
 	fieldName: string; // Имя поля в form-data (avatar, images, etc.)
 	folder: string; // Папка для сохранения в s3
 	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
 	allowedTypes: string[]; // Разрешенные MIME типы
 	maxSize: number; // Максимальный размер файла в байтах
-	fileSizes: { type: FilesSizes; width: number }[]; // Размеры файлов
+	fileSizes: FileSizesDto[]; // Размеры файлов
 }
 
 export class FileUploadConfigs {
@@ -17,8 +22,8 @@ export class FileUploadConfigs {
 		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 10 * 1024 * 1024, // 10MB
 		fileSizes: [
-			{ type: FilesSizes.SMALL, width: 45 },
-			{ type: FilesSizes.MEDIUM, width: 300 },
+			{ type: FilesSizes.SMALL, width: "45" },
+			{ type: FilesSizes.MEDIUM, width: "300" },
 		],
 	};
 
@@ -29,8 +34,8 @@ export class FileUploadConfigs {
 		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 5 * 1024 * 1024, // 20MB
 		fileSizes: [
-			{ type: FilesSizes.SMALL, width: 230 },
-			{ type: FilesSizes.MEDIUM, width: 512 },
+			{ type: FilesSizes.SMALL, width: "230" },
+			{ type: FilesSizes.MEDIUM, width: "512" },
 		],
 	};
 }

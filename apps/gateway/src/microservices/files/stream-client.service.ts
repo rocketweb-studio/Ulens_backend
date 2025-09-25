@@ -4,8 +4,7 @@ import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/uplo
 import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
 import * as busboy from "busboy";
 import { Request } from "express";
-import { FileUploadOptionsDto } from "@gateway/microservices/files/upload-config/file-upload-configs";
-import { FilesSizes } from "@libs/constants/index";
+import { FileSizesDto, FileUploadOptionsDto } from "@gateway/microservices/files/upload-config/file-upload-configs";
 
 // Интерфейс для результата загрузки
 interface StreamUploadResult {
@@ -126,7 +125,7 @@ export class StreamClientService {
 		filename: string,
 		folder: string,
 		mimeType: string,
-		fileSizes: { type: FilesSizes; size: string }[],
+		fileSizes: FileSizesDto[],
 	): Promise<UploadFileOutputDto> {
 		return new Promise((resolve, reject) => {
 			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientStreamingHost);

@@ -1,4 +1,4 @@
-import { ImageOutputDto } from "@libs/contracts/index";
+import { PostImagesOutputDto } from "@libs/contracts/index";
 import { applyDecorators } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiParam, ApiResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
@@ -33,7 +33,7 @@ export const UploadPostImagesSwagger = () => {
 		}),
 		ApiCreatedResponse({
 			description: "Post images uploaded successfully",
-			type: [ImageOutputDto],
+			type: PostImagesOutputDto,
 		}),
 		ApiResponse({
 			status: 400,

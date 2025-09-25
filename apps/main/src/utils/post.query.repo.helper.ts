@@ -67,16 +67,17 @@ export class PostQueryHelper {
 	 * - items      — маппим даты в ISO
 	 * - pageInfo   — курсор последнего элемента текущей страницы + флаг "есть ещё"
 	 */
-	buildPage(totalCount: number, pageSize: number, rows: Row[]): UserPostsPageDto {
+	buildPage(totalCount: number, pageSize: number, rows: Row[], userId: string): UserPostsPageDto {
 		const endCursor = rows.length ? rows[rows.length - 1].id : undefined;
 		return {
 			totalCount,
 			pageSize,
 			items: rows.map((r) => ({
 				id: r.id,
+				userId,
 				description: r.description,
-				createdAt: r.createdAt.toISOString(),
-				updatedAt: r.updatedAt.toISOString(),
+				createdAt: r.createdAt,
+				updatedAt: r.updatedAt,
 			})),
 			pageInfo: {
 				endCursorPostId: endCursor,

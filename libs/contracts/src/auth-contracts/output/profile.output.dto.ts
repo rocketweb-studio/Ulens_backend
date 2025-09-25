@@ -1,11 +1,4 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-enum FilesSizes {
-	SMALL = "small",
-	MEDIUM = "medium",
-	LARGE = "large",
-}
-
 export class ProfileOutputDto {
 	@ApiProperty({ description: "User name", example: "JohnDoe" })
 	userName: string;
@@ -38,15 +31,26 @@ export class AvatarOutputDto {
 	height: number;
 	@ApiProperty({ description: "File size", example: 300 })
 	fileSize: number;
-	@ApiProperty({ description: "Size", example: "small", enum: FilesSizes, enumName: "FilesSizes" })
-	size: FilesSizes;
 	@ApiProperty({ description: "Created at", example: "2021-01-01T00:00:00.000Z" })
 	createdAt: Date;
 }
 
+class ImageOutputDto {
+	@ApiProperty({
+		description: "Small avatar",
+		type: AvatarOutputDto,
+	})
+	small: AvatarOutputDto | null;
+	@ApiProperty({
+		description: "Medium avatar",
+		type: AvatarOutputDto,
+	})
+	medium: AvatarOutputDto | null;
+}
+
 export class ProfileOutputWithAvatarDto extends ProfileOutputDto {
-	@ApiProperty({ description: "Avatars", type: [AvatarOutputDto] })
-	avatars: AvatarOutputDto[];
+	@ApiProperty({ description: "Avatars", type: ImageOutputDto })
+	avatars: ImageOutputDto;
 	@ApiProperty({ description: "Publications count", example: 10 })
 	publicationsCount: number;
 	@ApiProperty({ description: "Followers count", example: 10 })

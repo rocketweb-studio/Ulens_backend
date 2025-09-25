@@ -107,39 +107,39 @@ export class StreamingServer {
 	}
 
 	// Генерация имени файла с суффиксом размера
-	private generateFilename(folder: string, size: string): string {
+	private generateFilename(folder: string, width: number): string {
 		const uniqueId = randomUUID();
 
-		return `${folder}/${uniqueId}_${size}.webp`;
+		return `${folder}/${uniqueId}_${width}.webp`;
 	}
 
 	// Обработка потока файла после получения заголовка
 	private async processStream(socket: net.Socket, folder: string, imageSizes: ImageSizesDto[], expectedSize?: number, firstChunk?: Buffer) {
 		try {
 			// Генерируем имена файлов для разных размеров
-			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size.size));
+			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size.width));
 
 			const imagesParams = imageSizes.map((fs) => ({
-				width: Number(fs.size.split("x")[0]),
-				height: Number(fs.size.split("x")[1]),
+				width: fs.width,
+				height: 0,
 				name: fs,
 				fileSize: 0,
 				size: fs.type,
 			}));
-			// const fileSizes = imageSizes.map(fs => ({ [fs]: 0 }));
 
 			console.log(`[PROCESS] Start processing file stream: ${fileNames.join(", ")}`);
 
 			const transformers = imagesParams.map((fs, index) => {
 				return sharp()
-					.resize(fs.width, fs.height)
+					.resize(fs.width)
 					.webp()
 					.on("info", (info) => {
-						console.log(`[SHARP-${fs.width}x${fs.height}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+						console.log(`[SHARP-${fs.width}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
 						imagesParams[index].fileSize = info.size;
+						imagesParams[index].height = info.height;
 					})
 					.on("error", (err) => {
-						console.error(`[SHARP-${fs.width}x${fs.height}] Error:`, err);
+						console.error(`[SHARP-${fs.width}] Error:`, err);
 					});
 			});
 

@@ -6,7 +6,7 @@ export class FileUploadOptionsDto {
 	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
 	allowedTypes: string[]; // Разрешенные MIME типы
 	maxSize: number; // Максимальный размер файла в байтах
-	fileSizes: { type: FilesSizes; size: string }[]; // Размеры файлов
+	fileSizes: { type: FilesSizes; width: number }[]; // Размеры файлов
 }
 
 export class FileUploadConfigs {
@@ -17,8 +17,8 @@ export class FileUploadConfigs {
 		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 10 * 1024 * 1024, // 10MB
 		fileSizes: [
-			{ type: FilesSizes.SMALL, size: "45x45" },
-			{ type: FilesSizes.MEDIUM, size: "300x300" },
+			{ type: FilesSizes.SMALL, width: 45 },
+			{ type: FilesSizes.MEDIUM, width: 300 },
 		],
 	};
 
@@ -29,8 +29,8 @@ export class FileUploadConfigs {
 		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 5 * 1024 * 1024, // 20MB
 		fileSizes: [
-			{ type: FilesSizes.SMALL, size: "234x228" },
-			{ type: FilesSizes.MEDIUM, size: "512x512" },
+			{ type: FilesSizes.SMALL, width: 230 },
+			{ type: FilesSizes.MEDIUM, width: 512 },
 		],
 	};
 }

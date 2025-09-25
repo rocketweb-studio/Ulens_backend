@@ -24,7 +24,6 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 				parentId: postId,
 			},
 		});
-		console.log(postImages.length);
 		return this._mapPostImagesToViewDto(postImages);
 	}
 

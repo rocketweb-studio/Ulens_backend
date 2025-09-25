@@ -1,41 +1,41 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@files/core/prisma/prisma.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
-import { Avatar } from "@files/core/prisma/generated/client";
-import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
+import { Avatar, Post } from "@files/core/prisma/generated/client";
+import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 import { FilesSizes } from "@libs/constants/files.constants";
 
 @Injectable()
 export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async findAvatarByUserId(userId: string): Promise<ImageOutputDto[]> {
+	async findAvatarByUserId(userId: string): Promise<AvatarImagesOutputDto> {
 		const avatars = await this.prisma.avatar.findMany({
 			where: {
 				parentId: userId,
 			},
 		});
-		return avatars.map((avatar) => this._mapAvatarToViewDto(avatar));
+		return this._mapAvatarsToViewDto(avatars);
 	}
 
-	async findPostImagesByPostId(postId: string): Promise<ImageOutputDto[]> {
+	async findPostImagesByPostId(postId: string): Promise<PostImagesOutputDto> {
 		const postImages = await this.prisma.post.findMany({
 			where: {
 				parentId: postId,
 			},
 		});
-		return postImages.map((postImage) => this._mapAvatarToViewDto(postImage));
+		return this._mapPostImagesToViewDto(postImages);
 	}
 
-	async getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]> {
+	async getAvatarsByUserId(userId: string): Promise<AvatarImagesOutputDto> {
 		const avatars = await this.prisma.avatar.findMany({
 			where: { parentId: userId },
 		});
 
-		return avatars.map((avatar) => this._mapAvatarToViewDto(avatar));
+		return this._mapAvatarsToViewDto(avatars);
 	}
 
-	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]> {
+	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputForMapDto[]> {
 		const postImages = await this.prisma.post.findMany({
 			where: { parentId: { in: postIds }, deletedAt: null },
 			orderBy: [{ createdAt: "desc" }],
@@ -53,15 +53,55 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return postImages;
 	}
 
-	private _mapAvatarToViewDto(avatar: Avatar): ImageOutputDto {
+	private _mapAvatarsToViewDto(avatars: Avatar[]): AvatarImagesOutputDto {
 		return {
-			url: avatar.url,
-			width: avatar.width,
-			height: avatar.height,
-			fileSize: avatar.fileSize,
-			createdAt: avatar.createdAt,
-			size: avatar.size as FilesSizes,
-			uploadId: avatar.id,
+			small:
+				avatars
+					.filter((avatar) => avatar.size === FilesSizes.SMALL)
+					.map((avatar) => ({
+						url: avatar.url,
+						width: avatar.width,
+						height: avatar.height,
+						fileSize: avatar.fileSize,
+						createdAt: avatar.createdAt,
+						uploadId: avatar.id,
+					}))[0] || null,
+			medium:
+				avatars
+					.filter((avatar) => avatar.size === FilesSizes.MEDIUM)
+					.map((avatar) => ({
+						url: avatar.url,
+						width: avatar.width,
+						height: avatar.height,
+						fileSize: avatar.fileSize,
+						createdAt: avatar.createdAt,
+						uploadId: avatar.id,
+					}))[0] || null,
+		};
+	}
+
+	private _mapPostImagesToViewDto(postImages: Post[]): PostImagesOutputDto {
+		return {
+			small: postImages
+				.filter((postImage) => postImage.size === FilesSizes.SMALL)
+				.map((postImage) => ({
+					url: postImage.url,
+					width: postImage.width,
+					height: postImage.height,
+					fileSize: postImage.fileSize,
+					createdAt: postImage.createdAt,
+					uploadId: postImage.id,
+				})),
+			medium: postImages
+				.filter((postImage) => postImage.size === FilesSizes.MEDIUM)
+				.map((postImage) => ({
+					url: postImage.url,
+					width: postImage.width,
+					height: postImage.height,
+					fileSize: postImage.fileSize,
+					createdAt: postImage.createdAt,
+					uploadId: postImage.id,
+				})),
 		};
 	}
 }

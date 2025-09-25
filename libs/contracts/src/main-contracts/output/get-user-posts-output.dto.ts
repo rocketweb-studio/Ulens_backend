@@ -3,9 +3,10 @@ export class UserPostsPageDto {
 	pageSize: number;
 	items: {
 		id: string;
+		userId: string;
 		description: string;
-		createdAt: string; // ISO
-		updatedAt: string; // ISO
+		createdAt: Date; // ISO
+		updatedAt: Date; // ISO
 	}[];
 	pageInfo: {
 		endCursorPostId?: string;

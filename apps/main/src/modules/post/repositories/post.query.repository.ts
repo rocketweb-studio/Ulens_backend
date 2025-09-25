@@ -28,7 +28,7 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// 1.Первая страница, если курсор не передан
 		if (!dto.endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
 		}
 
 		// 2. Находим курсор (запись, на которой остановились)
@@ -36,12 +36,12 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// Если курсор невалиден (нет такой записи / чужой пост / уже удалён) — возвращаем как первую страницу
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
 		}
 
 		// 3. Получаем "следующую страницу" после курсора
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor(baseWhere, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows);
+		return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
 	}
 
 	async getPostById(id: string): Promise<PostDbOutputDto | null> {

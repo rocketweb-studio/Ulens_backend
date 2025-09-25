@@ -1,10 +1,79 @@
-export class PostImagesOutputDto {
+import { ApiProperty } from "@nestjs/swagger";
+
+class SmallImageOutputDto {
+	@ApiProperty({
+		description: "Image URL",
+		example: "bucket/image.webp",
+	})
 	url: string;
+	@ApiProperty({
+		description: "Image width",
+		example: 192,
+	})
 	width: number;
+	@ApiProperty({
+		description: "Image height",
+		example: 192,
+	})
 	height: number;
+	@ApiProperty({
+		description: "Image file size",
+		example: 100000,
+	})
 	fileSize: number;
+	@ApiProperty({
+		description: "Image created at",
+		example: "2021-01-01T00:00:00.000Z",
+	})
 	createdAt: Date;
-	id: string;
-	parentId: string;
-	size: any;
+	@ApiProperty({
+		description: "Image upload ID",
+		example: "123e4567-e89b-12d3-a456-426614174000",
+	})
+	uploadId: string;
+}
+
+class MediumImageOutputDto {
+	@ApiProperty({
+		description: "Image URL",
+		example: "bucket/image.webp",
+	})
+	url: string;
+	@ApiProperty({
+		description: "Image width",
+		example: 512,
+	})
+	width: number;
+	@ApiProperty({
+		description: "Image height",
+		example: 512,
+	})
+	height: number;
+	@ApiProperty({
+		description: "Image file size",
+		example: 300000,
+	})
+	fileSize: number;
+	@ApiProperty({
+		description: "Image created at",
+		example: "2021-01-01T00:00:00.000Z",
+	})
+	createdAt: Date;
+	@ApiProperty({
+		description: "Image upload ID",
+		example: "123e4567-e89b-12d3-a456-426614174000",
+	})
+	uploadId: string;
+}
+export class PostImagesOutputDto {
+	@ApiProperty({
+		description: "Small images",
+		type: [SmallImageOutputDto],
+	})
+	small: SmallImageOutputDto[];
+	@ApiProperty({
+		description: "Medium images",
+		type: [MediumImageOutputDto],
+	})
+	medium: MediumImageOutputDto[];
 }

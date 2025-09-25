@@ -1,5 +1,5 @@
 import { AvatarInputDto } from "./dto/avatar.input.dto";
-import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -7,10 +7,10 @@ import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
  */
 
 export abstract class IFilesQueryRepository {
-	abstract findAvatarByUserId(userId: string): Promise<ImageOutputDto[]>;
-	abstract findPostImagesByPostId(postId: string): Promise<ImageOutputDto[]>;
-	abstract getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]>;
-	abstract getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputDto[]>;
+	abstract findAvatarByUserId(userId: string): Promise<AvatarImagesOutputDto>;
+	abstract findPostImagesByPostId(postId: string): Promise<PostImagesOutputDto>;
+	abstract getAvatarsByUserId(userId: string): Promise<AvatarImagesOutputDto>;
+	abstract getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputForMapDto[]>;
 }
 
 export abstract class IFilesCommandRepository {

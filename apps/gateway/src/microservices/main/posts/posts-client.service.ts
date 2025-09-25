@@ -11,13 +11,13 @@ import {
 	CreatePostOutputDto,
 	GetUserPostsQueryDto,
 	PostDbOutputDto,
-	PostImagesOutputDto,
+	PostImagesOutputForMapDto,
 	ProfileOutputWithAvatarDto,
 	UpdatePostDto,
 } from "@libs/contracts/index";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
-import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
+// import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 
@@ -31,6 +31,10 @@ export class PostsClientService {
 	) {}
 
 	async uploadPostImages(postId: string, req: Request): Promise<any> {
+		const postImagesIsExists = await this.filesClientService.getPostImages([postId]);
+		if (postImagesIsExists.length > 0) {
+			throw new BadRequestRpcException("Images already uploaded for this post");
+		}
 		const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.POST_IMAGES);
 
 		if (!uploadResult.success) {
@@ -40,7 +44,7 @@ export class PostsClientService {
 		// Сохраняем информацию о всех изображениях в БД
 		const dbResults = await Promise.all(uploadResult.files.map((file) => this.filesClientService.savePostImagesToDB(postId, file)));
 
-		return dbResults[0];
+		return dbResults[dbResults.length - 1];
 	}
 
 	async createPost(userId: string, description: string): Promise<CreatePostOutputDto> {
@@ -63,20 +67,36 @@ export class PostsClientService {
 		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(userId);
 		const postIds = toPostIdArray(posts);
 
-		const postsImages: PostImagesOutputDto[] = await this.filesClientService.getPostImages(postIds);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
 
-		return mapToUserPostsOutput(posts, profile, postsImages);
+		return {
+			totalCount: posts.totalCount,
+			pageSize: posts.pageSize,
+			items: posts.items.map((post) =>
+				this.buildPostOutput(
+					post,
+					profile,
+					postsImages.filter((img) => img.parentId === post.id),
+				),
+			),
+			pageInfo: {
+				endCursorPostId: posts.pageInfo.endCursorPostId,
+				hasNextPage: posts.pageInfo.hasNextPage,
+			},
+		};
+
+		// return mapToUserPostsOutput(posts, profile, postsImages);
 	}
 
 	async getPost(postId: string): Promise<PostOutputDto> {
 		const post = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST }, { postId }));
 		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(post.userId);
-		const postsImages: PostImagesOutputDto[] = await this.filesClientService.getPostImages([postId]);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages([postId]);
 
 		return this.buildPostOutput(post, profile, postsImages);
 	}
 
-	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputDto[]): PostOutputDto {
+	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputForMapDto[]): PostOutputDto {
 		return {
 			id: post.id,
 			userName: profile.userName,
@@ -86,20 +106,36 @@ export class PostsClientService {
 				country: profile.country,
 				region: profile.region,
 			},
-			images: (postImages ?? []).map((img) => ({
-				url: img.url,
-				width: img.width,
-				height: img.height,
-				fileSize: img.fileSize,
-				size: img.size,
-				// нормализация в string
-				createdAt: typeof img.createdAt === "string" ? img.createdAt : img.createdAt.toISOString(),
-				uploadId: img.id,
-			})),
+			images: {
+				small: postImages
+					.filter((img) => img.size === "small")
+					.map((img) => ({
+						url: img.url,
+						width: img.width,
+						height: img.height,
+						fileSize: img.fileSize,
+						size: img.size,
+						createdAt: img.createdAt,
+						uploadId: img.id,
+					}))
+					.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+				medium: postImages
+					.filter((img) => img.size === "medium")
+					.map((img) => ({
+						url: img.url,
+						width: img.width,
+						height: img.height,
+						fileSize: img.fileSize,
+						size: img.size,
+						createdAt: img.createdAt,
+						uploadId: img.id,
+					}))
+					.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+			},
 			createdAt: post.createdAt.toString(), //  ISO
 			updatedAt: post.updatedAt.toString(), //  ISO
 			ownerId: profile.id,
-			avatarOwner: profile.avatars.find((avatar) => avatar.width === 45)?.url ?? null,
+			avatarOwner: profile.avatars.small?.url || null,
 			owner: {
 				firstName: profile.firstName,
 				lastName: profile.lastName,

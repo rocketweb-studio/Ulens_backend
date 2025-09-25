@@ -5,7 +5,7 @@ import { Microservice } from "@libs/constants/microservices";
 import { Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { FilesMessages } from "@libs/constants/files-messages";
-import { ImageOutputDto, PostImagesOutputDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 
 /**
  * *Сервис отвечает за загрузку файлов в файловый сервис по основному nestjs порту для работы с MessgePattern
@@ -19,17 +19,17 @@ export class FilesClientService {
 		return fileResult;
 	}
 
-	async savePostImagesToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<any> {
+	async savePostImagesToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<PostImagesOutputDto> {
 		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.POST_IMAGES_UPLOAD }, { userId, versions: uploadResult.versions }));
 		return fileResult;
 	}
 
-	async getAvatarsByUserId(userId: string): Promise<ImageOutputDto[]> {
+	async getAvatarsByUserId(userId: string): Promise<AvatarImagesOutputDto | null> {
 		const avatars = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_AVATARS }, userId));
 		return avatars;
 	}
 
-	async getPostImages(postIds: string[]): Promise<PostImagesOutputDto[]> {
+	async getPostImages(postIds: string[]): Promise<PostImagesOutputForMapDto[]> {
 		const images = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_POST_IMAGES }, postIds));
 		return images;
 	}

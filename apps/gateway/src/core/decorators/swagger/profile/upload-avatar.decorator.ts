@@ -1,4 +1,4 @@
-import { ImageOutputDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto } from "@libs/contracts/index";
 import { applyDecorators } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiCreatedResponse, ApiOperation, ApiResponse, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
@@ -28,7 +28,7 @@ export const UploadAvatarSwagger = () => {
 		}),
 		ApiCreatedResponse({
 			description: "Avatar uploaded successfully",
-			type: [ImageOutputDto],
+			type: AvatarImagesOutputDto,
 		}),
 		ApiResponse({
 			status: 400,

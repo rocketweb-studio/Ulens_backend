@@ -14,6 +14,7 @@ import { GetUserPostsSwagger } from "@gateway/core/decorators/swagger/main/get-u
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ApiTags } from "@nestjs/swagger";
 import { GetPostSwagger } from "@gateway/core/decorators/swagger/main/get-post.decorator";
+import { GetLastPostsSwagger } from "@gateway/core/decorators/swagger/main/get-last-posts.decorator";
 
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
@@ -61,6 +62,13 @@ export class PostsClientController {
 	@HttpCode(HttpStatus.OK)
 	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
 		return await this.postsClientService.getUserPosts(userId, query);
+	}
+
+	@GetLastPostsSwagger()
+	@Get(MainRouterPaths.LAST_POSTS)
+	@HttpCode(HttpStatus.OK)
+	async getLastPosts(): Promise<PostOutputDto[]> {
+		return await this.postsClientService.getLastPosts();
 	}
 
 	@GetPostSwagger()

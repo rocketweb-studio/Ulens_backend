@@ -150,7 +150,7 @@ export class UserPostsOutputDto {
 	@ApiProperty({ example: 10 })
 	totalCount: number;
 
-	@ApiProperty({ example: 8 })
+	@ApiProperty({ example: 10 })
 	pageSize: number;
 
 	@ApiProperty({ type: [PostOutputDto] })

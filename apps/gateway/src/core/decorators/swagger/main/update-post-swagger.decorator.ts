@@ -27,7 +27,7 @@ export const UpdatePostSwagger = () => {
 		ApiNoContentResponse({ description: "The post has been successfully updated" }),
 		ApiResponse(BadRequestResponse),
 		ApiBearerAuth(),
-		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
+		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 		ApiForbiddenResponse({ description: "You are not allowed to update this post" }),
 		ApiNotFoundResponse({ description: "The post has not been found", type: DefaultErrorResponse }),
 	];

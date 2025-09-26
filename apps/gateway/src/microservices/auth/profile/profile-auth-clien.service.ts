@@ -22,12 +22,12 @@ export class ProfileAuthClientService {
 	async getProfile(userId: string): Promise<ProfileOutputWithAvatarDto> {
 		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId }));
 		const avatars = await this.filesClientService.getAvatarsByUserId(userId);
-		const posts = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, pageSize: 8 }));
+		const postsCount = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS_COUNT }, { userId }));
 
 		return {
 			...profile,
 			avatars,
-			publicationsCount: posts.totalCount,
+			publicationsCount: postsCount,
 			followers: 0,
 			following: 0,
 		};

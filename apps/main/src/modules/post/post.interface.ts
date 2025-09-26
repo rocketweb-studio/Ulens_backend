@@ -11,6 +11,8 @@ import { UserPostsPageDto } from "@libs/contracts/index";
 export abstract class IPostQueryRepository {
 	abstract getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto>;
 	abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
+	abstract getUserPostsCount(userId: string): Promise<number>;
+	abstract getLastPosts(pageSize: number): Promise<PostDbOutputDto[]>;
 }
 
 export abstract class IPostCommandRepository {

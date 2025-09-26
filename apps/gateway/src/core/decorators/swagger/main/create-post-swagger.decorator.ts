@@ -18,7 +18,7 @@ export const CreatePostSwagger = () => {
 		}),
 		ApiBearerAuth(),
 		ApiResponse(BadRequestResponse),
-		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
+		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];
 
 	return applyDecorators(...decorators);

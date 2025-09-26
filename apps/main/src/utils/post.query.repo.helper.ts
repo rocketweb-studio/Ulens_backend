@@ -5,9 +5,9 @@ import { PrismaService } from "@main/core/prisma/prisma.service";
 
 export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date };
 
-export const DEFAULT_PAGE_SIZE = 8;
+export const DEFAULT_PAGE_SIZE = 10;
 export const MIN_PAGE_SIZE = 1;
-export const MAX_PAGE_SIZE = 8;
+export const MAX_PAGE_SIZE = 10;
 
 export class PostQueryHelper {
 	constructor(private readonly prisma: PrismaService) {}
@@ -94,6 +94,7 @@ export class PostQueryHelper {
 	/* Защита на pageSize */
 	clampPageSize(raw?: number): number {
 		const v = raw ?? DEFAULT_PAGE_SIZE;
+		console.log(v);
 		return Math.min(Math.max(v, MIN_PAGE_SIZE), MAX_PAGE_SIZE);
 	}
 }

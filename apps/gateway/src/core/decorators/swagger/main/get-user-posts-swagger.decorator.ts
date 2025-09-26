@@ -12,12 +12,12 @@ export const GetUserPostsSwagger = () => {
 		ApiQuery({
 			name: "pageSize",
 			required: false,
-			description: "page size is number of items that should be returned (min: 1, max: 8)",
-			schema: { type: "integer", minimum: 1, maximum: 8, default: 8 },
+			description: "page size is number of items that should be returned (min: 1, max: 10)",
+			schema: { type: "integer", minimum: 1, maximum: 10, default: 10 },
 		}),
 		ApiOperation({ summary: "Get all posts by userId with pagination" }),
 		ApiOkResponse({ description: "Success", type: UserPostsOutputDto }),
-		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
+		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];
 
 	return applyDecorators(...decorators);

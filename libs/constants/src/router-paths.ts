@@ -35,6 +35,7 @@ export enum SessionRouterPaths {
 export enum MainRouterPaths {
 	POSTS = "posts",
 	IMAGES = ":postId/images",
+	LAST_POSTS = "last",
 }
 
 export enum RouteParams {

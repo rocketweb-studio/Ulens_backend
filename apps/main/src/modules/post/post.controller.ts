@@ -37,10 +37,20 @@ export class PostController {
 		return this.postQueryRepository.getUserPosts(dto);
 	}
 
+	@MessagePattern({ cmd: MainMessages.GET_USER_POSTS_COUNT })
+	async getUserPostsCount(@Payload() dto: { userId: string }): Promise<number> {
+		return this.postQueryRepository.getUserPostsCount(dto.userId);
+	}
+
 	@MessagePattern({ cmd: MainMessages.GET_POST })
 	async getPost(@Payload() dto: { postId: string }): Promise<PostDbOutputDto> {
 		const post = await this.postQueryRepository.getPostById(dto.postId);
 		if (!post) throw new NotFoundRpcException("Post not found");
 		return post;
+	}
+
+	@MessagePattern({ cmd: MainMessages.GET_LAST_POSTS })
+	async getLastPosts(@Payload() dto: { pageSize: number }): Promise<PostDbOutputDto[]> {
+		return this.postQueryRepository.getLastPosts(dto.pageSize);
 	}
 }

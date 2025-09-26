@@ -1,7 +1,7 @@
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 import { Inject, Injectable } from "@nestjs/common";
 import { FileUploadConfigs } from "@gateway/microservices/files/upload-config/file-upload-configs";
-import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
+import { BadRequestRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { StreamClientService } from "@gateway/microservices/files/stream-client.service";
 import { Request } from "express";
 import { firstValueFrom } from "rxjs";
@@ -94,6 +94,26 @@ export class PostsClientService {
 		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages([postId]);
 
 		return this.buildPostOutput(post, profile, postsImages);
+	}
+
+	async getLastPosts(): Promise<PostOutputDto[]> {
+		const posts: PostDbOutputDto[] = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_LAST_POSTS }, { pageSize: 5 }));
+
+		const profiles = await Promise.all(posts.map((post) => this.profileClientService.getProfile(post.userId)));
+		const postIds = posts.map((post) => post.id);
+		const postsImages = await this.filesClientService.getPostImages(postIds);
+
+		return posts.map((post) => {
+			const profile = profiles.find((p) => p.id === post.userId);
+			if (!profile) {
+				throw new NotFoundRpcException(`Profile not found for user ${post.userId}`);
+			}
+			return this.buildPostOutput(
+				post,
+				profile,
+				postsImages.filter((img) => img.parentId === post.id),
+			);
+		});
 	}
 
 	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputForMapDto[]): PostOutputDto {

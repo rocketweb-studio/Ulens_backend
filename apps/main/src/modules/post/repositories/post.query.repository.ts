@@ -24,7 +24,6 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 	async getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto> {
 		const pageSize = this.helpers.clampPageSize(dto.pageSize);
 		const baseWhere = this.helpers.buildBaseWhere(dto.userId);
-
 		// 1.Первая страница, если курсор не передан
 		if (!dto.endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
@@ -49,6 +48,22 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 			where: { id },
 		});
 		return post ? this._mapToView(post) : null;
+	}
+
+	async getUserPostsCount(userId: string): Promise<number> {
+		const count = await this.prisma.post.count({
+			where: { userId, deletedAt: null },
+		});
+		return count;
+	}
+
+	async getLastPosts(pageSize: number): Promise<PostDbOutputDto[]> {
+		const posts = await this.prisma.post.findMany({
+			where: { deletedAt: null },
+			orderBy: { createdAt: "desc" },
+			take: pageSize,
+		});
+		return posts.map((post) => this._mapToView(post));
 	}
 
 	private _mapToView(post: Post): PostDbOutputDto {

@@ -31,7 +31,7 @@ export class FileUploadConfigs {
 		maxSize: 20 * 1024 * 1024, // 20MB
 		fileSizes: [
 			{ type: FilesSizes.SMALL, width: "230" },
-			{ type: FilesSizes.MEDIUM, width: "512" },
+			{ type: FilesSizes.MEDIUM, width: "1024" },
 		],
 	};
 }

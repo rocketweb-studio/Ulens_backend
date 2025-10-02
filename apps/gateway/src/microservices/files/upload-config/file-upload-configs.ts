@@ -28,7 +28,7 @@ export class FileUploadConfigs {
 		folder: "posts",
 		maxFiles: 10,
 		allowedTypes: ["image/jpeg", "image/png"],
-		maxSize: 5 * 1024 * 1024, // 20MB
+		maxSize: 20 * 1024 * 1024, // 20MB
 		fileSizes: [
 			{ type: FilesSizes.SMALL, width: "230" },
 			{ type: FilesSizes.MEDIUM, width: "512" },

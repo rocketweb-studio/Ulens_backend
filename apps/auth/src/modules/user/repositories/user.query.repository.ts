@@ -72,10 +72,12 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 	}
 
 	private _mapToView(user: UserWithProfile): MeUserViewDto {
+		const isPremium = (user.premiumExpDate && user.premiumExpDate > new Date()) || false;
 		return {
 			id: user.id,
 			userName: user.profile?.userName || "",
 			email: user.email,
+			isPremium: isPremium,
 		};
 	}
 

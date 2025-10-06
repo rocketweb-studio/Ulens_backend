@@ -2,15 +2,15 @@ import { MeUserViewDto, PaymentInputDto, PaymentProvidersEnum } from "@libs/cont
 import { Injectable } from "@nestjs/common";
 import { StripeService } from "@payments/core/stripe/stripe.service";
 import { PaymentOutputDto } from "@libs/contracts/index";
-import { ITransactionCommandRepository } from "./transaction.interface";
-import { UpdateTransactionDto } from "./dto/update-transaction.dto";
+import { ITransactionCommandRepository } from "@payments/modules/transaction/transaction.interface";
+import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
 import { BadRequestRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
-import { SubscriptionService } from "../subscription/subscription.service";
-import { CreateTransactionDto } from "./dto/create-transaction.dto";
+import { SubscriptionService } from "@payments/modules/subscription/subscription.service";
+import { CreateTransactionDto } from "@payments/modules/transaction/dto/create-transaction.dto";
 import { PayPalService } from "@payments/core/paypal/paypal.service";
 import Stripe from "stripe";
 import { Cron, CronExpression } from "@nestjs/schedule";
-import { CreateOutBoxTransactionEventDto } from "./dto/create-outbox-transaction-event.dto";
+import { PremiumActivatedInput } from "@payments/modules/transaction/dto/permium-activated.input.dto";
 
 @Injectable()
 export class TransactionService {
@@ -93,9 +93,8 @@ export class TransactionService {
 		return transaction;
 	}
 
-	async createOutboxTransactionEvent(dto: CreateOutBoxTransactionEventDto): Promise<string> {
-		const createdOutboxTransactionEvent = await this.transactionCommandRepository.createOutboxTransactionEvent(dto);
-		return createdOutboxTransactionEvent;
+	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
+		await this.transactionCommandRepository.finalizeAfterPremiumActivated(input);
 	}
 
 	// крон для изменения статуса транзакций на expired, если не произвели оплату

@@ -33,6 +33,7 @@ import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { RedisService } from "@libs/redis/redis.service";
+import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
 
 @Injectable()
 export class UserService {
@@ -249,6 +250,10 @@ export class UserService {
 	async logout(dto: RefreshDecodedDto): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
+	}
+
+	async activatePremiumStatus(payload: PremiumInputDto) {
+		return this.userCommandRepository.activatePremiumStatus(payload);
 	}
 
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)

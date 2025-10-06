@@ -49,8 +49,8 @@ export class PostController {
 		return post;
 	}
 
-	@MessagePattern({ cmd: MainMessages.GET_LAST_POSTS })
-	async getLastPosts(@Payload() dto: { pageSize: number }): Promise<PostDbOutputDto[]> {
-		return this.postQueryRepository.getLastPosts(dto.pageSize);
+	@MessagePattern({ cmd: MainMessages.GET_LATEST_POSTS })
+	async getLatestPosts(@Payload() dto: { pageSize: number }): Promise<PostDbOutputDto[]> {
+		return this.postQueryRepository.getLatestPosts(dto.pageSize);
 	}
 }

@@ -1,18 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-enum PaymentIntervalEnum {
-	MONTH = "month",
-	WEEK = "week",
-	DAY = "day",
-	YEAR = "year",
-}
-
-enum CurrencyEnum {
-	USD = "usd",
-	EUR = "eur",
-	BYN = "byn",
-	RUB = "rub",
-}
+import { PaymentIntervalEnum } from "@libs/contracts/payments-contracts/payment-constants";
+import { CurrencyEnum } from "@libs/contracts/payments-contracts/payment-constants";
 
 export class PlanOutputDto {
 	@ApiProperty({ description: "Id of the plan", example: 1 })

@@ -1,6 +1,8 @@
 import { Global, Module, OnModuleDestroy, Optional } from "@nestjs/common";
 import * as amqp from "amqplib";
 import { ConfigModule, ConfigService } from "@nestjs/config";
+import { RabbitExchanges, RMQ_CONNECTION } from "@libs/rabbit/rabbit.constants";
+import { RMQ_CHANNEL } from "@libs/rabbit/rabbit.constants";
 
 @Global() // модуль глобальный - доступен во всех сервисах без доп. импортов
 @Module({
@@ -8,7 +10,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 	providers: [
 		{
 			// Подключение к RabbitMQ (одно соединение на всё приложение)
-			provide: "RMQ_CONNECTION",
+			provide: RMQ_CONNECTION,
 			useFactory: async (configService: ConfigService) => {
 				const url = configService.getOrThrow<string>("RMQ_URL");
 				const conn = await amqp.connect(url);
@@ -20,7 +22,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 		},
 		{
 			// Канал RabbitMQ (используется для publish/consume)
-			provide: "RMQ_CHANNEL",
+			provide: RMQ_CHANNEL,
 			useFactory: async (conn: amqp.Connection) => {
 				/* Этот тип канала заменили на createConfirmChannel потому, что он дает возможность подтверждать и гарантировать
 					доставку сообщений. При этом методы, которые были написаны без требований подтверждения работают как обычно */
@@ -31,7 +33,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 				// Создаём основной exchange для бизнес-событий.
 				// Тип = "topic" → поддерживает гибкую маршрутизацию по ключам (например, "order.created", "payment.failed").
 				// durable: true → exchange сохраняется при рестарте брокера.
-				await ch.assertExchange("app.events", "topic", { durable: true });
+				await ch.assertExchange(RabbitExchanges.APP_EVENTS, "topic", { durable: true });
 
 				// Создаём отдельный exchange для "dead-letter" (DLX).
 				// DLQ = безопасный буфер для сообщений, которые не смогли пройти обычную обработку.
@@ -39,7 +41,7 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 				//   - не удалось обработать (nack/reject без requeue),
 				//   - или протухли (TTL истёк в retry-очереди).
 				// durable: true → сохраняется при рестарте.
-				await ch.assertExchange("app.dlx", "topic", { durable: true });
+				await ch.assertExchange(RabbitExchanges.APP_DLX, "topic", { durable: true });
 
 				// prefetch(50) = лимит сообщений на одного консьюмера.
 				// RabbitMQ отдаст максимум 50 сообщений одновременно одному обработчику.
@@ -49,10 +51,10 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 
 				return ch;
 			},
-			inject: ["RMQ_CONNECTION"],
+			inject: [RMQ_CONNECTION],
 		},
 	],
-	exports: ["RMQ_CONNECTION", "RMQ_CHANNEL"], // экспортируем, чтобы использовать в сервисах
+	exports: [RMQ_CONNECTION, RMQ_CHANNEL], // экспортируем, чтобы использовать в сервисах
 })
 export class RabbitModule implements OnModuleDestroy {
 	constructor(

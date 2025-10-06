@@ -6,7 +6,6 @@
 import { PaymentProvidersEnum, TransactionOutputDto } from "@libs/contracts/index";
 import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
 import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { CreateOutBoxTransactionEventDto } from "./dto/create-outbox-transaction-event.dto";
 import { PremiumActivatedInput } from "./dto/permium-activated.input.dto";
 
 export abstract class ITransactionQueryRepository {
@@ -18,6 +17,5 @@ export abstract class ITransactionCommandRepository {
 	abstract updateTransaction(id: string | number, provider: PaymentProvidersEnum, data: Partial<UpdateTransactionDto>): Promise<boolean>;
 	abstract findTransactionById(id: number): Promise<any>;
 	abstract changeStatusOfExpiredTransactions(): Promise<void>;
-	abstract createOutboxTransactionEvent(dto: CreateOutBoxTransactionEventDto): Promise<string>;
 	abstract finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void>;
 }

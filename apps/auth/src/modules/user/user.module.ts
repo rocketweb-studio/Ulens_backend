@@ -9,6 +9,7 @@ import { UserEnvConfig } from "@auth/modules/user/user.config";
 import { JwtModule } from "@nestjs/jwt";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
+import { EventStoreModule } from "@auth/modules/event-store/event-store.module";
 
 /**
  * { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository}
@@ -29,6 +30,7 @@ import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 			inject: [UserEnvConfig],
 			extraProviders: [UserEnvConfig],
 		}),
+		EventStoreModule,
 	],
 	controllers: [UserController],
 	providers: [

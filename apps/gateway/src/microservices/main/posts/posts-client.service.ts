@@ -96,8 +96,8 @@ export class PostsClientService {
 		return this.buildPostOutput(post, profile, postsImages);
 	}
 
-	async getLastPosts(): Promise<PostOutputDto[]> {
-		const posts: PostDbOutputDto[] = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_LAST_POSTS }, { pageSize: 5 }));
+	async getLatestPosts(): Promise<PostOutputDto[]> {
+		const posts: PostDbOutputDto[] = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_LATEST_POSTS }, { pageSize: 5 }));
 
 		const profiles = await Promise.all(posts.map((post) => this.profileClientService.getProfile(post.userId)));
 		const postIds = posts.map((post) => post.id);

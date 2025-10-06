@@ -4,7 +4,7 @@ export enum RouterPrefix {
 
 export enum AuthRouterPaths {
 	AUTH = "auth",
-	USERS = "users",
+	USERS_COUNT = "users-count",
 	SUBSCRIPTIONS = "subscriptions",
 	REGISTRATION = "registration",
 	REGISTRATION_CONFIRMATION = "registration-confirmation",
@@ -35,7 +35,7 @@ export enum SessionRouterPaths {
 export enum MainRouterPaths {
 	POSTS = "posts",
 	IMAGES = ":postId/images",
-	LAST_POSTS = "last",
+	LATEST_POSTS = "latest",
 }
 
 export enum RouteParams {

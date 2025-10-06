@@ -7,8 +7,8 @@ import Stripe from "stripe";
 import { PrismaModule } from "@payments/core/prisma/prisma.module";
 import { PayPalModule } from "./paypal/paypal.module";
 import { RabbitModule } from "@libs/rabbit/index";
-import { RabbitPaymentsConsumer } from "./rabbit/outbox-consumer.rabbit.service";
-import { TransactionModule } from "../modules/transaction/transaction.module";
+import { TransactionModule } from "@payments/modules/transaction/transaction.module";
+import { ScheduleModule } from "@nestjs/schedule";
 
 @Module({
 	imports: [
@@ -25,10 +25,11 @@ import { TransactionModule } from "../modules/transaction/transaction.module";
 		PayPalModule,
 		PrismaModule,
 		RabbitModule,
+		ScheduleModule.forRoot(),
 		forwardRef(() => TransactionModule),
 	],
 	controllers: [],
-	providers: [CoreEnvConfig, RabbitPaymentsConsumer],
+	providers: [CoreEnvConfig],
 	exports: [CoreEnvConfig],
 })
 export class CoreModule {}

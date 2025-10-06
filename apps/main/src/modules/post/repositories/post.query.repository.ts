@@ -57,7 +57,7 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		return count;
 	}
 
-	async getLastPosts(pageSize: number): Promise<PostDbOutputDto[]> {
+	async getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]> {
 		const posts = await this.prisma.post.findMany({
 			where: { deletedAt: null },
 			orderBy: { createdAt: "desc" },

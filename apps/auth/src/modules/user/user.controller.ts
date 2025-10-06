@@ -11,6 +11,7 @@ import {
 	RegistrationGoogleOutputDto,
 	MeUserViewDto,
 	UserConfirmationOutputDto,
+	UsersCountOutputDto,
 } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
@@ -101,10 +102,9 @@ export class UserController {
 		return response;
 	}
 
-	@MessagePattern({ cmd: AuthMessages.GET_USERS })
-	async getUsers(): Promise<MeUserViewDto[]> {
-		const response = await this.userQueryRepository.getUsers();
-		return response;
+	@MessagePattern({ cmd: AuthMessages.GET_USERS_COUNT })
+	async getUsersCount(): Promise<UsersCountOutputDto> {
+		return await this.userQueryRepository.getUsersCount();
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILE_FOR_POSTS })

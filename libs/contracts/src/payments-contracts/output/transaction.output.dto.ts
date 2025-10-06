@@ -1,24 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
-
-enum CurrencyEnum {
-	USD = "usd",
-	EUR = "eur",
-	BYN = "byn",
-	RUB = "rub",
-}
-
-enum TransactionStatusEnum {
-	PENDING = "PENDING",
-	SUCCESS = "SUCCESS",
-	FAILED = "FAILED",
-	EXPIRED = "EXPIRED",
-}
-
-enum PaymentProvidersEnum {
-	STRIPE = "STRIPE",
-	PAYPAL = "PAYPAL",
-}
-
+import { CurrencyEnum } from "@libs/contracts/payments-contracts/payment-constants";
+import { TransactionStatusEnum } from "@libs/contracts/payments-contracts/payment-constants";
+import { PaymentProvidersEnum } from "@libs/contracts/payments-contracts/payment-constants";
 export class TransactionOutputDto {
 	@ApiProperty({ description: "Id of the transaction", example: 1 })
 	id: number;

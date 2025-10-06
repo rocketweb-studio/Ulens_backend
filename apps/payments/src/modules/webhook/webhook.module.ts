@@ -6,9 +6,10 @@ import { PlanModule } from "../plan/plan.module";
 import { TransactionModule } from "../transaction/transaction.module";
 import { SubscriptionModule } from "../subscription/subscription.module";
 import { WebhookPaypalService } from "./webhook-paypal.service";
+import { EventStoreModule } from "../event-store/event-store.module";
 
 @Module({
-	imports: [StripeModule, PlanModule, TransactionModule, SubscriptionModule],
+	imports: [StripeModule, PlanModule, TransactionModule, SubscriptionModule, EventStoreModule],
 	controllers: [WebhookController],
 	providers: [WebhookStripeService, WebhookPaypalService],
 })

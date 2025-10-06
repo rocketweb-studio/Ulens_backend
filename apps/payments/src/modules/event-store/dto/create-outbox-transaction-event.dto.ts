@@ -3,5 +3,6 @@ export interface CreateOutBoxTransactionEventDto {
 	userId: string;
 	planId: number;
 	provider: "MOCK" | "STRIPE" | "PAYPAL";
+	eventType: "payment.succeeded" | "payment.failed";
 	expiresAt: Date;
 }

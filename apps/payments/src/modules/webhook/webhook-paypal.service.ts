@@ -4,6 +4,7 @@ import { TransactionService } from "../transaction/transaction.service";
 import { SubscriptionService } from "../subscription/subscription.service";
 import { PaymentProvidersEnum, planIntervalsInDays, TransactionStatusEnum } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { OutboxService } from "../event-store/outbox.service";
 
 @Injectable()
 export class WebhookPaypalService {
@@ -11,6 +12,7 @@ export class WebhookPaypalService {
 		private readonly planService: PlanService,
 		private readonly transactionService: TransactionService,
 		private readonly subscriptionService: SubscriptionService,
+		private readonly outboxService: OutboxService,
 	) {}
 
 	async receiveWebhookPayPal(eventType: string, resource: any) {
@@ -128,11 +130,12 @@ export class WebhookPaypalService {
 		}
 
 		// создаем событие в таблице outboxEvents
-		await this.transactionService.createOutboxTransactionEvent({
+		await this.outboxService.createOutboxTransactionEvent({
 			sessionId: resource.id,
 			planId: +planId,
 			userId: userId as string,
-			provider: "STRIPE",
+			provider: PaymentProvidersEnum.PAYPAL,
+			eventType: "payment.succeeded",
 			expiresAt: expiresAt,
 		});
 	}

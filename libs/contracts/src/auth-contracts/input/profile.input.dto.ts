@@ -77,13 +77,27 @@ export class ProfileInputDto {
 	region: string;
 
 	@ApiProperty({ description: "Date of birth", example: "28.08.2007" })
-	@MinLength(10)
-	@MaxLength(10)
 	@IsOptional()
 	@IsString()
-	@Matches(/^([0-2]\d|3[01])\.(0\d|1[0-2])\.(19|20)\d{2}$/, {
-		message: "Date must be in format dd.mm.yyyy",
-	})
+	@(
+		(object: any, propertyName: string) => {
+			registerDecorator({
+				name: "isValidDateFormat",
+				target: object.constructor,
+				propertyName,
+				options: { message: "Date must be in format dd.mm.yyyy" },
+				validator: {
+					validate(value: string) {
+						// If value is empty/undefined, let @IsOptional handle it
+						if (!value || value.trim() === "") return true;
+						// Check format: dd.mm.yyyy
+						const dateFormatRegex = /^([0-2]\d|3[01])\.(0\d|1[0-2])\.(19|20)\d{2}$/;
+						return dateFormatRegex.test(value);
+					},
+				},
+			});
+		}
+	)
 	@(
 		(object: any, propertyName: string) => {
 			registerDecorator({
@@ -93,6 +107,8 @@ export class ProfileInputDto {
 				options: { message: "Date is invalid or does not exist (e.g. 31.02.2020)" },
 				validator: {
 					validate(value: string) {
+						// If value is empty/undefined, let @IsOptional handle it
+						if (!value || value.trim() === "") return true;
 						return isValidDate(value);
 					},
 				},
@@ -108,6 +124,8 @@ export class ProfileInputDto {
 				options: { message: "User under 13 years old cannot create a profile." },
 				validator: {
 					validate(value: string) {
+						// If value is empty/undefined, let @IsOptional handle it
+						if (!value || value.trim() === "") return true;
 						if (!isValidDate(value)) return true;
 						const [day, month, year] = value.split(".").map(Number);
 						const birthDate = new Date(year, month - 1, day);
@@ -128,6 +146,8 @@ export class ProfileInputDto {
 				options: { message: "Date of birth cannot be in the future." },
 				validator: {
 					validate(value: string) {
+						// If value is empty/undefined, let @IsOptional handle it
+						if (!value || value.trim() === "") return true;
 						if (!isValidDate(value)) return true;
 						const [day, month, year] = value.split(".").map(Number);
 						const birthDate = new Date(year, month - 1, day);

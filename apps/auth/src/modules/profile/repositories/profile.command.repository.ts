@@ -1,12 +1,12 @@
 import { Injectable } from "@nestjs/common";
 import { IProfileCommandRepository } from "../profile.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { ProfileInputDto } from "@libs/contracts/index";
+import { ProfileUpdateInputDto } from "../dto/profile-update.input.dto";
 @Injectable()
 export class PrismaProfileCommandRepository implements IProfileCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async updateProfile(userId: string, dto: ProfileInputDto): Promise<string> {
+	async updateProfile(userId: string, dto: ProfileUpdateInputDto): Promise<string> {
 		const profile = await this.prisma.profile.update({
 			where: { userId },
 			data: {

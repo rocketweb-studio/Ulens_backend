@@ -130,17 +130,20 @@ export class StreamingServer {
 			console.log(`[PROCESS] Start processing file stream: ${fileNames.join(", ")}`);
 
 			const transformers = imagesParams.map((fs, index) => {
-				return sharp()
-					.resize(Number(fs.width))
-					.webp()
-					.on("info", (info) => {
-						console.log(`[SHARP-${fs.width}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
-						imagesParams[index].fileSize = info.size;
-						imagesParams[index].height = info.height;
-					})
-					.on("error", (err) => {
-						console.error(`[SHARP-${fs.width}] Error:`, err);
-					});
+				return (
+					sharp()
+						// ресайзим изображение до нужного размера, передаем только ширину чтобы сохранить пропорции
+						.resize(Number(fs.width))
+						.webp()
+						.on("info", (info) => {
+							console.log(`[SHARP-${fs.width}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+							imagesParams[index].fileSize = info.size;
+							imagesParams[index].height = info.height;
+						})
+						.on("error", (err) => {
+							console.error(`[SHARP-${fs.width}] Error:`, err);
+						})
+				);
 			});
 
 			// PassThrough — прокси-поток для записи байтов файла

@@ -142,6 +142,11 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: PAYMENTS_TCP_PORT
+             - name: REDIS_URI
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: REDIS_URI
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

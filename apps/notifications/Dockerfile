@@ -17,8 +17,6 @@ WORKDIR /home/node/dist/${SERVICE}
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
 # where available (npm@5+)
 
-
-
 COPY --chown=node package*.json ./
 
 RUN yarn install
@@ -28,10 +26,15 @@ COPY --chown=node . .
 
 RUN yarn build:libs
 
+# Fix: Use correct path for Prisma schema
+RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
+
+RUN yarn build:libs
+
 RUN yarn build:${SERVICE}
 
 # Bind to all network interfaces so that it can be mapped to the host OS
 
 EXPOSE ${PORT}
 
-CMD yarn 'start:notifications'
+CMD yarn 'prisma:migrateDeploy:notifications' && yarn 'start:notifications'

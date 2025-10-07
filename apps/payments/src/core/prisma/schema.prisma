@@ -99,7 +99,7 @@ model OutboxEvent {
  * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
  * Если messageId уже есть — повтор не обрабатываем.
  */
-model InboxMessage {
+model InboxEvent {
   id            String      @id                 // используйте messageId из брокера/вебхука
   type          String
   source        String                           // "stripe", "paypal", "auth-service", ...
@@ -109,7 +109,7 @@ model InboxMessage {
   receivedAt    DateTime     @default(now())
   processedAt   DateTime?
 
-  @@map("inbox_messages")
+  @@map("inbox_events")
 }
 
 enum TransactionStatus {

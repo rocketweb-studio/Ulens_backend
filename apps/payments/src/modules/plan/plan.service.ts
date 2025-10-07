@@ -3,6 +3,7 @@ import { StripeService } from "@payments/core/stripe/stripe.service";
 import { PlanInputDto } from "@libs/contracts/payments-contracts/input/plan.input.dto";
 import { IPlanCommandRepository } from "@payments/modules/plan/plan.interface";
 import { PayPalService } from "@payments/core/paypal/paypal.service";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class PlanService {
@@ -56,7 +57,7 @@ export class PlanService {
 		// получаем план из локальной бд
 		const plan = await this.prismaPlanCommandRepository.findPlanById(+id);
 		if (!plan) {
-			throw new Error("Plan not found");
+			throw new NotFoundRpcException(`Plan with id ${id} not found`);
 		}
 		// удаляем план в stripe
 		await this.stripeService.plans.del(plan.stripePlanId);
@@ -77,7 +78,7 @@ export class PlanService {
 	async findPlanById(id: number): Promise<any> {
 		const plan = await this.prismaPlanCommandRepository.findPlanById(id);
 		if (!plan) {
-			throw new Error("Plan not found");
+			throw new NotFoundRpcException(`Plan with id ${id} not found`);
 		}
 		return plan;
 	}

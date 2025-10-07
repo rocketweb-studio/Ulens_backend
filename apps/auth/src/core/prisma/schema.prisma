@@ -87,24 +87,48 @@ model Profile {
   @@map("profiles")
 }
 
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  // Для маршрутизации/реплея:
+  aggregateType  String       // "subscription" | "transaction" | "user"
+  eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?      // опционально: имя топика/роутинга
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+
+/**
+ * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
+ * Если messageId уже есть — повтор не обрабатываем.
+ */
+model InboxEvent {
+  id            String      @id                 // используйте messageId из брокера/вебхука
+  type          String
+  source        String                           // "stripe", "paypal", "auth-service", ...
+  payload       Json
+  status        InboxStatus  @default(RECEIVED)
+  error         String?
+  receivedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  @@map("inbox_events")
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
 
 enum InboxStatus {
   RECEIVED
   PROCESSED
   FAILED
-}
-
-model InboxMessage {
-  id           String      @id            // messageId из брокера / eventId из webhooks
-  type         String
-  source       String                      // "payments-service" | "stripe" и т.п.
-  payload      Json
-  status       InboxStatus @default(RECEIVED)
-  error        String?
-  receivedAt   DateTime    @default(now())
-  processedAt  DateTime?
-
-  @@map("inbox_messages")
-  @@index([status])
-  @@index([source, type])
 }

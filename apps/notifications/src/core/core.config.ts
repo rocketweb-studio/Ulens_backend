@@ -23,9 +23,15 @@ export class CoreEnvConfig {
 	})
 	tcpPort: number;
 
+	@IsNotEmpty({
+		message: "Set Env variable NOTIFICATIONS_POSTGRES_URL, example: postgresql://user:password@host:port/database",
+	})
+	databaseUrl: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.tcpHost = this.configService.get<string>("NOTIFICATIONS_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("NOTIFICATIONS_TCP_PORT");
+		this.databaseUrl = this.configService.get<string>("NOTIFICATIONS_POSTGRES_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

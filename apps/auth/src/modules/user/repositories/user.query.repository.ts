@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto } from "@libs/contracts/index";
+import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto, UsersCountOutputDto } from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
@@ -45,16 +45,13 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		return this._mapToView(user);
 	}
 
-	async getUsers(): Promise<MeUserViewDto[]> {
-		const users = await this.prisma.user.findMany({
+	async getUsersCount(): Promise<UsersCountOutputDto> {
+		const count = await this.prisma.user.count({
 			where: {
 				deletedAt: null,
 			},
-			include: {
-				profile: true,
-			},
 		});
-		return users.map((user) => this._mapToView(user));
+		return { count };
 	}
 
 	async getProfileForPosts(userId: string): Promise<ProfilePostsDto | null> {
@@ -75,10 +72,12 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 	}
 
 	private _mapToView(user: UserWithProfile): MeUserViewDto {
+		const isPremium = (user.premiumExpDate && user.premiumExpDate > new Date()) || false;
 		return {
 			id: user.id,
 			userName: user.profile?.userName || "",
 			email: user.email,
+			isPremium: isPremium,
 		};
 	}
 

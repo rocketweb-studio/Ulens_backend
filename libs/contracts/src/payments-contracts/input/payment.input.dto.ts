@@ -1,10 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsIn, IsNotEmpty, IsNumber, IsString } from "class-validator";
-
-enum PaymentProvidersEnum {
-	STRIPE = "STRIPE",
-	PAYPAL = "PAYPAL",
-}
+import { PaymentProvidersEnum } from "@libs/contracts/payments-contracts/payment-constants";
 
 const PaymentProvidersArray = Object.values(PaymentProvidersEnum);
 

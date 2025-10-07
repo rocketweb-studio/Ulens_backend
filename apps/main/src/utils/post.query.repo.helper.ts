@@ -94,7 +94,6 @@ export class PostQueryHelper {
 	/* Защита на pageSize */
 	clampPageSize(raw?: number): number {
 		const v = raw ?? DEFAULT_PAGE_SIZE;
-		console.log(v);
 		return Math.min(Math.max(v, MIN_PAGE_SIZE), MAX_PAGE_SIZE);
 	}
 }

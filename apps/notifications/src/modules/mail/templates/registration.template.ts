@@ -1,4 +1,4 @@
-export const buildRegistrationTemplate = (token: string, clientUrl: string) => {
+export const buildRegistrationTemplate = (token: string | undefined, clientUrl: string) => {
 	return `
    <!DOCTYPE html>
 <html lang="en">

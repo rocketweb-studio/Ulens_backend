@@ -5,33 +5,3 @@
 В продакшене инкубатора автоматически используются переменные со страницы incubator/my_team.
 
 Для локального запуска тестов необходимо создать файл `.env.testing.local` с переменными тестового окружения.
-
-## Конфигурация переменных окружения 
-
-Для работы с переменными окружения в NestJs используется ConfigModule([документация](https://docs.nestjs.com/techniques/configuration)).
-
-Если модуль использует переменные окружения, то он их использует через .config.ts файл, который лежит рядом с этим модулем в одной папке. Этот конфиг файл валидирует переменные окружения которые нужны для данного модуля, при инициализации сервиса.
-
-Пример такого конфига:
-
-```typescript
-@Injectable()
-export class CoreEnvConfig {
-// валидация переменной, с помощью декораторов из class-validator
-  @IsNotEmpty({
-    message: 'Set Env variable PORT, example: 3000'
-  })
-  applicationPort: number;
-
-  constructor(private configService: ConfigService<any, true>) {
-    // получения переменной окружения с помощью ConfigService
-    this.applicationPort = this.configService.get<number>('PORT');
-
-    // Вспомогательная утилита для преобразования типов данных из переменных окружения, и формирования ошибок
-    configValidationUtility.validateConfig(this);
-  }
-}
-```
-
-Далее эта конфигурация используется в нужных модулях или сервисах через Dependency Injection.
-

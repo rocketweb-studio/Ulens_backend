@@ -10,7 +10,10 @@ import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.in
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { Prisma } from "@auth/core/prisma/generated";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
-import { PaymentSucceededInput } from "../dto/payment-succeeded.input.dto";
+import { INBOX_STATUS } from "@libs/constants/outbox-statuses.constants";
+import { RabbitEvents, RabbitEventSources } from "@libs/rabbit/rabbit.constants";
+import { PremiumInputDto } from "../dto/premium.input.dto";
+import { IInboxCommandRepository } from "@auth/modules/event-store/inbox.interface";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -18,7 +21,10 @@ type UserWithProfile = Prisma.UserGetPayload<{
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly inboxCommandRepository: IInboxCommandRepository,
+	) {}
 
 	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserOutputRepoDto> {
 		const user = await this.prisma.user.create({
@@ -147,6 +153,17 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 		return { field };
 	}
+	async findUserById(id: string): Promise<UserOutputRepoDto | null> {
+		const user = await this.prisma.user.findUnique({
+			where: { id, deletedAt: null },
+			include: {
+				profile: true,
+			},
+		});
+		if (!user) return null;
+
+		return this._mapToUse(user);
+	}
 
 	async findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null> {
 		const user = await this.prisma.user.findUnique({
@@ -174,52 +191,45 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		console.log(`Deleted not confirmed users: [${count}]`);
 	}
 
-	async applyPaymentSucceeded(dto: PaymentSucceededInput): Promise<{ premiumExpDate: string }> {
+	async activatePremiumStatus(dto: PremiumInputDto): Promise<{ premiumExpDate: string; email: string }> {
 		const { messageId, userId, expiresAt } = dto;
 
 		return this.prisma.$transaction(async (tx) => {
-			// 1) Inbox (идемпотентность)
 			try {
-				await tx.inboxMessage.create({
-					data: {
-						id: messageId,
-						type: "payment.succeeded",
-						source: "payments-service",
-						payload: dto as unknown as Prisma.InputJsonValue,
-						status: "RECEIVED",
-					},
+				// 1) Inbox (идемпотентность)
+				await this.inboxCommandRepository.createInboxMessage(tx, {
+					id: messageId,
+					type: RabbitEvents.PAYMENT_SUCCEEDED,
+					source: RabbitEventSources.PAYMENTS_SERVICE,
+					payload: dto as unknown as Prisma.InputJsonValue,
+					status: INBOX_STATUS.RECEIVED,
 				});
-				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_CREATED]", { messageId });
 			} catch (e) {
 				if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
-					console.log("[AUTH][Repo][applyPaymentSucceeded][DUPLICATE_INBOX]", { messageId });
 					// уже обработали — просто вернём текущее premiumUntil
 					const u = await tx.user.findUnique({
 						where: { id: userId },
-						select: { premiumExpDate: true },
+						select: { premiumExpDate: true, email: true },
 					});
 					const premiumExpDate = u?.premiumExpDate ? u.premiumExpDate.toISOString() : "";
-					return { premiumExpDate };
+					return { premiumExpDate, email: u?.email || "" };
 				}
-				console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_ERROR]", { messageId, err: (e as Error)?.message });
 				throw e;
 			}
 
 			// 2)Обновляем пользователя
-			await tx.user.update({
+			const user = await tx.user.update({
 				where: { id: userId },
 				data: { premiumExpDate: expiresAt },
 			});
-			console.log("[AUTH][Repo][applyPaymentSucceeded][USER_UPDATED]", { userId, expiresAt });
 
 			// 3) Inbox → PROCESSED
-			await tx.inboxMessage.update({
-				where: { id: messageId },
-				data: { status: "PROCESSED", processedAt: new Date() },
+			await this.inboxCommandRepository.updateInboxMessage(tx, {
+				id: messageId,
+				status: INBOX_STATUS.PROCESSED,
 			});
-			console.log("[AUTH][Repo][applyPaymentSucceeded][INBOX_PROCESSED]", { messageId });
 
-			return { premiumExpDate: expiresAt };
+			return { premiumExpDate: expiresAt, email: user.email };
 		});
 	}
 

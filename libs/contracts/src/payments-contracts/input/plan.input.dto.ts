@@ -1,19 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsString, IsNotEmpty, IsNumber, IsIn } from "class-validator";
-
-enum PaymentIntervalEnum {
-	MONTH = "month",
-	WEEK = "week",
-	DAY = "day",
-	YEAR = "year",
-}
-
-enum CurrencyEnum {
-	USD = "usd",
-	EUR = "eur",
-	BYN = "byn",
-	RUB = "rub",
-}
+import { PaymentIntervalEnum } from "@libs/contracts/payments-contracts/payment-constants";
+import { CurrencyEnum } from "@libs/contracts/payments-contracts/payment-constants";
 
 const PaymentIntervalsArray = Object.values(PaymentIntervalEnum);
 const CurrencyArray = Object.values(CurrencyEnum);

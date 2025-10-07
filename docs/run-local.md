@@ -16,7 +16,7 @@ yarn build:libs
 ```
 
 ## 4. Запуск баз данных
-Запустить необходимые базы данных для Auth, Main, Files, Payments микросервисов.
+Запустить необходимые базы данных для Auth, Main, Files, Payments, Notifications микросервисов.
 
 ## 5. Запуск Rabbit и Redis
 Для быстрого запуска Rabbit и Redis использовать docker.

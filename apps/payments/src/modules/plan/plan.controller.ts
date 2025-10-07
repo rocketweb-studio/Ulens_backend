@@ -24,7 +24,7 @@ export class PlanController {
 		const planId = await this.planService.createPlan(dto.plan);
 		const plan = await this.planQueryRepository.findPlanById(planId);
 		if (!plan) {
-			throw new NotFoundRpcException("Plan not found");
+			throw new NotFoundRpcException(`Plan with id ${planId} not found`);
 		}
 		return plan;
 	}

@@ -19,7 +19,7 @@ export class FileUploadConfigs {
 		maxSize: 10 * 1024 * 1024, // 10MB
 		fileSizes: [
 			{ type: FilesSizes.SMALL, width: "45" },
-			{ type: FilesSizes.MEDIUM, width: "300" },
+			{ type: FilesSizes.MEDIUM, width: "512" },
 		],
 	};
 
@@ -30,7 +30,7 @@ export class FileUploadConfigs {
 		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 20 * 1024 * 1024, // 20MB
 		fileSizes: [
-			{ type: FilesSizes.SMALL, width: "230" },
+			{ type: FilesSizes.SMALL, width: "360" },
 			{ type: FilesSizes.MEDIUM, width: "1024" },
 		],
 	};

@@ -7,9 +7,9 @@ import { PostOutputDto } from "@libs/contracts/index";
  * @response 200 - Ok
  * @response 401 - Unauthorized
  */
-export const GetLastPostsSwagger = () => {
+export const GetLatestPostsSwagger = () => {
 	const decorators = [
-		ApiOperation({ summary: "Get 5 last published posts" }),
+		ApiOperation({ summary: "Get 5 latest published posts" }),
 		ApiOkResponse({ description: "Success", type: [PostOutputDto] }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];

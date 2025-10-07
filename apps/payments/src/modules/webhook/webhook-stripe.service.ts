@@ -7,6 +7,8 @@ import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 import { PlanService } from "../plan/plan.service";
 import { TransactionService } from "../transaction/transaction.service";
 import { SubscriptionService } from "../subscription/subscription.service";
+import { OutboxService } from "../event-store/outbox.service";
+import { RabbitEvents } from "@libs/rabbit/rabbit.constants";
 
 @Injectable()
 export class WebhookStripeService {
@@ -16,6 +18,7 @@ export class WebhookStripeService {
 		private readonly planService: PlanService,
 		private readonly transactionService: TransactionService,
 		private readonly subscriptionService: SubscriptionService,
+		private readonly outboxService: OutboxService,
 	) {}
 
 	async receiveWebhookStripe(event: Stripe.Event) {
@@ -73,6 +76,7 @@ export class WebhookStripeService {
 
 	// Обработка успешного checkout сессии
 	private async handleSuccessCheckoutSession(session: Stripe.Checkout.Session) {
+		console.log("[CHECKOUT SESSION]: ", session);
 		// получаем данные из metadata
 		const planId = session.metadata?.planId;
 		const userId = session.metadata?.userId;
@@ -109,15 +113,14 @@ export class WebhookStripeService {
 		});
 
 		// создаем событие в таблице outboxEvents
-		await this.transactionService.createOutboxTransactionEvent({
+		await this.outboxService.createOutboxTransactionEvent({
 			sessionId: session.id as string,
 			planId: +planId,
 			userId: userId as string,
-			provider: "STRIPE",
+			provider: PaymentProvidersEnum.STRIPE,
+			eventType: RabbitEvents.PAYMENT_SUCCEEDED,
 			expiresAt: expiresAt,
 		});
-
-		// todo отправить юзеру письмо о подписке. пометить юзера в бд как премиум
 	}
 
 	// Обработка неудачной checkout сессии
@@ -136,17 +139,18 @@ export class WebhookStripeService {
 
 	// Обработка успешного invoice сессии(автооплата подписки)
 	private async handleInvoicePaymentSucceeded(session: Stripe.Invoice) {
+		console.log("[PAYMENT SUCCEEDED SESSION]: ", session);
 		// получаем данные из сессии
-		const startedAt = new Date(session.period_start * 1000);
+		const startedAt = new Date(session.created * 1000);
 		const expiresAt = new Date(session.period_end * 1000);
 		const { planId, userId } = session.parent?.subscription_details?.metadata as { planId: string; userId: string };
 		const subscriptionId = session.parent?.subscription_details?.subscription || null;
-
 		// получаем план из БД
 		const plan = await this.planService.findPlanById(+planId);
 		// получаем подписку из БД
 		const currentSubscriptionFromDb = await this.subscriptionService.getSubscriptionByUserId(userId as string);
-
+		// вычисляем дату окончания подписки
+		expiresAt.setDate(expiresAt.getDate() + planIntervalsInDays[plan.interval]);
 		// создаем успешную транзакцию(платеж) в бд
 		await this.transactionService.createTransaction({
 			userId,
@@ -167,11 +171,12 @@ export class WebhookStripeService {
 		});
 
 		// создаем событие в таблице outboxEvents
-		await this.transactionService.createOutboxTransactionEvent({
+		await this.outboxService.createOutboxTransactionEvent({
 			sessionId: session.id as string,
 			planId: +planId,
 			userId: userId as string,
-			provider: "STRIPE",
+			provider: PaymentProvidersEnum.STRIPE,
+			eventType: RabbitEvents.PAYMENT_SUCCEEDED,
 			expiresAt: expiresAt,
 		});
 	}
@@ -206,6 +211,14 @@ export class WebhookStripeService {
 		// удаляем подписку в бд
 		await this.subscriptionService.deleteSubscription(currentSubscriptionFromDb.id);
 
-		//todo отправить юзеру письмо о неудачной оплате, перевести юзера на бесплатный план
+		// создаем событие в таблице outboxEvents
+		await this.outboxService.createOutboxTransactionEvent({
+			sessionId: session.id as string,
+			planId: +planId,
+			userId: userId as string,
+			provider: PaymentProvidersEnum.STRIPE,
+			eventType: "payment.failed",
+			expiresAt: expiresAt,
+		});
 	}
 }

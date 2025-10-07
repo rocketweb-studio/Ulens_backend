@@ -21,7 +21,7 @@ export class TransactionController {
 		// проверяем существование плана
 		const plan = await this.planQueryRepository.findRawPlanById(+dto.payment.planId);
 		if (!plan) {
-			throw new NotFoundRpcException("Plan not found");
+			throw new NotFoundRpcException(`Plan with id ${dto.payment.planId} not found`);
 		}
 		return this.transactionService.makePayment(dto.user, dto.payment, plan);
 	}

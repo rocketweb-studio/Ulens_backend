@@ -2,15 +2,19 @@ import { PaymentProvidersEnum, TransactionStatusEnum } from "@libs/contracts/ind
 import { ITransactionCommandRepository } from "../transaction.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
-import { UpdateTransactionDto } from "../dto/update-transaction.dto";
-import { CreateTransactionDto } from "../dto/create-transaction.dto";
-import { CreateOutBoxTransactionEventDto } from "../dto/create-outbox-transaction-event.dto";
-import { randomUUID } from "crypto";
-import { PremiumActivatedInput } from "../dto/permium-activated.input.dto";
+import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
+import { CreateTransactionDto } from "@payments/modules/transaction/dto/create-transaction.dto";
+import { PremiumActivatedInput } from "@payments/modules/transaction/dto/permium-activated.input.dto";
+import { INBOX_STATUS, OUTBOX_STATUS } from "@libs/constants/outbox-statuses.constants";
+import { IInboxCommandRepository } from "@payments/modules/event-store/inbox.interface";
+import { RabbitEvents, RabbitEventSources } from "@libs/rabbit/rabbit.constants";
 
 @Injectable()
 export class TransactionCommandRepository implements ITransactionCommandRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly inboxCommandRepository: IInboxCommandRepository,
+	) {}
 
 	async createTransaction(dto: CreateTransactionDto): Promise<number> {
 		const { userId, plan, stripeSubscriptionId, stripeSessionId, paypalSessionId, paypalPlanId, provider, status, createdAt, expiresAt } = dto;
@@ -75,50 +79,18 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 		});
 	}
 
-	async createOutboxTransactionEvent(dto: CreateOutBoxTransactionEventDto): Promise<string> {
-		const { sessionId, userId, planId, provider, expiresAt } = dto;
-		const messageId = randomUUID();
-		const createdOutboxTransactionEvent = await this.prisma.outboxEvent.create({
-			data: {
-				aggregateType: "transaction",
-				eventType: "payment.succeeded", // !! ивент тайп по которому будем консьюмить сообщение
-				attempts: 0,
-				topic: "app.events", // !!топик в который полетят сообщения; опционально: имя exchange/route для паблишера
-				// status: PENDING — по умолчанию из Prisma-схемы
-				payload: {
-					messageId,
-					sessionId,
-					userId,
-					planId,
-					provider,
-					expiresAt,
-				},
-			},
-		});
-		return createdOutboxTransactionEvent.id;
-	}
-
 	async finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void> {
 		const { messageId, sessionId, userId } = input;
 
 		await this.prisma.$transaction(async (tx) => {
 			// 1) Создаем Inbox
-			const ins = await tx.inboxMessage.createMany({
-				data: [
-					{
-						id: messageId,
-						type: "auth.user.premium.activated.v1",
-						source: "auth-service",
-						payload: input,
-						status: "RECEIVED",
-					},
-				],
-				skipDuplicates: true,
+			await this.inboxCommandRepository.createInboxMessage(tx, {
+				id: messageId,
+				type: RabbitEvents.AUTH_PREMIUM_ACTIVATED,
+				source: RabbitEventSources.AUTH_SERVICE,
+				payload: input,
+				status: INBOX_STATUS.RECEIVED,
 			});
-			if (ins.count === 0) {
-				console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][DUPLICATE_SKIP]", { messageId });
-				return; // уже обработали
-			}
 
 			// 2) Обновляем outboxFlowStatus
 			await tx.transaction.updateMany({
@@ -127,16 +99,15 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 					OR: [{ stripeSessionId: sessionId }, { paypalSessionId: sessionId }],
 				},
 				data: {
-					outboxFlowStatus: "PROCESSED",
+					outboxFlowStatus: OUTBOX_STATUS.PROCESSED,
 				},
 			});
 
 			// 3) Обновляем Inbox -> PROCESSED
-			await tx.inboxMessage.update({
-				where: { id: messageId },
-				data: { status: "PROCESSED", processedAt: new Date() },
+			await this.inboxCommandRepository.updateInboxMessage(tx, {
+				id: messageId,
+				status: INBOX_STATUS.PROCESSED,
 			});
-			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][INBOX_PROCESSED]", { messageId });
 		});
 	}
 }

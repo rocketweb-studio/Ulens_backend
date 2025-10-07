@@ -1,4 +1,4 @@
-import { ConfirmCodeDto, MeUserViewDto, UserConfirmationOutputDto } from "@libs/contracts/index";
+import { ConfirmCodeDto, MeUserViewDto, UserConfirmationOutputDto, UsersCountOutputDto } from "@libs/contracts/index";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
 import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
@@ -6,7 +6,7 @@ import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.in
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
-import { PaymentSucceededInput } from "./dto/payment-succeeded.input.dto";
+import { PremiumInputDto } from "./dto/premium.input.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,
@@ -16,7 +16,7 @@ import { PaymentSucceededInput } from "./dto/payment-succeeded.input.dto";
 export abstract class IUserQueryRepository {
 	abstract findUserById(id: string): Promise<MeUserViewDto | null>;
 	abstract getMe(userId: string): Promise<MeUserViewDto>;
-	abstract getUsers(): Promise<MeUserViewDto[]>;
+	abstract getUsersCount(): Promise<UsersCountOutputDto>;
 	abstract getProfileForPosts(id: string): Promise<ProfilePostsDto | null>;
 	abstract getUserConfirmation(email: string): Promise<UserConfirmationOutputDto>;
 }
@@ -33,5 +33,6 @@ export abstract class IUserCommandRepository {
 	abstract findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null>;
 	abstract setOauthUserId(email: string, payload: { [key: string]: string }): Promise<boolean>;
 	abstract deleteNotConfirmedUsers(): Promise<void>;
-	abstract applyPaymentSucceeded(dto: PaymentSucceededInput): Promise<{ premiumExpDate: string }>;
+	abstract findUserById(id: string): Promise<UserOutputRepoDto | null>;
+	abstract activatePremiumStatus(dto: PremiumInputDto): Promise<{ premiumExpDate: string; email: string }>;
 }

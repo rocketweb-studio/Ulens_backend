@@ -4,7 +4,10 @@ import { ApiBearerAuth, ApiCreatedResponse, ApiOperation, ApiUnauthorizedRespons
 
 export const CreatePlanSwagger = () => {
 	const decorators = [
-		ApiOperation({ summary: "Create price plan", description: "Create price plan - NOT FOR FRONTEND, USE ONLY FOR ADMIN" }),
+		ApiOperation({
+			summary: "Create price plan - NOT FOR FRONTEND, USE ONLY FOR ADMIN",
+			description: "Create price plan - NOT FOR FRONTEND, USE ONLY FOR ADMIN",
+		}),
 		ApiBearerAuth(),
 		ApiCreatedResponse({ description: "Price plan was successfully created", type: PlanOutputDto }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),

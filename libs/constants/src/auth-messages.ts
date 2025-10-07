@@ -1,5 +1,5 @@
 export enum AuthMessages {
-	GET_USERS = "get_users",
+	GET_USERS_COUNT = "get_users_count",
 	CREATE_USER = "create_user",
 	REGISTRATION = "registration",
 	REGISTRATION_OAUTH2 = "registration_oauth2",

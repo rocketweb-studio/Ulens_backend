@@ -5,7 +5,7 @@ import { PaymentsMessages } from "@libs/constants/payment-messages";
 import { PlanInputDto } from "@libs/contracts/payments-contracts/input/plan.input.dto";
 import { IPlanQueryRepository } from "@payments/modules/plan/plan.interface";
 import { PlanOutputDto } from "@libs/contracts/index";
-import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { BadRequestRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Controller()
 export class PlanController {
@@ -21,6 +21,11 @@ export class PlanController {
 
 	@MessagePattern({ cmd: PaymentsMessages.CREATE_PLAN })
 	async createPlan(@Payload() dto: { plan: PlanInputDto }): Promise<PlanOutputDto> {
+		const plans = await this.planQueryRepository.getPlans();
+		const planWithSameInterval = plans.find((plan) => plan.interval === dto.plan.interval);
+		if (planWithSameInterval) {
+			throw new BadRequestRpcException(`Plan with interval ${dto.plan.interval} already exists`);
+		}
 		const planId = await this.planService.createPlan(dto.plan);
 		const plan = await this.planQueryRepository.findPlanById(planId);
 		if (!plan) {

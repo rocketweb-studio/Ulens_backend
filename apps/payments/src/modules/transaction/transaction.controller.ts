@@ -1,9 +1,8 @@
 import { PaymentsMessages } from "@libs/constants/payment-messages";
-import { MeUserViewDto, PaymentInputDto, PaymentOutputDto } from "@libs/contracts/index";
+import { MeUserViewDto, PaginationWithSortQueryDto, PaymentInputDto, PaymentOutputDto, TransactionWithPageInfoOutputDto } from "@libs/contracts/index";
 import { Controller } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { TransactionService } from "@payments/modules/transaction/transaction.service";
-import { TransactionOutputDto } from "@libs/contracts/index";
 import { ITransactionQueryRepository } from "./transaction.interface";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { IPlanQueryRepository } from "../plan/plan.interface";
@@ -27,7 +26,7 @@ export class TransactionController {
 	}
 
 	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS })
-	async getTransactions(@Payload() dto: { userId: string }): Promise<TransactionOutputDto[]> {
-		return this.transactionQueryRepository.getTransactions(dto.userId);
+	async getTransactions(@Payload() dto: { userId: string; query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
+		return this.transactionQueryRepository.getTransactions(dto.userId, dto.query);
 	}
 }

@@ -32,10 +32,13 @@ model Transaction {
 	expiresLinkAt DateTime?
 
 	provider TransactionProvider
+	planId Int
 
 	outboxFlowStatus OutboxFlowStatus @default(PENDING)
 
   userId String
+
+	plan Plan @relation(fields: [planId], references: [id])
 
   @@map("transactions")
 }
@@ -73,6 +76,7 @@ model Plan {
 
 	createdAt DateTime @default(now())
 
+	Transaction Transaction[]
 	Subscription Subscription[]
 
 	@@map("plans")

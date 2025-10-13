@@ -1,7 +1,15 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { CurrencyEnum } from "@libs/contracts/payments-contracts/payment-constants";
+import { CurrencyEnum, PaymentIntervalEnum } from "@libs/contracts/payments-contracts/payment-constants";
 import { TransactionStatusEnum } from "@libs/contracts/payments-contracts/payment-constants";
 import { PaymentProvidersEnum } from "@libs/contracts/payments-contracts/payment-constants";
+
+export enum SortableTransactionFields {
+	AMOUNT = "amount",
+	PROVIDER = "provider",
+	CREATED_AT = "createdAt",
+	EXPIRES_AT = "expiresAt",
+}
+
 export class TransactionOutputDto {
 	@ApiProperty({ description: "Id of the transaction", example: 1 })
 	id: number;
@@ -34,4 +42,18 @@ export class TransactionOutputDto {
 	provider: PaymentProvidersEnum;
 	@ApiProperty({ description: "Expires at of the transaction", example: "2021-01-01T00:00:00.000Z" })
 	expiresAt: Date;
+
+	@ApiProperty({ description: "Interval of the transaction", example: "month" })
+	interval: PaymentIntervalEnum;
+}
+
+export class TransactionWithPageInfoOutputDto {
+	@ApiProperty({ description: "Total count of the transactions", example: 100 })
+	totalCount: number;
+	@ApiProperty({ description: "Page size of the transactions", example: 10 })
+	pageSize: number;
+	@ApiProperty({ description: "Page number of the transactions", example: 1 })
+	page: number;
+	@ApiProperty({ description: "Items of the transactions", type: [TransactionOutputDto] })
+	items: TransactionOutputDto[];
 }

@@ -2,12 +2,9 @@
 import { Prisma } from "@main/core/prisma/generated";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { PrismaService } from "@main/core/prisma/prisma.service";
+import { DEFAULT_PAGE_SIZE, MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "@libs/constants/paginations";
 
 export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date };
-
-export const DEFAULT_PAGE_SIZE = 10;
-export const MIN_PAGE_SIZE = 1;
-export const MAX_PAGE_SIZE = 10;
 
 export class PostQueryHelper {
 	constructor(private readonly prisma: PrismaService) {}

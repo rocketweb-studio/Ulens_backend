@@ -1,6 +1,13 @@
-import { Controller, Get, Param, Post, Body, Delete, UseGuards, HttpCode, HttpStatus, Headers, RawBody } from "@nestjs/common";
+import { Controller, Get, Param, Post, Body, Delete, UseGuards, HttpCode, HttpStatus, Headers, RawBody, Query } from "@nestjs/common";
 import { PaymentsClientService } from "./payments-client.service";
-import { PayloadFromRequestDto, PaymentOutputDto, PlanInputDto, SubscriptionOutputDto, TransactionOutputDto } from "@libs/contracts/index";
+import {
+	PaginationWithSortQueryDto,
+	PayloadFromRequestDto,
+	PaymentOutputDto,
+	PlanInputDto,
+	SubscriptionOutputDto,
+	TransactionWithPageInfoOutputDto,
+} from "@libs/contracts/index";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { GetPlansSwagger } from "@gateway/core/decorators/swagger/payments/get-plans.decorator";
 import { CreatePlanSwagger } from "@gateway/core/decorators/swagger/payments/create-plan.decorator";
@@ -75,8 +82,11 @@ export class PaymentsClientController {
 	@UseGuards(JwtAccessAuthGuard)
 	@Get("transactions")
 	@HttpCode(HttpStatus.OK)
-	async getTransactions(@ExtractUserFromRequest() user: PayloadFromRequestDto): Promise<TransactionOutputDto[]> {
-		return this.paymentsClientService.getTransactions(user.userId);
+	async getTransactions(
+		@ExtractUserFromRequest() user: PayloadFromRequestDto,
+		@Query() query: PaginationWithSortQueryDto,
+	): Promise<TransactionWithPageInfoOutputDto> {
+		return this.paymentsClientService.getTransactions(user.userId, query);
 	}
 
 	@GetCurrentSubscriptionSwagger()

@@ -3,7 +3,14 @@ import { Inject, Injectable } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { PaymentsMessages } from "@libs/constants/payment-messages";
 import { firstValueFrom } from "rxjs";
-import { PaymentInputDto, PlanInputDto, PaymentOutputDto, TransactionOutputDto, SubscriptionOutputDto } from "@libs/contracts/index";
+import {
+	PaymentInputDto,
+	PlanInputDto,
+	PaymentOutputDto,
+	SubscriptionOutputDto,
+	PaginationWithSortQueryDto,
+	TransactionWithPageInfoOutputDto,
+} from "@libs/contracts/index";
 import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
 import { AuthClientService } from "../auth/auth-client.service";
 
@@ -55,8 +62,8 @@ export class PaymentsClientService {
 		return madePayment;
 	}
 
-	async getTransactions(userId: string): Promise<TransactionOutputDto[]> {
-		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS }, { userId }));
+	async getTransactions(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS }, { userId, query }));
 
 		return transactions;
 	}

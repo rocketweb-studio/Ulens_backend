@@ -24,6 +24,7 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 				userId: userId,
 				amount: plan.price,
 				currency: plan.currency,
+				planId: plan.id,
 				stripeSubscriptionId: stripeSubscriptionId,
 				stripeSessionId: stripeSessionId,
 				paypalSessionId: paypalSessionId,

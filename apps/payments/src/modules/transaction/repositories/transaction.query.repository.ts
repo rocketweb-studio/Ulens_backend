@@ -41,7 +41,7 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 		};
 	}
 
-	private _mapTransactionToViewDto(transaction: Transaction & { plan: Plan }): TransactionOutputDto {
+	private _mapTransactionToViewDto(transaction: Transaction & { plan: Plan | null }): TransactionOutputDto {
 		const status =
 			transaction.outboxFlowStatus === OUTBOX_STATUS.PROCESSED
 				? TransactionStatusEnum.SUCCESS
@@ -57,7 +57,7 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 			userId: transaction.userId,
 			createdAt: transaction.createdAt as Date,
 			expiresAt: transaction.expiresAt as Date,
-			interval: transaction.plan.interval as PaymentIntervalEnum,
+			interval: transaction.plan?.interval as PaymentIntervalEnum,
 		};
 	}
 }

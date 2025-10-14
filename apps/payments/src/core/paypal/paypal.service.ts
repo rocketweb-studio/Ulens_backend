@@ -200,9 +200,9 @@ export class PayPalService {
 					// действие пользователя - указывавется на кнопке при оплате. SUBSCRIBE_NOW - подписаться на подписку
 					user_action: "SUBSCRIBE_NOW",
 					// url на который будет перенаправлен пользователь после оплаты
-					return_url: `${this.paypalConfig.redirectUrl}?success=true`,
+					return_url: `${this.paypalConfig.redirectUrl}true`,
 					// url на который будет перенаправлен пользователь если он отменит оплату
-					cancel_url: `${this.paypalConfig.redirectUrl}?success=false`,
+					cancel_url: `${this.paypalConfig.redirectUrl}false`,
 				},
 			};
 			const response = await this.axiosInstance.post("/v1/billing/subscriptions", subscriptionBody, {

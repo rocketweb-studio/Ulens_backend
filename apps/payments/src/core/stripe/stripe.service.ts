@@ -49,9 +49,9 @@ export class StripeService extends Stripe {
 			// тип оплаты - подписка
 			mode: "subscription",
 			// url на который будет перенаправлен пользователь после оплаты
-			success_url: `${this.stripeConfig.redirectUrl}?success=true`,
+			success_url: `${this.stripeConfig.redirectUrl}true`,
 			// url на который будет перенаправлен пользователь если он отменит оплату
-			cancel_url: `${this.stripeConfig.redirectUrl}?success=false`,
+			cancel_url: `${this.stripeConfig.redirectUrl}false`,
 			// клиент для оплаты
 			customer: customer.id,
 			// данные о пользователе и плане в checkout session, придут нам в webhook обратно

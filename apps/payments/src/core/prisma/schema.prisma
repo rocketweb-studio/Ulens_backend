@@ -32,13 +32,13 @@ model Transaction {
 	expiresLinkAt DateTime?
 
 	provider TransactionProvider
-	planId Int
+	planId Int?
 
 	outboxFlowStatus OutboxFlowStatus @default(PENDING)
 
   userId String
 
-	plan Plan @relation(fields: [planId], references: [id])
+	plan Plan? @relation(fields: [planId], references: [id])
 
   @@map("transactions")
 }

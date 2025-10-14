@@ -5,7 +5,7 @@
 
 */
 -- AlterTable
-ALTER TABLE "public"."transactions" ADD COLUMN     "planId" INTEGER NOT NULL;
+ALTER TABLE "public"."transactions" ADD COLUMN     "planId" INTEGER;
 
 -- AddForeignKey
 ALTER TABLE "public"."transactions" ADD CONSTRAINT "transactions_planId_fkey" FOREIGN KEY ("planId") REFERENCES "public"."plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

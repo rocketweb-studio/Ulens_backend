@@ -6,6 +6,7 @@ import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GatewayExceptionFilter } from "./core/exeptions/filters/exeption.filter";
 import * as cookieParser from "cookie-parser";
 import { buildOrigins } from "./utils/build-origins";
+import { swaggerDescription } from "./swagger-description"; // Импортируем описание
 
 export function configApp(app: INestApplication, config: CoreEnvConfig) {
 	app.setGlobalPrefix("api/v1");
@@ -13,7 +14,7 @@ export function configApp(app: INestApplication, config: CoreEnvConfig) {
 	// Setting Swagger
 	const swaggerConfig = new DocumentBuilder()
 		.setTitle("RocketwebApp")
-		.setDescription("The best API documentation ever!")
+		.setDescription(swaggerDescription)
 		.setVersion("1.0.0")
 		.addServer("https://ulens.org - Production Server")
 		.addBearerAuth()

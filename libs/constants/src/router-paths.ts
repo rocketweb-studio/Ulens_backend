@@ -51,4 +51,5 @@ export enum ApiTagsNames {
 	POSTS = "Posts",
 	PAYMENTS = "Payments",
 	SESSIONS = "Sessions",
+	NOTIFICATIONS = "Notifications",
 }

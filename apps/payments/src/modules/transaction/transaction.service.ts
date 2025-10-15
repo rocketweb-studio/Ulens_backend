@@ -37,7 +37,6 @@ export class TransactionService {
 	async makePayment(user: MeUserViewDto, payment: PaymentInputDto, plan: any): Promise<PaymentOutputDto> {
 		// проверяем отсутствие активной подписки у пользователя
 		const subscription = await this.subscriptionService.getSubscriptionByUserId(user.id);
-
 		if (subscription) {
 			throw new BadRequestRpcException("Subscription already exists");
 		}

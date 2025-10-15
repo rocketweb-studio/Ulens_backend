@@ -4,4 +4,5 @@ import { UpdateInboxEventDto } from "@payments/modules/event-store/dto/update-in
 export abstract class IInboxCommandRepository {
 	abstract createInboxMessage(tx: any, dto: CreateInboxEventDto): Promise<boolean>;
 	abstract updateInboxMessage(tx: any, dto: UpdateInboxEventDto): Promise<boolean>;
+	abstract createInboxMessageWithoutTransaction(dto: CreateInboxEventDto): Promise<boolean>;
 }

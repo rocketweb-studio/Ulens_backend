@@ -47,3 +47,6 @@ export * from "./files-contracts/output/post-images.output.dto";
 export * from "./files-contracts/input/image-sizes.dto";
 export * from "./auth-contracts/output/users-count.output.dto";
 export * from "./common/paginationWithSort.query.dto";
+export * from "./notifications-contracts/output/notifications.output.dto";
+export * from "./notifications-contracts/notifications-constants";
+export * from "./notifications-contracts/input/read-notification.input.dto";

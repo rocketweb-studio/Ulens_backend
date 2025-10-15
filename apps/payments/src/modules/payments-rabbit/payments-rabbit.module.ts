@@ -5,9 +5,9 @@ import { PaymentsRabbitPublisher } from "@payments/modules/payments-rabbit/payme
 import { TransactionModule } from "@payments/modules/transaction/transaction.module";
 import { EventStoreModule } from "@payments/modules/event-store/event-store.module";
 import { RMQ_EVENT_BUS } from "@libs/rabbit/rabbit.constants";
-
+import { SubscriptionModule } from "@payments/modules/subscription/subscription.module";
 @Module({
-	imports: [TransactionModule, EventStoreModule],
+	imports: [TransactionModule, EventStoreModule, SubscriptionModule],
 	providers: [PaymentsRabbitConsumer, PaymentsRabbitPublisher, { provide: RMQ_EVENT_BUS, useClass: RabbitEventBus }],
 	exports: [PaymentsRabbitConsumer],
 })

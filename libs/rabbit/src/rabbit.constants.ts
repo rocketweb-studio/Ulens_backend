@@ -25,12 +25,18 @@ export enum RabbitEvents {
 	NOTIFICATION_SEND = "notification.send",
 	PAYMENT_SUCCEEDED = "payment.succeeded",
 	AUTH_PREMIUM_ACTIVATED = "auth.premium.activated",
+	NOTIFICATION_SUBSCRIPTION = "notification.subscription",
+	NOTIFICATION_RENEWAL_CHECK = "notification.renewal.check",
+	PAYMENTS_RENEWAL_CHECKED = "payments.renewal.checked",
 }
 
 export enum RabbitMainQueues {
 	NOTIFICATIONS_NOTIFICATION_SEND_Q = "notifications.notification.send.q",
 	PAYMENTS_AUTH_PREMIUM_ACTIVATED_Q = "payments.auth.premium.activated.q",
 	AUTH_PAYMENT_SUCCEEDED_Q = "auth.payment.succeeded.q",
+	GATEWAY_NOTIFICATION_SUBSCRIPTION_Q = "gateway.notification.subscription.q",
+	PAYMENTS_NOTIFICATION_CHECK_RENEWAL_Q = "payments.notification.renewal.check.q",
+	NOTIFICATIONS_PAYMENTS_RENEWAL_CHECKED_Q = "notifications.payments.renewal.checked.q",
 }
 
 export const RabbitRetryTtlMs = 60_000;
@@ -48,4 +54,5 @@ export enum OutboxAggregateType {
 	TRANSACTION = "transaction",
 	NOTIFICATION = "notification",
 	PREMIUM_ACTIVATED = "premium.activated",
+	NOTIFICATION_SUBSCRIPTION = "notification.subscription",
 }

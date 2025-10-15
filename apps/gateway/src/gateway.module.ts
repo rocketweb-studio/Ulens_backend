@@ -5,11 +5,21 @@ import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module
 import { MainClientModule } from "@gateway/microservices/main/main-client.module";
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
-import { RabbitModule } from "@libs/rabbit/index";
 import { PaymentsClientModule } from "@gateway/microservices/payments/payments-client.module";
+import { WebsocketModule } from "@gateway/websocket/websocket.module";
+import { GatewayRabbitModule } from "./gateway-rabbit/gateway-rabbit.module";
 
 @Module({
-	imports: [CoreModule, AuthClientModule, MainClientModule, NotificationsClientModule, FilesClientModule, RabbitModule, PaymentsClientModule],
+	imports: [
+		CoreModule,
+		AuthClientModule,
+		MainClientModule,
+		NotificationsClientModule,
+		FilesClientModule,
+		PaymentsClientModule,
+		WebsocketModule,
+		GatewayRabbitModule,
+	],
 	controllers: [],
 	providers: [],
 })

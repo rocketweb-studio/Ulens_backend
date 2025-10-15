@@ -52,7 +52,7 @@ export class UserService {
 		const userField = await this.userCommandRepository.findUserByEmailOrUserName(email, userName);
 
 		if (userField) {
-			throw new BadRequestRpcException(`User with this ${userField.field} is already registered`, userField.field);
+			throw new BadRequestRpcException(`User with this ${userField.field.toLowerCase()} is already registered`, userField.field);
 		}
 
 		const passwordHash = await bcrypt.hash(password, 10);

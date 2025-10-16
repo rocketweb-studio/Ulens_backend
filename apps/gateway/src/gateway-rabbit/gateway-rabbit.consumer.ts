@@ -1,16 +1,16 @@
-import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
+import { Inject, Injectable, OnApplicationBootstrap } from "@nestjs/common";
 import * as amqp from "amqplib";
 import { APPLICATION_JSON, RabbitEvents, RabbitExchanges, RabbitMainQueues, RMQ_CHANNEL, setupQueueWithRetryAndDLQ } from "@libs/rabbit/index";
 import { WebsocketGateway } from "@gateway/websocket/websocket.gateway";
 
 @Injectable()
-export class GatewayRabbitConsumer implements OnModuleInit {
+export class GatewayRabbitConsumer implements OnApplicationBootstrap {
 	constructor(
 		@Inject(RMQ_CHANNEL) private readonly ch: amqp.Channel,
 		private readonly websocketGateway: WebsocketGateway,
 	) {}
 
-	async onModuleInit() {
+	async onApplicationBootstrap() {
 		// === подписка на событие от payments ===
 		const queuesToSetup = [
 			{
@@ -42,8 +42,10 @@ export class GatewayRabbitConsumer implements OnModuleInit {
 						readAt: Date | null;
 					};
 					console.log(`[GATEWAY][RMQ] consumed event - ${RabbitMainQueues.GATEWAY_NOTIFICATION_SUBSCRIPTION_Q}`);
+					console.log("evt", evt);
 
-					await this.websocketGateway.sendNotificationToUser(evt.userId, {
+					// todo иногда вызывается до инициализации gateway, изза этого попадает в ретрай rabbitmq. Разобраться с этим.
+					this.websocketGateway.sendNotificationToUser(evt.userId, {
 						id: evt.notificationId,
 						message: evt.message,
 						sentAt: evt.sentAt,

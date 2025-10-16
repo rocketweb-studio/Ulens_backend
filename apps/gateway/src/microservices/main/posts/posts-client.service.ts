@@ -124,7 +124,6 @@ export class PostsClientService {
 			location: {
 				city: profile.city,
 				country: profile.country,
-				region: profile.region,
 			},
 			images: {
 				small: postImages

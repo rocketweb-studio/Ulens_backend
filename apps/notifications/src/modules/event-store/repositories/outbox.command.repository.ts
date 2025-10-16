@@ -55,7 +55,8 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 		return await this.prisma.outboxEvent.findMany({
 			where: {
 				status: OutboxStatus.PENDING,
-				OR: [{ nextAttemptAt: null }, { nextAttemptAt: { lte: now } }, { scheduledAt: { lte: now } }],
+				scheduledAt: { lte: now },
+				OR: [{ nextAttemptAt: null }, { nextAttemptAt: { lte: now } }],
 			},
 			orderBy: { createdAt: "asc" },
 			take: chanckSize,
@@ -69,10 +70,25 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 		});
 	}
 
-	async updateOutboxPublishedEvent(id: string): Promise<any> {
+	async updateOutboxPublishedEvent(id: string, publishedAt: Date): Promise<any> {
+		const existing = await this.prisma.outboxEvent.findUnique({
+			where: { id },
+			select: { payload: true },
+		});
+		if (!existing) return null;
+
+		const updatedPayload = {
+			...(existing.payload as Record<string, any>),
+			sentAt: publishedAt,
+		};
 		return await this.prisma.outboxEvent.update({
-			where: { id: id },
-			data: { status: OutboxStatus.PUBLISHED, publishedAt: new Date(), nextAttemptAt: null },
+			where: { id },
+			data: {
+				status: OutboxStatus.PUBLISHED,
+				publishedAt,
+				payload: updatedPayload,
+				nextAttemptAt: null,
+			},
 		});
 	}
 

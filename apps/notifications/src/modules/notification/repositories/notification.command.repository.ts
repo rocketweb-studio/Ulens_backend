@@ -22,10 +22,10 @@ export class NotificationCommandRepository implements INotificationCommandReposi
 		return !!updatedNotification;
 	}
 
-	async markNotificationAsSent(notificationId: number): Promise<void> {
+	async markNotificationAsSent(notificationId: number, sentAt: Date): Promise<void> {
 		await this.prisma.notification.update({
 			where: { id: notificationId },
-			data: { sentAt: new Date() },
+			data: { sentAt: sentAt },
 		});
 	}
 }

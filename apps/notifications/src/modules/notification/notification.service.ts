@@ -10,8 +10,8 @@ export class NotificationService {
 		return this.notificationCommandRepository.createNotification(dto);
 	}
 
-	async markNotificationAsSent(notificationId: number): Promise<void> {
-		await this.notificationCommandRepository.markNotificationAsSent(notificationId);
+	async markNotificationAsSent(notificationId: number, sentAt: Date): Promise<void> {
+		await this.notificationCommandRepository.markNotificationAsSent(notificationId, sentAt);
 	}
 
 	async readNotification(userId: string, notificationId: string): Promise<boolean> {

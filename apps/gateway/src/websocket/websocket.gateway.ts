@@ -21,6 +21,11 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
 	afterInit(server: Server) {
 		console.log("✅ WebSocket Gateway initialized");
+		setInterval(() => {
+			this.server.emit(WebsocketEvents.TEST_NOTIFICATION, {
+				message: "Hello, world!",
+			});
+		}, 60_000);
 	}
 
 	handleConnection(client: Socket) {
@@ -62,6 +67,10 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
 	sendNotificationToUser(userId: string, dto: NotificationDto) {
 		console.log("[GATEWAY][WS] send notification to room ", getRoomByUserId(userId));
-		this.server.to(getRoomByUserId(userId)).emit(WebsocketEvents.NEW_NOTIFICATION, dto);
+		try {
+			this.server.to(getRoomByUserId(userId)).emit(WebsocketEvents.NEW_NOTIFICATION, dto);
+		} catch (e) {
+			throw new Error(e.message);
+		}
 	}
 }

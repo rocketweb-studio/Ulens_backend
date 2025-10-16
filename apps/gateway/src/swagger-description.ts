@@ -44,6 +44,10 @@ When connecting, clients must include an **accessToken** as a query parameter to
   - **Data**: \`{ message: string }\`
   - **Purpose**: Real-time notification delivery
 
+- **\`TEST_NOTIFICATION\`**: Test notification
+  - **Data**: \`{ message: string }\`
+  - **Purpose**: Test notification delivery
+
 - **\`ERROR\`**: Error occurred
   - **Data**: Error message string
   - **Purpose**: Handle connection/auth errors

@@ -22,8 +22,8 @@ export class OutboxService {
 		return this.outboxCommandRepository.updateOutboxPendingEvent(id);
 	}
 
-	async updateOutboxPublishedEvent(id: string): Promise<any> {
-		return this.outboxCommandRepository.updateOutboxPublishedEvent(id);
+	async updateOutboxPublishedEvent(id: string, publishedAt: Date): Promise<any> {
+		return this.outboxCommandRepository.updateOutboxPublishedEvent(id, publishedAt);
 	}
 
 	async updateOutboxFailedEvent(id: string, next: Date): Promise<any> {

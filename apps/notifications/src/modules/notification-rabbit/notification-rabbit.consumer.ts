@@ -78,6 +78,7 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 								userId: evt.userId,
 								message: `Ваша подписка активирована и действует до ${formattedPremiumExpDate}`,
 							});
+							console.log("newNotification", newNotification);
 							await this.outboxService.createOutboxNotificationToGatewayEvent({
 								userId: evt.userId,
 								eventType: RabbitEvents.NOTIFICATION_SUBSCRIPTION,
@@ -85,7 +86,7 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 								notificationId: newNotification.id,
 								sentAt: newNotification.sentAt,
 								readAt: newNotification.readAt,
-								scheduledAt: null,
+								scheduledAt: new Date(Date.now() + 30_000),
 							});
 
 							//! ивент для payments
@@ -180,7 +181,7 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 							notificationId: newNotification.id,
 							sentAt: newNotification.sentAt,
 							readAt: newNotification.readAt,
-							scheduledAt: null,
+							scheduledAt: new Date(),
 						});
 					} catch (e) {
 						console.error("[notifications][RMQ] error creating inbox message", e);

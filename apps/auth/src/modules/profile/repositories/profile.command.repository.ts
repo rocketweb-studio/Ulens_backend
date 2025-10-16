@@ -15,7 +15,6 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 				lastName: dto.lastName,
 				city: dto.city,
 				country: dto.country,
-				region: dto.region,
 				dateOfBirth: dto.dateOfBirth,
 				aboutMe: dto.aboutMe,
 			},

@@ -76,7 +76,6 @@ export class WebhookStripeService {
 
 	// Обработка успешного checkout сессии
 	private async handleSuccessCheckoutSession(session: Stripe.Checkout.Session) {
-		console.log("[CHECKOUT SESSION]: ", session);
 		// получаем данные из metadata
 		const planId = session.metadata?.planId;
 		const userId = session.metadata?.userId;

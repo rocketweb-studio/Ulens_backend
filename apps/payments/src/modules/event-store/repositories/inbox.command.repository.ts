@@ -23,7 +23,25 @@ export class InboxCommandRepository implements IInboxCommandRepository {
 			skipDuplicates: true,
 		});
 		if (ins.count === 0) {
-			console.log("[PAYMENTS][Repo][finalizeAfterPremiumActivated][DUPLICATE_SKIP]", { id: dto.id });
+			return false; // уже обработали
+		}
+		return true;
+	}
+
+	async createInboxMessageWithoutTransaction(dto: CreateInboxEventDto): Promise<boolean> {
+		const ins = await this.prisma.inboxEvent.createMany({
+			data: [
+				{
+					id: dto.id,
+					type: dto.type,
+					source: dto.source,
+					payload: dto.payload,
+					status: dto.status,
+				},
+			],
+			skipDuplicates: true,
+		});
+		if (ins.count === 0) {
 			return false; // уже обработали
 		}
 		return true;

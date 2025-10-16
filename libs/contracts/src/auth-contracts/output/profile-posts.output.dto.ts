@@ -4,5 +4,4 @@ export class ProfilePostsDto {
 	lastName: string | null;
 	city: string | null;
 	country: string | null;
-	region: string | null;
 }

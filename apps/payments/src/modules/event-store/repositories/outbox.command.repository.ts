@@ -3,9 +3,10 @@ import { IOutboxCommandRepository } from "@payments/modules/event-store/outbox.i
 import { CreateOutBoxTransactionEventDto } from "@payments/modules/event-store/dto/create-outbox-transaction-event.dto";
 import { randomUUID } from "node:crypto";
 import { OutboxAggregateType, RabbitExchanges } from "@libs/rabbit/rabbit.constants";
-import { OutBoxNotificationEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-event.dto";
+import { OutBoxNotificationEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-email-event.dto";
 import { Injectable } from "@nestjs/common";
 import { OutboxEventStatuses } from "@libs/constants/index";
+import { CreateOutboxNotificationRenewalCheckedEventDto } from "../dto/create-outbox-notification-renewal-event.dto";
 
 @Injectable()
 export class OutboxCommandRepository implements IOutboxCommandRepository {
@@ -34,7 +35,7 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 		return createdOutboxTransactionEvent.id;
 	}
 
-	async createOutboxNotificationEvent(dto: OutBoxNotificationEventDto): Promise<string> {
+	async createOutboxNotificationEmailEvent(dto: OutBoxNotificationEventDto): Promise<string> {
 		const messageId = randomUUID();
 		const createdOutboxTransactionEvent = await this.prisma.outboxEvent.create({
 			data: {
@@ -59,6 +60,24 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 			},
 		});
 		return createdOutboxTransactionEvent.id;
+	}
+
+	async createOutboxNotificationRenewalCheckedEvent(dto: CreateOutboxNotificationRenewalCheckedEventDto): Promise<string> {
+		const messageId = randomUUID();
+		const createdOutboxNotificationRenewalCheckedEvent = await this.prisma.outboxEvent.create({
+			data: {
+				aggregateType: OutboxAggregateType.NOTIFICATION,
+				eventType: dto.eventType, // ивент тайп по которому будем консьюмить сообщение
+				attempts: 0,
+				topic: RabbitExchanges.APP_EVENTS, //топик в который полетят сообщения; опционально: имя exchange/route для паблишера
+				payload: {
+					messageId,
+					message: dto.message,
+					userId: dto.userId,
+				},
+			},
+		});
+		return createdOutboxNotificationRenewalCheckedEvent.id;
 	}
 
 	async findPendingOutboxEvents(chanckSize: number): Promise<any[]> {

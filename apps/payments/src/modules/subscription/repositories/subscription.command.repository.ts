@@ -18,7 +18,7 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 	}
 
 	async getSubscriptionByUserId(userId: string): Promise<any> {
-		const subscription = await this.prisma.subscription.findFirst({ where: { userId, deletedAt: null } });
+		const subscription = await this.prisma.subscription.findFirst({ where: { userId, deletedAt: null, expiresAt: { gt: new Date() } } });
 		return subscription;
 	}
 

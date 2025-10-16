@@ -34,3 +34,37 @@ model InboxEvent {
   @@index([status])
   @@index([source, type])
 }
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  aggregateType  String
+  eventType      String
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?
+  createdAt      DateTime     @default(now())
+	scheduledAt    DateTime?
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+
+model Notification {
+	id Int @id @default(autoincrement())
+	userId String
+	message String
+	createdAt DateTime @default(now())
+	sentAt DateTime?
+	readAt DateTime?	
+
+	@@map("notifications")
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}

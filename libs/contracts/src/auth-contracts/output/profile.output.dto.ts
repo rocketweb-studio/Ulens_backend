@@ -12,8 +12,6 @@ export class ProfileOutputDto {
 	city: string | null;
 	@ApiProperty({ description: "Country", example: "USA" })
 	country: string | null;
-	@ApiProperty({ description: "Region", example: "NY" })
-	region: string | null;
 	@ApiProperty({ description: "Date of birth", example: "08.28.2007" })
 	dateOfBirth: string | null;
 	@ApiProperty({ description: "About me", example: "I am a software engineer" })

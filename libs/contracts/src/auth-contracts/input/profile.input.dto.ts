@@ -1,4 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
+import { Transform } from "class-transformer";
 import { IsOptional, IsString, Matches, MaxLength, MinLength, IsNotEmpty, registerDecorator } from "class-validator";
 
 // Проверка високосного года
@@ -48,33 +49,24 @@ export class ProfileInputDto {
 	lastName: string;
 
 	@ApiProperty({ description: "City", example: "New York" })
-	@MinLength(1)
+	@Transform(({ value }) => (value?.trim() === "" ? null : value))
 	@MaxLength(50)
 	@Matches(/^[A-Za-zА-Яа-яЁё\s]+$/, {
 		message: "Allowed only russian and latin letters",
 	})
 	@IsString()
-	city: string;
+	@IsOptional()
+	city: string | null;
 
 	@ApiProperty({ description: "Country", example: "USA" })
-	@MinLength(1)
+	@Transform(({ value }) => (value?.trim() === "" ? null : value))
 	@MaxLength(50)
 	@Matches(/^[A-Za-zА-Яа-яЁё\s]+$/, {
 		message: "Allowed only russian and latin letters",
 	})
 	@IsString()
 	@IsOptional()
-	country: string;
-
-	@ApiProperty({ description: "Region", example: "NY" })
-	@MinLength(1)
-	@MaxLength(50)
-	@Matches(/^[A-Za-zА-Яа-яЁё\s]+$/, {
-		message: "Allowed only russian and latin letters",
-	})
-	@IsString()
-	@IsOptional()
-	region: string;
+	country: string | null;
 
 	@ApiProperty({ description: "Date of birth", example: "28.08.2007" })
 	@IsOptional()

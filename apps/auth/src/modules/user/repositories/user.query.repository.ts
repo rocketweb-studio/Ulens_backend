@@ -63,7 +63,6 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 				lastName: true,
 				city: true,
 				country: true,
-				region: true,
 			},
 		});
 		if (!profile) return null;

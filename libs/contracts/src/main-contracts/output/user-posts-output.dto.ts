@@ -84,9 +84,6 @@ export class LocationDto {
 
 	@ApiProperty({ example: "Belarus", nullable: true })
 	country: string | null;
-
-	@ApiProperty({ example: "Minsky", nullable: true })
-	region: string | null;
 }
 
 export class OwnerDto {

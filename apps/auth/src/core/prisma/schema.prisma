@@ -76,7 +76,7 @@ model Profile {
   lastName String?
   city String?
   country String?
-  region String?
+  region String? // TODO: remove this field
   dateOfBirth DateTime?
   aboutMe String?
   createdAt DateTime @default(now())

@@ -2,9 +2,10 @@ import { configModule } from "./env-config/env-config.module";
 import { Module } from "@nestjs/common";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { RedisModule } from "@libs/redis/redis.module";
+import { RabbitModule } from "@libs/rabbit/index";
 
 @Module({
-	imports: [configModule, RedisModule.forRoot()],
+	imports: [configModule, RedisModule.forRoot(), RabbitModule],
 	controllers: [],
 	providers: [CoreEnvConfig],
 	exports: [CoreEnvConfig],

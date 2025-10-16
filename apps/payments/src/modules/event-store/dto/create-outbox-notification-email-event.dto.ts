@@ -1,17 +1,18 @@
 import { PaymentProvidersEnum } from "@libs/contracts/index";
-
-export class CreateOutBoxNotificationEventDto {
+import { RabbitEvents } from "@libs/rabbit/rabbit.constants";
+export class CreateOutboxNotificationEmailEventDto {
 	sessionId: string;
 	userId: string;
 	planId: number;
 	isSuccessPayment: boolean;
 	provider: PaymentProvidersEnum;
-	eventType: "payment.succeeded" | "payment.failed" | "notification.send";
+	eventType: RabbitEvents;
 	userEmail: string;
 	premiumExpDate: string;
+	message?: string;
 }
 
-export class OutBoxNotificationEventDto extends CreateOutBoxNotificationEventDto {
+export class OutBoxNotificationEventDto extends CreateOutboxNotificationEmailEventDto {
 	plan_name: string;
 	plan_interval: string;
 	plan_price: number;

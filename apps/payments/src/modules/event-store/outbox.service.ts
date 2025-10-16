@@ -1,8 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { CreateOutBoxNotificationEventDto } from "./dto/create-outbox-notification-event.dto";
+import { CreateOutboxNotificationEmailEventDto } from "./dto/create-outbox-notification-email-event.dto";
 import { CreateOutBoxTransactionEventDto } from "./dto/create-outbox-transaction-event.dto";
 import { IOutboxCommandRepository } from "./outbox.interface";
 import { PlanService } from "../plan/plan.service";
+import { CreateOutboxNotificationRenewalCheckedEventDto } from "./dto/create-outbox-notification-renewal-event.dto";
 
 @Injectable()
 export class OutboxService {
@@ -16,7 +17,7 @@ export class OutboxService {
 		return createdOutboxTransactionEvent;
 	}
 
-	async createOutboxNotificationEvent(dto: CreateOutBoxNotificationEventDto): Promise<string> {
+	async createOutboxNotificationEmailEvent(dto: CreateOutboxNotificationEmailEventDto): Promise<string> {
 		const plan = await this.planService.findPlanById(+dto.planId);
 		const outboxNotificationEvent = {
 			...dto,
@@ -25,7 +26,12 @@ export class OutboxService {
 			plan_price: plan.price,
 			plan_description: plan.description,
 		};
-		const createdOutboxNotificationEvent = await this.outboxCommandRepository.createOutboxNotificationEvent(outboxNotificationEvent);
+		const createdOutboxNotificationEvent = await this.outboxCommandRepository.createOutboxNotificationEmailEvent(outboxNotificationEvent);
+		return createdOutboxNotificationEvent;
+	}
+
+	async createOutboxNotificationRenewalCheckedEvent(dto: CreateOutboxNotificationRenewalCheckedEventDto): Promise<string> {
+		const createdOutboxNotificationEvent = await this.outboxCommandRepository.createOutboxNotificationRenewalCheckedEvent(dto);
 		return createdOutboxNotificationEvent;
 	}
 

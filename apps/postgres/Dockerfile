@@ -12,8 +12,7 @@ ENV POSTGRES_USER=$POSTGRES_USER
 ENV POSTGRES_PASSWORD=$POSTGRES_PASSWORD
 ENV POSTGRES_DB=$POSTGRES_DB
 
-USER postgres
-
 EXPOSE ${PORT}
 
-CMD ["sh", "-c", "postgres -c listen_addresses='*' -c port=${PORT:-5432}"]
+RUN echo "port = ${PORT:-5432}" >> /docker-entrypoint-initdb.d/00-port.conf
+

@@ -7,6 +7,7 @@ import { FilesClientModule } from "@gateway/microservices/files/files-client.mod
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { PostsClientController } from "@gateway/microservices/main/posts/posts-client.controller";
 import { AuthClientModule } from "../auth/auth-client.module";
+import { PostsClientResolver } from "./posts/posts-client.resolver";
 
 @Module({
 	imports: [
@@ -35,7 +36,7 @@ import { AuthClientModule } from "../auth/auth-client.module";
 		AuthClientModule,
 	],
 	controllers: [PostsClientController],
-	providers: [MainClientEnvConfig, PostsClientService],
+	providers: [MainClientEnvConfig, PostsClientService, PostsClientResolver],
 	exports: [PostsClientService],
 })
 export class MainClientModule {}

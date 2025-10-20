@@ -23,6 +23,7 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 			where: {
 				parentId: postId,
 			},
+			orderBy: [{ createdAt: "desc" }],
 		});
 		return this._mapPostImagesToViewDto(postImages);
 	}

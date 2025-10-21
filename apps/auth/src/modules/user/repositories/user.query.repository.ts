@@ -91,4 +91,40 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			confirmationCodeConfirmed: user?.confirmationCodeConfirmed || false,
 		};
 	}
+
+	// todo поиск и фильтрация по имени, email, isBlocked
+	async getUsers(input: any): Promise<any> {
+		console.log(input.input);
+
+		const users = await this.prisma.user.findMany({
+			where: {
+				deletedAt: null,
+			},
+			include: {
+				profile: true, // Include profile to get userName
+			},
+			orderBy: {
+				createdAt: "desc",
+			},
+			take: input.input.perPage,
+			skip: (input.input.page - 1) * input.input.perPage,
+		});
+
+		// Map the data to match your GraphQL model
+		const mappedUsers = users.map((user) => ({
+			id: user.id,
+			userName: user.profile?.userName || null, // Get userName from profile
+			createdAt: user.createdAt,
+			isBlocked: user.isBlocked,
+		}));
+
+		console.log(mappedUsers);
+		const usersCount = await this.getUsersCount();
+		return {
+			totalCount: usersCount.count,
+			page: input.input.page,
+			perPage: input.input.perPage,
+			items: mappedUsers,
+		};
+	}
 }

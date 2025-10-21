@@ -250,4 +250,32 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			githubUserId: user.githubUserId,
 		};
 	}
+
+	// todo реализовать через рфббит с другими сервисами
+	async deleteUser(userId: string): Promise<boolean> {
+		await this.prisma.$transaction([
+			this.prisma.user.update({
+				where: { id: userId },
+				data: { deletedAt: new Date() },
+			}),
+			this.prisma.profile.updateMany({
+				where: { userId },
+				data: { deletedAt: new Date() },
+			}),
+			this.prisma.session.updateMany({
+				where: { userId },
+				data: { deletedAt: new Date() },
+			}),
+		]);
+
+		return true;
+	}
+
+	async setBlockStatusForUser(userId: string, isBlocked: boolean): Promise<boolean> {
+		await this.prisma.user.update({
+			where: { id: userId },
+			data: { isBlocked },
+		});
+		return true;
+	}
 }

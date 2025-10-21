@@ -2,10 +2,46 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input DeleteUserInput {
+  userId: String!
+}
+
+input GetUsersInput {
+  filterByStatus: String!
+  page: Float!
+  perPage: Float!
+  search: String!
+}
+
+type Mutation {
+  deleteUser(input: DeleteUserInput!): Boolean!
+  setBlockStatusForUser(input: SetBlockStatusForUserInput!): Boolean!
+}
+
 type PostModel {
   id: ID!
 }
 
 type Query {
   getPost: PostModel!
+  getUsers(input: GetUsersInput!): UsersResponse!
+}
+
+input SetBlockStatusForUserInput {
+  isBlocked: Boolean!
+  userId: String!
+}
+
+type UserModel {
+  createdAt: String!
+  id: String!
+  isBlocked: Boolean!
+  userName: String
+}
+
+type UsersResponse {
+  items: [UserModel!]!
+  page: Float!
+  perPage: Float!
+  totalCount: Float!
 }

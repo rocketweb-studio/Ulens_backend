@@ -19,6 +19,12 @@ import { join } from "path";
 			autoSchemaFile: join(process.cwd(), "apps/gateway/src/core/graphql/schema.gql"),
 			sortSchema: true,
 			context: ({ req, res }) => ({ req, res }),
+			formatError: (error) => {
+				return {
+					message: error.message,
+					originalError: error.extensions?.originalError,
+				};
+			},
 		}),
 	],
 	controllers: [],

@@ -19,6 +19,7 @@ export abstract class IUserQueryRepository {
 	abstract getUsersCount(): Promise<UsersCountOutputDto>;
 	abstract getProfileForPosts(id: string): Promise<ProfilePostsDto | null>;
 	abstract getUserConfirmation(email: string): Promise<UserConfirmationOutputDto>;
+	abstract getUsers(input: any): Promise<any>;
 }
 
 export abstract class IUserCommandRepository {
@@ -35,4 +36,6 @@ export abstract class IUserCommandRepository {
 	abstract deleteNotConfirmedUsers(): Promise<void>;
 	abstract findUserById(id: string): Promise<UserOutputRepoDto | null>;
 	abstract activatePremiumStatus(dto: PremiumInputDto): Promise<{ premiumExpDate: string; email: string }>;
+	abstract deleteUser(userId: string): Promise<boolean>;
+	abstract setBlockStatusForUser(userId: string, isBlocked: boolean): Promise<boolean>;
 }

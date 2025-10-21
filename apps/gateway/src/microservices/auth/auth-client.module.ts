@@ -17,6 +17,8 @@ import { FilesClientModule } from "../files/files-client.module";
 import { MainClientEnvConfig } from "../main/main-client.config";
 import { SessionAuthClientController } from "./session/session-auth-client.controller";
 import { SessionAuthClientService } from "./session/session-auth-clien.service";
+import { UsersGqlResolver } from "./users_gql/users.resolver";
+import { UsersGqlClientService } from "./users_gql/users.service";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -62,7 +64,17 @@ import { SessionAuthClientService } from "./session/session-auth-clien.service";
 		FilesClientModule,
 	],
 	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController, SessionAuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService, SessionAuthClientService],
+	providers: [
+		AuthClientService,
+		AuthClientEnvConfig,
+		GoogleStrategy,
+		GithubStrategy,
+		CoreEnvConfig,
+		ProfileAuthClientService,
+		SessionAuthClientService,
+		UsersGqlResolver,
+		UsersGqlClientService,
+	],
 	exports: [ProfileAuthClientService, AuthClientService],
 })
 export class AuthClientModule {}

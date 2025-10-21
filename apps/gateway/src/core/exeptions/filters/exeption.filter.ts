@@ -11,6 +11,14 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 	constructor(private readonly coreConfig: CoreEnvConfig) {}
 
 	catch(exception: unknown, host: ArgumentsHost) {
+		// Check if this is a GraphQL context
+		const contextType = host.getType();
+
+		//@ts-expect-error
+		if (contextType === "graphql") {
+			return this.handleGraphQLException(exception);
+		}
+
 		const ctx = host.switchToHttp();
 		const response = ctx.getResponse();
 		const request = ctx.getRequest();
@@ -83,5 +91,33 @@ export class GatewayExceptionFilter implements ExceptionFilter {
 	// Проверяем является ли ошибка rpc ошибкой
 	private isRpcException(exception: unknown): boolean {
 		return !!exception && typeof exception === "object" && ("statusCode" in exception || "message" in exception);
+	}
+
+	private handleGraphQLException(exception: unknown): HttpException {
+		// Convert to HttpException for GraphQL
+		if (exception instanceof HttpException) {
+			return exception;
+		}
+
+		// Handle RPC exceptions
+		if (this.isRpcException(exception) || exception instanceof RpcException) {
+			const status = (exception as any)?.statusCode ?? (exception as any).error?.statusCode ?? HttpStatuses.INTERNAL_SERVER_ERROR_500;
+			return new HttpException(
+				{
+					statusCode: status,
+					message: (exception as any).message ?? "Internal server error",
+				},
+				status,
+			);
+		}
+
+		// Fallback
+		return new HttpException(
+			{
+				statusCode: HttpStatuses.INTERNAL_SERVER_ERROR_500,
+				message: "Internal server error",
+			},
+			HttpStatuses.INTERNAL_SERVER_ERROR_500,
+		);
 	}
 }

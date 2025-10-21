@@ -98,7 +98,7 @@ export const buildPaymentTemplate = (dto: LetterDetailsDto, clientUrl: string, i
           <p style="margin: 0 0 20px 0; color: #333; font-size: 16px">Thank you for your payment! Your transaction has been processed successfully.</p>
           ${`<p style="margin: 0 0 15px 0; color: #155724; font-size: 14px; font-weight: 600;">Your plan ${dto.plan_name} will be active until ${expireDate}</p>`}
           <a
-            href="${clientUrl}/dashboard"
+            href="${clientUrl}"
             style="
               display: inline-block;
               background-color: #28a745;
@@ -109,7 +109,7 @@ export const buildPaymentTemplate = (dto: LetterDetailsDto, clientUrl: string, i
               font-weight: 600;
               transition: background-color 0.2s ease;
             "
-            >Go to Dashboard</a
+            >Go to Ulens</a
           >
           <p style="margin: 15px 0 0 0; color: #666; font-size: 14px">
             You can now access all premium features. If you have any questions, please contact our support team.
@@ -150,7 +150,7 @@ export const buildPaymentTemplate = (dto: LetterDetailsDto, clientUrl: string, i
           <p style="margin: 0 0 20px 0; color: #333; font-size: 16px">We encountered an issue processing your payment. Please try again or contact support if the problem persists.</p>
           ${dto.code ? `<p style="margin: 0 0 15px 0; color: #721c24; font-size: 14px; font-weight: 600;">Transaction ID: ${dto.code}</p>` : ""}
           <a
-            href="${clientUrl}/billing"
+            href="${clientUrl}"
             style="
               display: inline-block;
               background-color: #dc3545;

@@ -9,6 +9,11 @@ spec:
   selector:
     matchLabels:
       project: PROJECT
+  ports:
+      - name: postgres
+        protocol: TCP
+        port: PORT_CONTAINER
+        targetPort: 5432
   template:
     metadata:
       namespace: NAMESPACE

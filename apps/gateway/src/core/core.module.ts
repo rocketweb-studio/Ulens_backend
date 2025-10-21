@@ -18,6 +18,7 @@ import { join } from "path";
 			path: "api/v1/graphql",
 			autoSchemaFile: join(process.cwd(), "apps/gateway/src/core/graphql/schema.gql"),
 			sortSchema: true,
+			introspection: true,
 			context: ({ req, res }) => ({ req, res }),
 			formatError: (error) => {
 				return {

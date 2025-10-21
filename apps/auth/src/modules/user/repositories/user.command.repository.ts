@@ -271,10 +271,18 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		return true;
 	}
 
-	async setBlockStatusForUser(userId: string, isBlocked: boolean): Promise<boolean> {
+	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
+		const data: Prisma.UserUpdateInput = { isBlocked, blockedAt: null, blockedReason: reason };
+		if (isBlocked) {
+			data.blockedAt = new Date();
+			data.blockedReason = reason;
+		} else {
+			data.blockedAt = null;
+			data.blockedReason = null;
+		}
 		await this.prisma.user.update({
 			where: { id: userId },
-			data: { isBlocked },
+			data,
 		});
 		return true;
 	}

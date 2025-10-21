@@ -1,22 +1,36 @@
-import { Field, InputType } from "@nestjs/graphql";
+import { Field, InputType, registerEnumType } from "@nestjs/graphql";
+import { FilterByStatus, SortabeFieldsForUsers } from "@libs/constants/auth.constants";
+import { SortDirection } from "@libs/constants/sort-direction";
 
-enum FilterByStatus {
-	ACTIVE = "active",
-	BLOCKED = "blocked",
-	ALL = "all",
-}
+registerEnumType(FilterByStatus, {
+	name: "FilterByStatus",
+});
+
+registerEnumType(SortDirection, {
+	name: "SortDirection",
+});
+
+registerEnumType(SortabeFieldsForUsers, {
+	name: "SortabeFieldsForUsers",
+});
 
 @InputType()
 export class GetUsersInput {
-	@Field(() => String)
+	@Field(() => String, { nullable: true, defaultValue: "" })
 	search: string;
 
-	@Field(() => String)
-	filterByStatus: string;
+	@Field(() => FilterByStatus, { nullable: true, defaultValue: FilterByStatus.ALL })
+	filterByStatus: FilterByStatus;
 
-	@Field(() => Number)
-	page: number;
+	@Field(() => Number, { nullable: true, defaultValue: 1 })
+	pageNumber: number;
 
-	@Field(() => Number)
-	perPage: number;
+	@Field(() => Number, { nullable: true, defaultValue: 8 })
+	pageSize: number;
+
+	@Field(() => SortDirection, { nullable: true, defaultValue: SortDirection.DESC })
+	sortDirection: SortDirection;
+
+	@Field(() => SortabeFieldsForUsers, { nullable: true, defaultValue: SortabeFieldsForUsers.CREATED_AT })
+	sortBy: SortabeFieldsForUsers;
 }

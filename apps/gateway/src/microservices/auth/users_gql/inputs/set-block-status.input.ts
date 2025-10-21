@@ -7,4 +7,7 @@ export class SetBlockStatusForUserInput {
 
 	@Field(() => Boolean)
 	isBlocked: boolean;
+
+	@Field(() => String, { nullable: true })
+	reason?: string;
 }

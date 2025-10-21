@@ -24,6 +24,8 @@ import { OauthInputDto } from "@auth/modules/user/dto/oauth.input.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { GetUsersQueryGqlDto } from "./dto/get-users-query-gql.dto";
+import { GetUsersOutputDto } from "./dto/get-users.ouptut.dto";
 
 @Controller()
 export class UserController {
@@ -121,9 +123,8 @@ export class UserController {
 	}
 
 	// GRAPHQL
-	// todo fix any
 	@MessagePattern({ cmd: AuthMessages.ADMIN_GET_USERS })
-	async getUsers(@Payload() input: any): Promise<any> {
+	async getUsers(@Payload() input: GetUsersQueryGqlDto): Promise<GetUsersOutputDto> {
 		const response = await this.userQueryRepository.getUsers(input);
 		return response;
 	}
@@ -138,11 +139,11 @@ export class UserController {
 	}
 
 	@MessagePattern({ cmd: AuthMessages.ADMIN_SET_BLOCK_STATUS_FOR_USER })
-	async setBlockStatusForUser(@Payload() payload: { userId: string; isBlocked: boolean }): Promise<boolean> {
+	async setBlockStatusForUser(@Payload() payload: { userId: string; isBlocked: boolean; reason: string | null }): Promise<boolean> {
 		const user = await this.userQueryRepository.findUserById(payload.userId);
 		if (!user) {
 			throw new NotFoundRpcException("User not found");
 		}
-		return await this.userService.setBlockStatusForUser(payload.userId, payload.isBlocked);
+		return await this.userService.setBlockStatusForUser(payload.userId, payload.isBlocked, payload.reason);
 	}
 }

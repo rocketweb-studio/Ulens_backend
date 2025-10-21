@@ -8,6 +8,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
 import { JwtModule } from "@nestjs/jwt";
 import { AuthClientModule } from "../auth/auth-client.module";
+import { PaymentsGqlResolver } from "./payments_gql/payments.resolver";
 
 @Module({
 	imports: [
@@ -41,7 +42,7 @@ import { AuthClientModule } from "../auth/auth-client.module";
 		AuthClientModule,
 	],
 	controllers: [PaymentsClientController],
-	providers: [PaymentsClientEnvConfig, PaymentsClientService],
+	providers: [PaymentsClientEnvConfig, PaymentsClientService, PaymentsGqlResolver],
 	exports: [],
 })
 export class PaymentsClientModule {}

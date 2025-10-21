@@ -24,7 +24,7 @@ export class UsersResponse {
 	page: number;
 
 	@Field(() => Number)
-	perPage: number;
+	pageSize: number;
 
 	@Field(() => [UserModel])
 	items: UserModel[];

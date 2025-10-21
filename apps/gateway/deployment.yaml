@@ -147,6 +147,16 @@ spec:
                  secretKeyRef:
                    name: ulens-backend-gateway-production-config-secret
                    key: REDIS_URI
+             - name: ADMIN_EMAIL
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ADMIN_EMAIL
+             - name: ADMIN_PASSWORD
+               valueFrom:
+                 secretKeyRef:
+                   name: ulens-backend-gateway-production-config-secret
+                   key: ADMIN_PASSWORD
              - name: GATEWAY_PORT
                valueFrom:
                  secretKeyRef:

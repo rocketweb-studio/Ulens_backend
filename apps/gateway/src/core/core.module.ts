@@ -3,9 +3,30 @@ import { Module } from "@nestjs/common";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { RedisModule } from "@libs/redis/redis.module";
 import { RabbitModule } from "@libs/rabbit/index";
+import { GraphQLModule } from "@nestjs/graphql";
+import { ApolloDriver, ApolloDriverConfig } from "@nestjs/apollo";
+import { join } from "path";
 
 @Module({
-	imports: [configModule, RedisModule.forRoot(), RabbitModule],
+	imports: [
+		configModule,
+		RedisModule.forRoot(),
+		RabbitModule,
+		GraphQLModule.forRoot<ApolloDriverConfig>({
+			driver: ApolloDriver,
+			playground: true,
+			path: "/graphql",
+			autoSchemaFile: join(process.cwd(), "apps/gateway/src/core/graphql/schema.gql"),
+			sortSchema: true,
+			context: ({ req, res }) => ({ req, res }),
+			formatError: (error) => {
+				return {
+					message: error.message,
+					originalError: error.extensions?.originalError,
+				};
+			},
+		}),
+	],
 	controllers: [],
 	providers: [CoreEnvConfig],
 	exports: [CoreEnvConfig],

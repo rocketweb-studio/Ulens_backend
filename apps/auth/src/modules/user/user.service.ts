@@ -289,4 +289,12 @@ export class UserService {
 
 		return { refreshToken, payloadForJwt };
 	}
+
+	async deleteUser(userId: string): Promise<any> {
+		return this.userCommandRepository.deleteUser(userId);
+	}
+
+	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
+		return this.userCommandRepository.setBlockStatusForUser(userId, isBlocked, reason);
+	}
 }

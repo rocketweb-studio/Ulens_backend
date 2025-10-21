@@ -29,6 +29,9 @@ model User {
   googleUserId String? 
   githubUserId String? @unique
 	deletedAt DateTime?
+	isBlocked Boolean @default(false)
+	blockedAt DateTime?
+	blockedReason String?
 
   sessions Session[]  // обратная сторона связи
 	profile Profile?

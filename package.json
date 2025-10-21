@@ -71,11 +71,15 @@
     "prisma:migrateDeploy:notifications": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/notifications/src/core/prisma/schema.prisma"
   },
   "dependencies": {
+    "@apollo/server": "^5.0.0",
+    "@as-integrations/express5": "^1.1.2",
     "@aws-sdk/client-s3": "^3.876.0",
     "@aws-sdk/lib-storage": "^3.879.0",
     "@nestjs-modules/mailer": "^2.0.2",
+    "@nestjs/apollo": "^13.2.1",
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
+    "@nestjs/graphql": "^13.2.0",
     "@nestjs/jwt": "^11.0.0",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.0.1",
@@ -92,6 +96,7 @@
     "date-fns": "^4.1.0",
     "device-detector-js": "^3.0.3",
     "geoip-lite": "^1.4.10",
+    "graphql": "^16.11.0",
     "ioredis": "^5.7.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",

@@ -4,6 +4,9 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto, UsersCountOutputDto } from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { GetUsersQueryGqlDto } from "../dto/get-users-query-gql.dto";
+import { FilterByStatus } from "@libs/constants/auth.constants";
+import { GetUserOutputDto, GetUsersOutputDto } from "../dto/get-users.ouptut.dto";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -89,6 +92,61 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		});
 		return {
 			confirmationCodeConfirmed: user?.confirmationCodeConfirmed || false,
+		};
+	}
+
+	async getUsers(input: GetUsersQueryGqlDto): Promise<GetUsersOutputDto> {
+		const { search, filterByStatus, pageNumber, pageSize, sortDirection, sortBy } = input;
+		const whereCondition = {
+			deletedAt: null,
+			AND: [
+				filterByStatus === FilterByStatus.BLOCKED ? { isBlocked: true } : filterByStatus === FilterByStatus.NOT_BLOCKED ? { isBlocked: false } : {},
+
+				search
+					? {
+							OR: [
+								{ email: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+								{ id: { contains: search } },
+								{
+									profile: {
+										userName: { contains: search, mode: "insensitive" as Prisma.QueryMode },
+									},
+								},
+							],
+						}
+					: {},
+			],
+		};
+
+		const orderBy = {
+			[sortBy]: sortDirection,
+		};
+
+		const users = await this.prisma.user.findMany({
+			where: whereCondition,
+			include: {
+				profile: true,
+			},
+			orderBy: orderBy,
+			take: pageSize,
+			skip: (pageNumber - 1) * pageSize,
+		});
+
+		const mappedUsers: GetUserOutputDto[] = users.map((user) => ({
+			id: user.id,
+			userName: user.profile?.userName || null,
+			createdAt: user.createdAt.toISOString(),
+			isBlocked: user.isBlocked,
+		}));
+
+		const usersCount = await this.prisma.user.count({
+			where: whereCondition,
+		});
+		return {
+			totalCount: usersCount,
+			page: pageNumber,
+			pageSize: pageSize,
+			items: mappedUsers,
 		};
 	}
 }

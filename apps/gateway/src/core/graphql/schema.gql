@@ -1,0 +1,111 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input DeleteUserInput {
+  userId: String!
+}
+
+enum FilterByStatus {
+  ALL
+  BLOCKED
+  NOT_BLOCKED
+}
+
+input GetPaymentsInput {
+  pageNumber: Float = 1
+  pageSize: Float = 8
+  sortBy: SortableTransactionFields = CREATED_AT
+  sortDirection: SortDirection = DESC
+  userId: String!
+}
+
+input GetUsersInput {
+  filterByStatus: FilterByStatus = ALL
+  pageNumber: Float = 1
+  pageSize: Float = 8
+  search: String = ""
+  sortBy: SortabeFieldsForUsers = CREATED_AT
+  sortDirection: SortDirection = DESC
+}
+
+input LoginAdminInput {
+  email: String!
+  password: String!
+}
+
+type LoginAdminModel {
+  adminAccessToken: String!
+}
+
+type Mutation {
+  deleteUser(input: DeleteUserInput!): Boolean!
+  loginAdmin(input: LoginAdminInput!): LoginAdminModel!
+  setBlockStatusForUser(input: SetBlockStatusForUserInput!): Boolean!
+}
+
+type PostModel {
+  id: ID!
+}
+
+type Query {
+  getPayments(input: GetPaymentsInput!): TransactionsResponse!
+  getPost: PostModel!
+  getUsers(input: GetUsersInput!): UsersResponse!
+}
+
+input SetBlockStatusForUserInput {
+  isBlocked: Boolean!
+  reason: String
+  userId: String!
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum SortabeFieldsForUsers {
+  CREATED_AT
+  EMAIL
+  IS_BLOCKED
+  USER_NAME
+}
+
+enum SortableTransactionFields {
+  AMOUNT
+  CREATED_AT
+  EXPIRES_AT
+  PROVIDER
+}
+
+type TransactionModel {
+  amount: Float!
+  currency: String!
+  expiresAt: String!
+  id: Float!
+  interval: String!
+  provider: String!
+  status: String!
+}
+
+type TransactionsResponse {
+  items: [TransactionModel!]!
+  page: Float!
+  pageSize: Float!
+  totalCount: Float!
+}
+
+type UserModel {
+  createdAt: String!
+  id: String!
+  isBlocked: Boolean!
+  userName: String
+}
+
+type UsersResponse {
+  items: [UserModel!]!
+  page: Float!
+  pageSize: Float!
+  totalCount: Float!
+}

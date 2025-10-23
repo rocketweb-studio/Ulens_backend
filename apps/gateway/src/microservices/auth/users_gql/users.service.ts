@@ -9,7 +9,7 @@ import { SetBlockStatusForUserInput } from "./inputs/set-block-status.input";
 import { LoginAdminInput } from "./inputs/login-admin.input";
 import { JwtService } from "@nestjs/jwt";
 import { CoreEnvConfig } from "@gateway/core/core.config";
-import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
+import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 
 export class UsersGqlClientService {
 	constructor(
@@ -37,8 +37,8 @@ export class UsersGqlClientService {
 	async loginAdmin(input: LoginAdminInput): Promise<any> {
 		const { email, password } = input;
 
-		if (email !== this.coreEnvConfig.adminEmail && password !== this.coreEnvConfig.adminPassword) {
-			throw new UnauthorizedRpcException();
+		if (email !== this.coreEnvConfig.adminEmail || password !== this.coreEnvConfig.adminPassword) {
+			throw new BadRequestRpcException("Invalid email or password");
 		}
 
 		const adminAccessToken = await this.jwtService.signAsync(

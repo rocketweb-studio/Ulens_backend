@@ -6,7 +6,7 @@ export const GetNotificationsSwagger = () => {
 	const decorators = [
 		ApiOperation({ summary: "Get notifications for last 30 days" }),
 		ApiBearerAuth(),
-		ApiOkResponse({ description: "Notifications were successfully received", type: [NotificationsOutputDto] }),
+		ApiOkResponse({ description: "Notifications were successfully received", type: NotificationsOutputDto }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];
 

@@ -44,8 +44,8 @@ export class UsersGqlClientService {
 		const adminAccessToken = await this.jwtService.signAsync(
 			{ email },
 			{
-				expiresIn: "6h",
-				secret: this.coreEnvConfig.accessTokenSecret,
+				expiresIn: this.coreEnvConfig.adminAccessTokenExpirationTime,
+				secret: this.coreEnvConfig.adminAccessTokenSecret,
 			},
 		);
 

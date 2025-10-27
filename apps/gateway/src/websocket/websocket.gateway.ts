@@ -1,4 +1,3 @@
-import { JwtService } from "@nestjs/jwt";
 import {
 	WebSocketGateway,
 	WebSocketServer,
@@ -12,6 +11,9 @@ import { Server, Socket } from "socket.io";
 import { WebsocketEvents } from "./websocket.constants";
 import { getRoomByUserId } from "./utils/getRoomByUserId.util";
 import { NotificationDto } from "@libs/contracts/notifications-contracts/output/notifications.output.dto";
+import { WsAuthGuard } from "@gateway/core/guards/ws-auth.guard";
+import { UseGuards } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 
 @WebSocketGateway({ namespace: "/ws", cors: true })
 export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
@@ -19,7 +21,7 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
 	@WebSocketServer() server: Server;
 
-	afterInit(server: Server) {
+	afterInit(_server: Server) {
 		console.log("✅ WebSocket Gateway initialized");
 		setInterval(() => {
 			this.server.emit(WebsocketEvents.TEST_NOTIFICATION, {
@@ -29,7 +31,19 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 	}
 
 	handleConnection(client: Socket) {
-		console.log(`WebSocket Client connected: ${client.id}`);
+		const token = client.handshake.auth.token;
+		if (!token) {
+			this.forceDisconnect(client, "Missing token");
+			return;
+		}
+		try {
+			const payload = this.jwtService.verify(token);
+			client.userId = payload.userId;
+			console.log(`WebSocket Client connected: ${client.id}`);
+		} catch (_e) {
+			this.forceDisconnect(client, "Invalid token");
+			return;
+		}
 	}
 
 	handleDisconnect(client: Socket) {
@@ -39,30 +53,13 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 		}
 	}
 
-	// так как гварды не работают с socket.io, то мы проверяем токен вручную
+	@UseGuards(WsAuthGuard)
 	@SubscribeMessage(WebsocketEvents.SUBSCRIBE_NOTIFICATIONS)
 	handleNotification(@ConnectedSocket() client: Socket) {
 		console.log("[GATEWAY][WS] subscribe-notifications");
-		const token = client.handshake.auth.token;
-		if (!token) {
-			this.forceDisconnect(client, "Missing token");
-			return;
+		if (client.userId) {
+			client.join(getRoomByUserId(client.userId));
 		}
-		try {
-			const payload = this.jwtService.verify(token);
-			client.userId = payload.userId;
-			// создаем комнату для пользователя
-			client.join(getRoomByUserId(payload.userId));
-		} catch (e) {
-			this.forceDisconnect(client, "Invalid token");
-			console.log(e.message);
-			return;
-		}
-	}
-
-	private forceDisconnect(client: Socket, message: string) {
-		client.emit(WebsocketEvents.ERROR, message);
-		client.disconnect(true);
 	}
 
 	sendNotificationToUser(userId: string, dto: NotificationDto) {
@@ -72,5 +69,11 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 		} catch (e) {
 			throw new Error(e.message);
 		}
+	}
+
+	private forceDisconnect(client: Socket, message: string) {
+		console.log("[GATEWAY][WS] WebsocketGateway: forceDisconnect", message);
+		client.emit(WebsocketEvents.ERROR, message);
+		client.disconnect(true);
 	}
 }

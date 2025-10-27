@@ -222,6 +222,7 @@ export class UserService {
 		if (!passwordIsValid) {
 			return null;
 		}
+		// todo check deleted user
 
 		return user;
 	}

@@ -4,7 +4,7 @@ import { UserPostsPageDto } from "@libs/contracts/index";
 import { PrismaService } from "@main/core/prisma/prisma.service";
 import { DEFAULT_PAGE_SIZE, MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "@libs/constants/paginations";
 
-export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date };
+export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date; userId: string };
 
 export class PostQueryHelper {
 	constructor(private readonly prisma: PrismaService) {}
@@ -20,7 +20,7 @@ export class PostQueryHelper {
 				where,
 				orderBy: this.getOrderBy(),
 				take: pageSize,
-				select: { id: true, description: true, createdAt: true, updatedAt: true },
+				select: { id: true, description: true, createdAt: true, updatedAt: true, userId: true },
 			}),
 		]);
 	}
@@ -48,7 +48,7 @@ export class PostQueryHelper {
 				cursor: { createdAt_id: { createdAt: cursor.createdAt, id: cursor.id } },
 				skip: 1,
 				take: pageSize,
-				select: { id: true, description: true, createdAt: true, updatedAt: true },
+				select: { id: true, description: true, createdAt: true, updatedAt: true, userId: true },
 			}),
 		]);
 	}
@@ -64,14 +64,14 @@ export class PostQueryHelper {
 	 * - items      — маппим даты в ISO
 	 * - pageInfo   — курсор последнего элемента текущей страницы + флаг "есть ещё"
 	 */
-	buildPage(totalCount: number, pageSize: number, rows: Row[], userId: string): UserPostsPageDto {
+	buildPage(totalCount: number, pageSize: number, rows: Row[]): UserPostsPageDto {
 		const endCursor = rows.length ? rows[rows.length - 1].id : undefined;
 		return {
 			totalCount,
 			pageSize,
 			items: rows.map((r) => ({
 				id: r.id,
-				userId,
+				userId: r.userId,
 				description: r.description,
 				createdAt: r.createdAt,
 				updatedAt: r.updatedAt,
@@ -81,11 +81,6 @@ export class PostQueryHelper {
 				hasNextPage: rows.length === pageSize,
 			},
 		};
-	}
-
-	/* Базовый фильтр: только посты конкретного пользователя и не удалённые. */
-	buildBaseWhere(userId: string): Prisma.PostWhereInput {
-		return { userId, deletedAt: null };
 	}
 
 	/* Защита на pageSize */

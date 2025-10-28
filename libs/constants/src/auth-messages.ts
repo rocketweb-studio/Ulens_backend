@@ -24,6 +24,7 @@ export enum AuthMessages {
 	ADMIN_GET_USERS = "admin_get_users",
 	ADMIN_DELETE_USER = "admin_delete_user",
 	ADMIN_SET_BLOCK_STATUS_FOR_USER = "admin_set_block_status_for_user",
+	GET_PROFILES = "get_profiles",
 }
 
 export enum Oauth2Providers {

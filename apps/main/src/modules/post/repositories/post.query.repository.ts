@@ -22,12 +22,13 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 	 */
 
 	async getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto> {
+		// todo change helper to transform in dto
 		const pageSize = this.helpers.clampPageSize(dto.pageSize);
-		const baseWhere = this.helpers.buildBaseWhere(dto.userId);
+		const baseWhere = { userId: dto.userId, deletedAt: null };
 		// 1.Первая страница, если курсор не передан
 		if (!dto.endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
 		}
 
 		// 2. Находим курсор (запись, на которой остановились)
@@ -35,12 +36,30 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// Если курсор невалиден (нет такой записи / чужой пост / уже удалён) — возвращаем как первую страницу
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
 		}
 
 		// 3. Получаем "следующую страницу" после курсора
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor(baseWhere, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows, dto.userId);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	async getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number }): Promise<UserPostsPageDto> {
+		const { endCursorPostId, pageSize } = dto;
+
+		if (!endCursorPostId) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+		const cursor = await this.helpers.resolveCursor({ deletedAt: null }, endCursorPostId);
+
+		if (!cursor) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null }, cursor, pageSize);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
 	}
 
 	async getPostById(id: string): Promise<PostDbOutputDto | null> {

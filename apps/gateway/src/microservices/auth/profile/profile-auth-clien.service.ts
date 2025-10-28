@@ -33,6 +33,11 @@ export class ProfileAuthClientService {
 		};
 	}
 
+	async getProfiles(userIds: string[]): Promise<ProfileOutputDto[]> {
+		const profiles: ProfileOutputWithAvatarDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES }, { userIds }));
+		return profiles;
+	}
+
 	async updateProfile(userId: string, dto: ProfileInputDto): Promise<ProfileOutputDto> {
 		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.UPDATE_PROFILE }, { userId, dto }));
 		return profile;

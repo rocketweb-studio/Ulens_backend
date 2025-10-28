@@ -5,7 +5,7 @@ import { BadRequestRpcException, NotFoundRpcException } from "@libs/exeption/rpc
 import { StreamClientService } from "@gateway/microservices/files/stream-client.service";
 import { Request } from "express";
 import { firstValueFrom } from "rxjs";
-import { MainMessages, Microservice } from "@libs/constants/index";
+import { GraphqlPubSubMessages, MainMessages, Microservice, PUB_SUB_GQL } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import {
 	CreatePostOutputDto,
@@ -20,6 +20,8 @@ import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
 // import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
+import { GetAdminPostsInput } from "../posts_gql/inputs/get-admin-posts.input";
+import { PubSub } from "graphql-subscriptions";
 
 @Injectable()
 export class PostsClientService {
@@ -28,6 +30,7 @@ export class PostsClientService {
 		private readonly filesClientService: FilesClientService,
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 		private readonly profileClientService: ProfileAuthClientService,
+		@Inject(PUB_SUB_GQL) private readonly pubSub: PubSub,
 	) {}
 
 	async uploadPostImages(postId: string, req: Request): Promise<any> {
@@ -41,9 +44,11 @@ export class PostsClientService {
 			throw new BadRequestRpcException(uploadResult.errors?.join(", ") || "Images upload failed");
 		}
 
-		// Сохраняем информацию о всех изображениях в БД
+		// Сохраняем информацию о всех изображениях в БД // todo ===========start=========== сделать это в микросервисе
 		const dbResults = await Promise.all(uploadResult.files.map((file) => this.filesClientService.savePostImagesToDB(postId, file)));
-
+		// todo ===========end===========
+		const post = await this.getPost(postId);
+		await this.pubSub.publish(GraphqlPubSubMessages.NEW_POST_ADDED, { newPostAdded: post });
 		return dbResults[dbResults.length - 1];
 	}
 
@@ -86,6 +91,11 @@ export class PostsClientService {
 		};
 
 		// return mapToUserPostsOutput(posts, profile, postsImages);
+	}
+
+	async getAllPostsForAdmin(input: GetAdminPostsInput): Promise<UserPostsPageDto> {
+		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_ALL_POSTS_FOR_ADMIN }, input));
+		return posts;
 	}
 
 	async getPost(postId: string): Promise<PostOutputDto> {

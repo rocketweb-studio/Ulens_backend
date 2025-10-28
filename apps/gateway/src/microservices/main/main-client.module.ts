@@ -7,7 +7,8 @@ import { FilesClientModule } from "@gateway/microservices/files/files-client.mod
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { PostsClientController } from "@gateway/microservices/main/posts/posts-client.controller";
 import { AuthClientModule } from "../auth/auth-client.module";
-import { PostsClientResolver } from "./posts/posts-client.resolver";
+import { PostsClientResolver } from "./posts_gql/posts-client.resolver";
+import { PubSubGqlModule } from "@gateway/pubSubGql/pubSub-gql.module";
 
 @Module({
 	imports: [
@@ -34,6 +35,7 @@ import { PostsClientResolver } from "./posts/posts-client.resolver";
 		}),
 		FilesClientModule,
 		AuthClientModule,
+		PubSubGqlModule,
 	],
 	controllers: [PostsClientController],
 	providers: [MainClientEnvConfig, PostsClientService, PostsClientResolver],

@@ -64,12 +64,6 @@ export class CoreEnvConfig {
 	@IsNotEmpty()
 	adminPassword: string;
 
-	@IsNotEmpty()
-	adminAccessTokenSecret: string;
-
-	@IsNotEmpty()
-	adminAccessTokenExpirationTime: string;
-
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.applicationPort = this.configService.get<number>("GATEWAY_PORT");
@@ -85,9 +79,6 @@ export class CoreEnvConfig {
 
 		this.accessTokenSecret = this.configService.get<string>("ACCESS_SECRET_KEY");
 		this.accessTokenExpirationTime = this.configService.get<string>("ACCESS_EXPIRES_IN");
-
-		this.adminAccessTokenSecret = this.configService.get<string>("ADMIN_ACCESS_SECRET_KEY");
-		this.adminAccessTokenExpirationTime = this.configService.get<string>("ADMIN_ACCESS_EXPIRES_IN");
 
 		this.rmqUrl = this.configService.get<string>("RMQ_URL");
 

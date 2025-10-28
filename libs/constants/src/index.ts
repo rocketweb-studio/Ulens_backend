@@ -13,3 +13,4 @@ export * from "./outbox-statuses.constants";
 export * from "./sort-direction";
 export * from "./paginations";
 export * from "./auth.constants";
+export * from "./graphql.constants";

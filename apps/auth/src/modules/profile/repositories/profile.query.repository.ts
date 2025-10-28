@@ -11,10 +11,17 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 
 	async getProfileByUserId(userId: string): Promise<ProfileOutputDto> {
 		const profile = await this.prisma.profile.findFirst({
-			where: { userId },
+			where: { userId, user: { deletedAt: null } },
 		});
 		if (!profile) throw new NotFoundRpcException("Profile not found");
 		return this._mapToView(profile);
+	}
+
+	async getProfiles(userIds: string[]): Promise<ProfileOutputDto[]> {
+		const profiles = await this.prisma.profile.findMany({
+			where: { userId: { in: userIds }, deletedAt: null },
+		});
+		return profiles.map(this._mapToView);
 	}
 
 	private _mapToView(profile: Profile): ProfileOutputDto {

@@ -8,4 +8,5 @@ export enum MainMessages {
 	GET_POST = "get_post",
 	GET_USER_POSTS_COUNT = "get_user_posts_count",
 	GET_LATEST_POSTS = "get_latest_posts",
+	GET_ALL_POSTS_FOR_ADMIN = "get_all_posts_for_admin",
 }

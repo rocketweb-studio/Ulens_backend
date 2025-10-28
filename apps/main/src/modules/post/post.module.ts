@@ -4,9 +4,9 @@ import { PostService } from "./post.service";
 import { IPostCommandRepository, IPostQueryRepository } from "./post.interface";
 import { PrismaPostCommandRepository } from "./repositories/post.command.repository";
 import { PrismaPostQueryRepository } from "./repositories/post.query.repository";
-
+import { EventStoreModule } from "../event-store/event-store.module";
 @Module({
-	imports: [],
+	imports: [EventStoreModule],
 	providers: [
 		{ provide: IPostCommandRepository, useClass: PrismaPostCommandRepository },
 		{ provide: IPostQueryRepository, useClass: PrismaPostQueryRepository },

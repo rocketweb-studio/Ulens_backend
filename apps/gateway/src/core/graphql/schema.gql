@@ -12,6 +12,11 @@ enum FilterByStatus {
   NOT_BLOCKED
 }
 
+input GetAdminPostsInput {
+  endCursorPostId: String = null
+  pageSize: Float = 10
+}
+
 input GetPaymentsInput {
   pageNumber: Float = 1
   pageSize: Float = 8
@@ -29,6 +34,14 @@ input GetUsersInput {
   sortDirection: SortDirection = DESC
 }
 
+type ImageModel {
+  createdAt: String!
+  fileSize: Float!
+  height: Float!
+  url: String!
+  width: Float!
+}
+
 input LoginAdminInput {
   email: String!
   password: String!
@@ -44,13 +57,46 @@ type Mutation {
   setBlockStatusForUser(input: SetBlockStatusForUserInput!): Boolean!
 }
 
+type OwnerModel {
+  firstName: String!
+  lastName: String!
+}
+
+type PageInfoModel {
+  endCursorPostId: String
+  hasNextPage: Boolean!
+}
+
+type PostImageModel {
+  medium: [ImageModel!]!
+  small: [ImageModel!]!
+}
+
 type PostModel {
-  id: ID!
+  avatarOwner: String!
+  avatarWhoLikes: Boolean!
+  createdAt: String!
+  description: String!
+  id: String!
+  images: PostImageModel!
+  isLiked: Boolean!
+  likeCount: Float!
+  owner: OwnerModel!
+  ownerId: String!
+  updatedAt: String!
+  userName: String!
+}
+
+type PostsResponse {
+  items: [PostModel!]!
+  pageInfo: PageInfoModel!
+  pageSize: Float!
+  totalCount: Float!
 }
 
 type Query {
+  getAllPostsForAdmin(input: GetAdminPostsInput!): PostsResponse!
   getPayments(input: GetPaymentsInput!): TransactionsResponse!
-  getPost: PostModel!
   getUsers(input: GetUsersInput!): UsersResponse!
 }
 
@@ -77,6 +123,10 @@ enum SortableTransactionFields {
   CREATED_AT
   EXPIRES_AT
   PROVIDER
+}
+
+type Subscription {
+  newPostAdded: PostModel!
 }
 
 type TransactionModel {

@@ -28,6 +28,21 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return this._mapPostImagesToViewDto(postImages);
 	}
 
+	async getAvatarsByUserIds(userIds: string[]): Promise<{ userId: string; avatars: AvatarImagesOutputDto }[]> {
+		const avatars = await this.prisma.avatar.findMany({
+			where: { parentId: { in: userIds } },
+		});
+
+		const result = userIds.map((userId) => {
+			return {
+				userId: userId,
+				avatars: this._mapAvatarsToViewDto(avatars.filter((avatar) => avatar.parentId === userId)),
+			};
+		});
+
+		return result;
+	}
+
 	async getAvatarsByUserId(userId: string): Promise<AvatarImagesOutputDto> {
 		const avatars = await this.prisma.avatar.findMany({
 			where: { parentId: userId },

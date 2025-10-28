@@ -62,6 +62,12 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		return response;
 	}
 
+	@MessagePattern({ cmd: FilesMessages.GET_USER_AVATARS_BY_USER_IDS })
+	async getAvatarsByUserIds(userIds: string[]): Promise<{ userId: string; avatars: AvatarImagesOutputDto }[]> {
+		const response = await this.filesQueryRepository.getAvatarsByUserIds(userIds);
+		return response;
+	}
+
 	@MessagePattern({ cmd: FilesMessages.DELETE_USER_AVATAR })
 	async deleteAvatarsByUserId(userId: string): Promise<boolean> {
 		const avatars = await this.filesQueryRepository.getAvatarsByUserId(userId);

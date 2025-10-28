@@ -20,6 +20,7 @@ import { join } from "path";
 			sortSchema: true,
 			introspection: true, // Разрешает отображение схемы в GraphQL Playground на проде
 			context: ({ req, res }) => ({ req, res }),
+			installSubscriptionHandlers: true,
 			formatError: (error) => {
 				return {
 					message: error.message,

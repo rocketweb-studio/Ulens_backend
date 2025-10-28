@@ -97,6 +97,7 @@
     "device-detector-js": "^3.0.3",
     "geoip-lite": "^1.4.10",
     "graphql": "^16.11.0",
+    "graphql-subscriptions": "^3.0.0",
     "ioredis": "^5.7.0",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",

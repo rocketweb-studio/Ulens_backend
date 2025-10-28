@@ -29,6 +29,11 @@ export class FilesClientService {
 		return avatars;
 	}
 
+	async getAvatarsByUserIds(userIds: string[]): Promise<{ userId: string; avatars: AvatarImagesOutputDto }[]> {
+		const avatars = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_AVATARS_BY_USER_IDS }, userIds));
+		return avatars;
+	}
+
 	async getPostImages(postIds: string[]): Promise<PostImagesOutputForMapDto[]> {
 		const images = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_POST_IMAGES }, postIds));
 		return images;

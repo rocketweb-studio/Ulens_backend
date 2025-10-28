@@ -40,12 +40,19 @@ export class CoreEnvConfig {
 	})
 	redisUri: string;
 
+	@IsString()
+	@IsNotEmpty({
+		message: "Set Env variable RMQ_URL, example: amqp://localhost:5672",
+	})
+	rabbitUri: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.env = this.configService.get<string>("NODE_ENV");
 		this.databaseUrl = this.configService.get<string>("AUTH_POSTGRES_URL");
 		this.tcpHost = this.configService.get<string>("AUTH_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("AUTH_TCP_PORT");
 		this.redisUri = this.configService.get<string>("REDIS_URI");
+		this.rabbitUri = this.configService.get<string>("RMQ_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

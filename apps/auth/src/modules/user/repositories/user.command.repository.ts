@@ -144,9 +144,21 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		return this._mapToUse(user);
 	}
 
+	async findAnyUserByEmail(email: string): Promise<UserOutputRepoDto | null> {
+		const user = await this.prisma.user.findUnique({
+			where: { email },
+			include: {
+				profile: true,
+			},
+		});
+		if (!user) return null;
+
+		return this._mapToUse(user);
+	}
+
 	async findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null> {
 		const user = await this.prisma.user.findFirst({
-			where: { OR: [{ email }, { profile: { userName } }], deletedAt: null },
+			where: { OR: [{ email }, { profile: { userName } }] },
 		});
 		if (!user) return null;
 		const field = user.email === email ? "email" : "userName";
@@ -285,5 +297,12 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			data,
 		});
 		return true;
+	}
+
+	async deleteDeletedUsers(): Promise<void> {
+		const { count } = await this.prisma.user.deleteMany({
+			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+		});
+		console.log(`Deleted deleted users: [${count}]`);
 	}
 }

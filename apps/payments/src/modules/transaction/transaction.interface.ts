@@ -18,4 +18,5 @@ export abstract class ITransactionCommandRepository {
 	abstract findTransactionById(id: number): Promise<any>;
 	abstract changeStatusOfExpiredTransactions(): Promise<void>;
 	abstract finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void>;
+	abstract deleteDeletedTransactions(): Promise<void>;
 }

@@ -26,4 +26,11 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 		const deletedSubscription = await this.prisma.subscription.update({ where: { id: subscriptionId }, data: { deletedAt: new Date() } });
 		return deletedSubscription.id !== null;
 	}
+
+	async deleteDeletedSubscriptions(): Promise<void> {
+		const { count } = await this.prisma.subscription.deleteMany({
+			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+		});
+		console.log(`Deleted deleted subscriptions: [${count}]`);
+	}
 }

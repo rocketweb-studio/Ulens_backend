@@ -28,4 +28,11 @@ export class NotificationCommandRepository implements INotificationCommandReposi
 			data: { sentAt: sentAt },
 		});
 	}
+
+	async deleteDeletedNotifications(): Promise<void> {
+		const { count } = await this.prisma.notification.deleteMany({
+			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+		});
+		console.log(`Deleted deleted notifications: [${count}]`);
+	}
 }

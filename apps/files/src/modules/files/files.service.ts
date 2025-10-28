@@ -4,7 +4,7 @@ import { Injectable } from "@nestjs/common";
 import { NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { StorageAdapter } from "@files/core/storage/storage.adapter";
 import { AvatarImagesOutputDto } from "@libs/contracts/index";
-
+import { Cron, CronExpression } from "@nestjs/schedule";
 @Injectable()
 export class FilesService {
 	constructor(
@@ -46,5 +46,10 @@ export class FilesService {
 			throw new UnexpectedErrorRpcException("Something went wrong while deleting avatars");
 		}
 		return isDeleted;
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedFiles() {
+		await this.filesCommandRepository.deleteDeletedFiles();
 	}
 }

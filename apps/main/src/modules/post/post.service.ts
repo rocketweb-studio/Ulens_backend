@@ -4,6 +4,7 @@ import { IPostCommandRepository } from "./post.interface";
 import { CreatePostOutputDto, UpdatePostDto } from "@libs/contracts/index";
 import { DeletePostDto } from "./dto/delete-post.input.dto";
 import { ForbiddenRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class PostService {
@@ -38,5 +39,10 @@ export class PostService {
 
 		const result = await this.postCommandRepository.updatePost(dto);
 		return result;
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedPosts() {
+		await this.postCommandRepository.deleteDeletedPosts();
 	}
 }

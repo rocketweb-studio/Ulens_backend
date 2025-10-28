@@ -21,4 +21,5 @@ export abstract class IPostCommandRepository {
 	abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
 	abstract deletePost(id: string): Promise<boolean>;
 	abstract updatePost(dto: UpdatePostDto): Promise<boolean>;
+	abstract deleteDeletedPosts(): Promise<void>;
 }

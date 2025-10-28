@@ -36,6 +36,8 @@ model Transaction {
 
 	outboxFlowStatus OutboxFlowStatus @default(PENDING)
 
+	deletedAt DateTime?
+
   userId String
 
 	plan Plan? @relation(fields: [planId], references: [id])

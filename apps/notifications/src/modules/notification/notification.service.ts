@@ -1,3 +1,4 @@
+import { Cron, CronExpression } from "@nestjs/schedule";
 import { CreateNotificationInputDto } from "./dto/create-notification.input.dto";
 import { INotificationCommandRepository } from "./notification.interface";
 import { Injectable } from "@nestjs/common";
@@ -17,5 +18,10 @@ export class NotificationService {
 	async readNotification(userId: string, notificationId: string): Promise<boolean> {
 		const result = await this.notificationCommandRepository.readNotification(userId, notificationId);
 		return result;
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedNotifications() {
+		await this.notificationCommandRepository.deleteDeletedNotifications();
 	}
 }

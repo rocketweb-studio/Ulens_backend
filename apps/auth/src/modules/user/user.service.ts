@@ -84,7 +84,7 @@ export class UserService {
 
 		const providerField = provider === Oauth2Providers.GOOGLE ? "googleUserId" : "githubUserId";
 
-		const existedUser = await this.userCommandRepository.findUserByEmail(email);
+		const existedUser = await this.userCommandRepository.findAnyUserByEmail(email);
 
 		if (existedUser && !existedUser[providerField]) {
 			await this.userCommandRepository.setOauthUserId(email, { [providerField]: providerProfileId });
@@ -297,5 +297,10 @@ export class UserService {
 
 	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
 		return this.userCommandRepository.setBlockStatusForUser(userId, isBlocked, reason);
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedUsers() {
+		await this.userCommandRepository.deleteDeletedUsers();
 	}
 }

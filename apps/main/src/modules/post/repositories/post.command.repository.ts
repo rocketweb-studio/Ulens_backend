@@ -40,4 +40,11 @@ export class PrismaPostCommandRepository implements IPostCommandRepository {
 		});
 		return count === 1;
 	}
+
+	async deleteDeletedPosts(): Promise<void> {
+		const { count } = await this.prisma.post.deleteMany({
+			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+		});
+		console.log(`Deleted deleted posts: [${count}]`);
+	}
 }

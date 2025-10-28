@@ -18,4 +18,5 @@ export abstract class IFilesCommandRepository {
 	abstract saveAvatar(data: AvatarInputDto): Promise<string[] | null>;
 	abstract savePostImages(data: any): Promise<boolean>;
 	abstract deleteAvatarsByUserId(userId: string): Promise<boolean>;
+	abstract deleteDeletedFiles(): Promise<void>;
 }

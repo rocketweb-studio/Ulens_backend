@@ -39,4 +39,6 @@ export abstract class IUserCommandRepository {
 	abstract activatePremiumStatus(dto: PremiumInputDto): Promise<{ premiumExpDate: string; email: string }>;
 	abstract deleteUser(userId: string): Promise<boolean>;
 	abstract setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean>;
+	abstract findAnyUserByEmail(email: string): Promise<UserOutputRepoDto | null>;
+	abstract deleteDeletedUsers(): Promise<void>;
 }

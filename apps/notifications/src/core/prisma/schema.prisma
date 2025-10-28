@@ -59,6 +59,7 @@ model Notification {
 	createdAt DateTime @default(now())
 	sentAt DateTime?
 	readAt DateTime?	
+	deletedAt DateTime?
 
 	@@map("notifications")
 }

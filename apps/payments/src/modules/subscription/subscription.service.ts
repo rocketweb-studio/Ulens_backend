@@ -4,6 +4,7 @@ import { SubscriptionCreateDto } from "@payments/modules/subscription/dto/subscr
 import { BadRequestRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { StripeService } from "@payments/core/stripe/stripe.service";
 import { PayPalService } from "@payments/core/paypal/paypal.service";
+import { Cron, CronExpression } from "@nestjs/schedule";
 
 @Injectable()
 export class SubscriptionService {
@@ -55,5 +56,10 @@ export class SubscriptionService {
 
 	async deleteSubscription(subscriptionId: string): Promise<boolean> {
 		return await this.subscriptionCommandRepository.deleteSubscription(+subscriptionId);
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedSubscriptions() {
+		await this.subscriptionCommandRepository.deleteDeletedSubscriptions();
 	}
 }

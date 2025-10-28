@@ -101,6 +101,7 @@ export class TransactionService {
 	// в страйпе ссылка валидна 24 часа, в paypal ссылка валидна 3 дня, поэтому проверяем раз в день
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async changeStatusOfExpiredTransactions() {
+		await this.transactionCommandRepository.deleteDeletedTransactions();
 		await this.transactionCommandRepository.changeStatusOfExpiredTransactions();
 	}
 }

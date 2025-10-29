@@ -81,11 +81,11 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 
 	async deleteDeletedFiles(): Promise<void> {
 		const { count } = await this.prisma.avatar.deleteMany({
-			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+			where: { deletedAt: { not: null } },
 		});
 		console.log(`Deleted deleted avatars: [${count}]`);
 		const { count: postCount } = await this.prisma.post.deleteMany({
-			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+			where: { deletedAt: { not: null } },
 		});
 		console.log(`Deleted deleted posts: [${postCount}]`);
 	}

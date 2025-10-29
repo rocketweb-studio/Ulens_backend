@@ -305,7 +305,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	async deleteDeletedUsers(): Promise<void> {
 		const { count } = await this.prisma.user.deleteMany({
-			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+			where: { deletedAt: { not: null } },
 		});
 		console.log(`Deleted deleted users: [${count}]`);
 	}

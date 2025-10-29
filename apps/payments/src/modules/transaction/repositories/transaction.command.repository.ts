@@ -120,7 +120,7 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 
 	async deleteDeletedTransactions(): Promise<void> {
 		const { count } = await this.prisma.transaction.deleteMany({
-			where: { deletedAt: { not: null, lt: new Date(Date.now() - 1000 * 60 * 60 * 24) } },
+			where: { deletedAt: { not: null } },
 		});
 		console.log(`Deleted deleted transactions: [${count}]`);
 	}

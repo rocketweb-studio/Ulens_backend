@@ -4,8 +4,8 @@
  */
 
 import { CreatePostOutputDto, PostDbOutputDto, UpdatePostDto } from "@libs/contracts/index";
-import { CreatePostWithUserIdDto } from "./dto/create-post.userId.input.dto";
-import { GetUserPostsInputDto } from "./dto/get-user-posts.input.dto";
+import { CreatePostWithUserIdDto } from "@main/modules/post/dto/create-post.userId.input.dto";
+import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
 import { UserPostsPageDto } from "@libs/contracts/index";
 
 export abstract class IPostQueryRepository {
@@ -13,7 +13,7 @@ export abstract class IPostQueryRepository {
 	abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
 	abstract getUserPostsCount(userId: string): Promise<number>;
 	abstract getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]>;
-	abstract getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number }): Promise<UserPostsPageDto>;
+	abstract getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number; search: string }): Promise<UserPostsPageDto>;
 }
 
 export abstract class IPostCommandRepository {
@@ -22,4 +22,5 @@ export abstract class IPostCommandRepository {
 	abstract deletePost(id: string): Promise<boolean>;
 	abstract updatePost(dto: UpdatePostDto): Promise<boolean>;
 	abstract deleteDeletedPosts(): Promise<void>;
+	abstract softDeleteUserPosts(userId: string): Promise<boolean>;
 }

@@ -28,6 +28,7 @@ export enum RabbitEvents {
 	NOTIFICATION_SUBSCRIPTION = "notification.subscription",
 	NOTIFICATION_RENEWAL_CHECK = "notification.renewal.check",
 	PAYMENTS_RENEWAL_CHECKED = "payments.renewal.checked",
+	USER_DELETED = "user.deleted",
 }
 
 export enum RabbitMainQueues {
@@ -37,6 +38,10 @@ export enum RabbitMainQueues {
 	GATEWAY_NOTIFICATION_SUBSCRIPTION_Q = "gateway.notification.subscription.q",
 	PAYMENTS_NOTIFICATION_CHECK_RENEWAL_Q = "payments.notification.renewal.check.q",
 	NOTIFICATIONS_PAYMENTS_RENEWAL_CHECKED_Q = "notifications.payments.renewal.checked.q",
+	NOTIFICATIONS_USER_DELETED_Q = "notifications.user.deleted.q",
+	MAIN_USER_DELETED_Q = "main.user.deleted.q",
+	PAYMENTS_USER_DELETED_Q = "payments.user.deleted.q",
+	FILES_USER_DELETED_Q = "files.user.deleted.q",
 }
 
 export const RabbitRetryTtlMs = 60_000;
@@ -55,4 +60,5 @@ export enum OutboxAggregateType {
 	NOTIFICATION = "notification",
 	PREMIUM_ACTIVATED = "premium.activated",
 	NOTIFICATION_SUBSCRIPTION = "notification.subscription",
+	USER_DELETED = "user.deleted",
 }

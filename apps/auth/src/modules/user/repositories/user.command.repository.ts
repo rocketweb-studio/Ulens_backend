@@ -4,7 +4,7 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { ConfirmCodeDto } from "@libs/contracts/index";
 import { BaseRpcException } from "@libs/exeption/index";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
-import { ConfirmationCodeInputRepoDto } from "../dto/confirm-repo.input.dto";
+import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
 import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
@@ -12,8 +12,9 @@ import { Prisma } from "@auth/core/prisma/generated";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { INBOX_STATUS } from "@libs/constants/outbox-statuses.constants";
 import { RabbitEvents, RabbitEventSources } from "@libs/rabbit/rabbit.constants";
-import { PremiumInputDto } from "../dto/premium.input.dto";
+import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
 import { IInboxCommandRepository } from "@auth/modules/event-store/inbox.interface";
+import { IOutboxCommandRepository } from "@auth/modules/event-store/outbox.interface";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -24,6 +25,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 	constructor(
 		private readonly prisma: PrismaService,
 		private readonly inboxCommandRepository: IInboxCommandRepository,
+		private readonly outboxCommandRepository: IOutboxCommandRepository,
 	) {}
 
 	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserOutputRepoDto> {
@@ -265,19 +267,21 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 
 	// todo реализовать через рфббит с другими сервисами
 	async deleteUser(userId: string): Promise<boolean> {
-		await this.prisma.$transaction([
-			this.prisma.user.update({
+		await this.prisma.$transaction(async (tx) => [
+			await tx.user.update({
 				where: { id: userId },
 				data: { deletedAt: new Date() },
 			}),
-			this.prisma.profile.updateMany({
+			await tx.profile.updateMany({
 				where: { userId },
 				data: { deletedAt: new Date() },
 			}),
-			this.prisma.session.updateMany({
+			await tx.session.updateMany({
 				where: { userId },
 				data: { deletedAt: new Date() },
 			}),
+
+			await this.outboxCommandRepository.createOutboxUserDeletedEvent(tx, { userId }),
 		]);
 
 		return true;

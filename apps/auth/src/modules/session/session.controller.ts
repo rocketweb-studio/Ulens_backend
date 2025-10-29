@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AuthMessages } from "@libs/constants/index";
 import { ISessionQueryRepository } from "./session.interfaces";
 import { PayloadFromRequestDto, SessionOutputDto } from "@libs/contracts/index";
-import { SessionService } from "./session.service";
+import { SessionService } from "@auth/modules/session/session.service";
 
 @Controller()
 export class SessionController {

@@ -1,10 +1,12 @@
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { IOutboxCommandRepository } from "@auth/modules/event-store/outbox.interface";
 import { randomUUID } from "node:crypto";
-import { OutboxAggregateType, RabbitExchanges } from "@libs/rabbit/rabbit.constants";
+import { OutboxAggregateType, RabbitEvents, RabbitExchanges } from "@libs/rabbit/rabbit.constants";
 import { CreateOutBoxPremiumActivatedEventDto } from "@auth/modules/event-store/dto/create-outbox-premium-event.dto";
 import { Injectable } from "@nestjs/common";
 import { OutboxEventStatuses } from "@libs/constants/index";
+import { CreateOutboxUserDeletedDto } from "@auth/modules/event-store/dto/create-outbox-user-deleted.dto";
+import { Prisma } from "@auth/core/prisma/generated/client";
 
 @Injectable()
 export class OutboxCommandRepository implements IOutboxCommandRepository {
@@ -31,6 +33,24 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 		});
 		return createdOutboxTransactionEvent.id;
 	}
+
+	async createOutboxUserDeletedEvent(tx: Prisma.TransactionClient, dto: CreateOutboxUserDeletedDto): Promise<string> {
+		const messageId = randomUUID();
+		const createOutboxUserDeletedEvent = await tx.outboxEvent.create({
+			data: {
+				aggregateType: OutboxAggregateType.USER_DELETED,
+				eventType: RabbitEvents.USER_DELETED,
+				attempts: 0,
+				topic: RabbitExchanges.APP_EVENTS,
+				payload: {
+					messageId,
+					userId: dto.userId,
+				},
+			},
+		});
+		return createOutboxUserDeletedEvent.id;
+	}
+
 	async updateOutboxPendingEvent(id: string): Promise<any> {
 		return await this.prisma.outboxEvent.updateMany({
 			where: { id: id, status: OutboxEventStatuses.PENDING },

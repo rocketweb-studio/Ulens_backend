@@ -1,7 +1,7 @@
 import { DynamicModule, Global, Module } from "@nestjs/common";
-import { StripeConfig } from "./stripe.config";
-import { StripeAsyncOptions, StripeOptions, StripeOptionsSymbol } from "./types/stripe.types";
-import { StripeService } from "./stripe.service";
+import { StripeConfig } from "@payments/core/stripe/stripe.config";
+import { StripeAsyncOptions, StripeOptions, StripeOptionsSymbol } from "@payments/core/stripe/types/stripe.types";
+import { StripeService } from "@payments/core/stripe/stripe.service";
 
 // модуль для Stripe, чтобы не использовать сторонние библиотеки
 @Global()

@@ -6,7 +6,7 @@ import { OutboxAggregateType, RabbitExchanges } from "@libs/rabbit/rabbit.consta
 import { OutBoxNotificationEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-email-event.dto";
 import { Injectable } from "@nestjs/common";
 import { OutboxEventStatuses } from "@libs/constants/index";
-import { CreateOutboxNotificationRenewalCheckedEventDto } from "../dto/create-outbox-notification-renewal-event.dto";
+import { CreateOutboxNotificationRenewalCheckedEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-renewal-event.dto";
 
 @Injectable()
 export class OutboxCommandRepository implements IOutboxCommandRepository {

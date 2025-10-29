@@ -6,10 +6,17 @@ import { CreateOutBoxPremiumActivatedEventDto } from "@auth/modules/event-store/
 export class OutboxService {
 	constructor(private readonly outboxCommandRepository: IOutboxCommandRepository) {}
 
+	// todo реализовать как в методе ниже
 	async createOutboxPremiumActivatedEvent(dto: CreateOutBoxPremiumActivatedEventDto): Promise<string> {
 		const createdOutboxTransactionEvent = await this.outboxCommandRepository.createOutboxPremiumActivatedEvent(dto);
 		return createdOutboxTransactionEvent;
 	}
+
+	//* реализуем сразу из репозитория, т.к. нет необходимости в сервисе
+	// async createOutboxUserDeletedEvent(dto: CreateOutboxUserDeletedDto): Promise<string> {
+	// 	const createdOutboxUserDeletedEvent = await this.outboxCommandRepository.createOutboxUserDeletedEvent(dto);
+	// 	return createdOutboxUserDeletedEvent;
+	// }
 
 	async updateOutboxPendingEvent(id: string): Promise<any> {
 		return this.outboxCommandRepository.updateOutboxPendingEvent(id);

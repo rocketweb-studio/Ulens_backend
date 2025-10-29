@@ -6,7 +6,7 @@ import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { GetUsersQueryGqlDto } from "../dto/get-users-query-gql.dto";
 import { FilterByStatus } from "@libs/constants/auth.constants";
-import { GetUserOutputDto, GetUsersOutputDto } from "../dto/get-users.ouptut.dto";
+import { GetUserOutputDto, GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };

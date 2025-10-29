@@ -1,10 +1,10 @@
 import { Injectable } from "@nestjs/common";
-import { PlanService } from "../plan/plan.service";
-import { TransactionService } from "../transaction/transaction.service";
-import { SubscriptionService } from "../subscription/subscription.service";
+import { PlanService } from "@payments/modules/plan/plan.service";
+import { TransactionService } from "@payments/modules/transaction/transaction.service";
+import { SubscriptionService } from "@payments/modules/subscription/subscription.service";
 import { PaymentProvidersEnum, planIntervalsInDays, TransactionStatusEnum } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
-import { OutboxService } from "../event-store/outbox.service";
+import { OutboxService } from "@payments/modules/event-store/outbox.service";
 
 @Injectable()
 export class WebhookPaypalService {

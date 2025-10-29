@@ -1,5 +1,5 @@
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-import { ITransactionQueryRepository } from "../transaction.interface";
+import { ITransactionQueryRepository } from "@payments/modules/transaction/transaction.interface";
 import {
 	CurrencyEnum,
 	PaginationWithSortQueryDto,

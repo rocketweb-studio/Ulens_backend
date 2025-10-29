@@ -1,18 +1,18 @@
 import { Args, Query, Resolver, Subscription } from "@nestjs/graphql";
 import { GqlJwtAuthGuard } from "@gateway/core/guards/gql-jwt-auth.guard";
 import { Inject, UseGuards } from "@nestjs/common";
-import { GetAdminPostsInput } from "./inputs/get-admin-posts.input";
+import { GetAdminPostsInput } from "@gateway/microservices/main/posts_gql/inputs/get-admin-posts.input";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
-import { PostsResponse } from "./models/post.model";
+import { PostsResponse } from "@gateway/microservices/main/posts_gql/models/post.model";
 import { UserPostsPageDto } from "@libs/contracts/main-contracts/output/get-user-posts-output.dto";
 import { PostImagesOutputForMapDto } from "@libs/contracts/files-contracts/output/post-images-for-map.output.dto";
-import { PostsClientService } from "../posts/posts-client.service";
+import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { AvatarImagesOutputDto } from "@libs/contracts/files-contracts/output/avatar-images.output.dto";
 import { PubSub } from "graphql-subscriptions";
 import { GraphqlPubSubMessages, PUB_SUB_GQL } from "@libs/constants/index";
-import { PostModel } from "./models/post.model";
+import { PostModel } from "@gateway/microservices/main/posts_gql/models/post.model";
 
 @Resolver("Posts")
 export class PostsClientResolver {
@@ -48,8 +48,12 @@ export class PostsClientResolver {
 				createdAt: post.createdAt.toString(),
 				updatedAt: post.updatedAt.toString(),
 				images: {
-					small: postsImages.filter((img) => img.parentId === post.id && img.size === "small"),
-					medium: postsImages.filter((img) => img.parentId === post.id && img.size === "medium"),
+					small: postsImages
+						.filter((img) => img.parentId === post.id && img.size === "small")
+						.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+					medium: postsImages
+						.filter((img) => img.parentId === post.id && img.size === "medium")
+						.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
 				},
 				avatarOwner: profilesAvatars.find((avatar) => avatar.userId === post.userId)?.avatars.small?.url,
 				owner: {

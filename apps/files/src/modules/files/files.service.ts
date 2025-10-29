@@ -48,6 +48,10 @@ export class FilesService {
 		return isDeleted;
 	}
 
+	async softDeleteUserFiles(userId: string): Promise<void> {
+		await this.filesCommandRepository.softDeleteUserFiles(userId);
+	}
+
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async deleteDeletedFiles() {
 		await this.filesCommandRepository.deleteDeletedFiles();

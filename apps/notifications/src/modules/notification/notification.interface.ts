@@ -6,6 +6,7 @@ export abstract class INotificationCommandRepository {
 	abstract readNotification(userId: string, notificationId: string): Promise<boolean>;
 	abstract markNotificationAsSent(notificationId: number, sentAt: Date): Promise<void>;
 	abstract deleteDeletedNotifications(): Promise<void>;
+	abstract softDeleteUserNotifications(userId: string): Promise<void>;
 }
 
 export abstract class INotificationQueryRepository {

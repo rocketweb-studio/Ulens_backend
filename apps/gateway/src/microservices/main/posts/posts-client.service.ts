@@ -81,7 +81,7 @@ export class PostsClientService {
 				this.buildPostOutput(
 					post,
 					profile,
-					postsImages.filter((img) => img.parentId === post.id),
+					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
 				),
 			),
 			pageInfo: {

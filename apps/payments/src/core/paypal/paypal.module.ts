@@ -1,6 +1,6 @@
 import { Global, Module } from "@nestjs/common";
-import { PayPalService } from "./paypal.service";
-import { PayPalConfig } from "./paypal.config";
+import { PayPalService } from "@payments/core/paypal/paypal.service";
+import { PayPalConfig } from "@payments/core/paypal/paypal.config";
 
 @Global()
 @Module({

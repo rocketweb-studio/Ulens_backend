@@ -1,5 +1,5 @@
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
-import { ProfileUpdateInputDto } from "./dto/profile-update.input.dto";
+import { ProfileUpdateInputDto } from "@auth/modules/profile/dto/profile-update.input.dto";
 
 export abstract class IProfileQueryRepository {
 	abstract getProfileByUserId(userId: string): Promise<ProfileOutputDto>;

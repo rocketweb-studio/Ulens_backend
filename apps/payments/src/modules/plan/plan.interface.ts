@@ -4,7 +4,7 @@
  */
 
 import { PlanOutputDto } from "@libs/contracts/index";
-import { PlanDto } from "./dto/plan.dto";
+import { PlanDto } from "@payments/modules/plan/dto/plan.dto";
 
 export abstract class IPlanQueryRepository {
 	abstract getPlans(): Promise<PlanOutputDto[]>;

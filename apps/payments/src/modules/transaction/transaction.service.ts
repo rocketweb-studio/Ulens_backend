@@ -96,6 +96,10 @@ export class TransactionService {
 		await this.transactionCommandRepository.finalizeAfterPremiumActivated(input);
 	}
 
+	async softDeleteUserTransactions(userId: string): Promise<void> {
+		await this.transactionCommandRepository.softDeleteUserTransactions(userId);
+	}
+
 	// крон для изменения статуса транзакций на expired, если не произвели оплату
 	// в страйпе для этого приходит вебхук но paypal не обрабатывает это событие и мы сами должны контролировать это
 	// в страйпе ссылка валидна 24 часа, в paypal ссылка валидна 3 дня, поэтому проверяем раз в день

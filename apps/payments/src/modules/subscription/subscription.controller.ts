@@ -1,10 +1,10 @@
 import { Controller } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { PaymentsMessages } from "@libs/constants/payment-messages";
-import { ISubscriptionQueryRepository } from "./subscription.interface";
+import { ISubscriptionQueryRepository } from "@payments/modules/subscription/subscription.interface";
 import { SubscriptionOutputDto } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
-import { SubscriptionService } from "./subscription.service";
+import { SubscriptionService } from "@payments/modules/subscription/subscription.service";
 
 @Controller()
 export class SubscriptionController {

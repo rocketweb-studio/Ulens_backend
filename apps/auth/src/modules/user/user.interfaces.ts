@@ -6,8 +6,8 @@ import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.in
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
-import { PremiumInputDto } from "./dto/premium.input.dto";
-import { GetUsersQueryGqlDto } from "./dto/get-users-query-gql.dto";
+import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
+import { GetUsersQueryGqlDto } from "@auth/modules/user/dto/get-users-query-gql.dto";
 
 /**
  *Using abstract classes lets Nest use the class itself as the DI token,

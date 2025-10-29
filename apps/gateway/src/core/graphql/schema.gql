@@ -15,6 +15,7 @@ enum FilterByStatus {
 input GetAdminPostsInput {
   endCursorPostId: String = null
   pageSize: Float = 10
+  search: String = ""
 }
 
 input GetPaymentsInput {
@@ -58,8 +59,8 @@ type Mutation {
 }
 
 type OwnerModel {
-  firstName: String!
-  lastName: String!
+  firstName: String
+  lastName: String
 }
 
 type PageInfoModel {
@@ -73,7 +74,7 @@ type PostImageModel {
 }
 
 type PostModel {
-  avatarOwner: String!
+  avatarOwner: String
   avatarWhoLikes: Boolean!
   createdAt: String!
   description: String!

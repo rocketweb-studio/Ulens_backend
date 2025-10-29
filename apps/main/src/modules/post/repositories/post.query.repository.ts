@@ -1,10 +1,11 @@
 import { Injectable } from "@nestjs/common";
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
 import { PrismaService } from "@main/core/prisma/prisma.service";
-import { GetUserPostsInputDto } from "../dto/get-user-posts.input.dto";
+import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
 import { PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
 import { PostQueryHelper } from "@main/utils/post.query.repo.helper";
 import { Post } from "@main/core/prisma/generated";
+import { Prisma } from "@main/core/prisma/generated";
 
 @Injectable()
 export class PrismaPostQueryRepository implements IPostQueryRepository {
@@ -44,21 +45,34 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		return this.helpers.buildPage(totalCount, pageSize, rows);
 	}
 
-	async getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number }): Promise<UserPostsPageDto> {
-		const { endCursorPostId, pageSize } = dto;
+	async getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number; search: string }): Promise<UserPostsPageDto> {
+		const { endCursorPostId, pageSize, search } = dto;
 
 		if (!endCursorPostId) {
-			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			const [totalCount, rows] = await this.helpers.getFirstPage(
+				{ deletedAt: null, description: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+				pageSize,
+			);
 			return this.helpers.buildPage(totalCount, pageSize, rows);
 		}
-		const cursor = await this.helpers.resolveCursor({ deletedAt: null }, endCursorPostId);
+		const cursor = await this.helpers.resolveCursor(
+			{ deletedAt: null, description: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+			endCursorPostId,
+		);
 
 		if (!cursor) {
-			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			const [totalCount, rows] = await this.helpers.getFirstPage(
+				{ deletedAt: null, description: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+				pageSize,
+			);
 			return this.helpers.buildPage(totalCount, pageSize, rows);
 		}
 
-		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null }, cursor, pageSize);
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor(
+			{ deletedAt: null, description: { contains: search, mode: "insensitive" as Prisma.QueryMode } },
+			cursor,
+			pageSize,
+		);
 		return this.helpers.buildPage(totalCount, pageSize, rows);
 	}
 

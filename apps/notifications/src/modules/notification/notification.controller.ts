@@ -1,9 +1,9 @@
 import { NotificationMessages } from "@libs/constants/notification-messages";
 import { Controller } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
-import { INotificationQueryRepository } from "./notification.interface";
+import { INotificationQueryRepository } from "@notifications/modules/notification/notification.interface";
 import { NotificationsOutputDto } from "@libs/contracts/notifications-contracts/output/notifications.output.dto";
-import { NotificationService } from "./notification.service";
+import { NotificationService } from "@notifications/modules/notification/notification.service";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Controller()

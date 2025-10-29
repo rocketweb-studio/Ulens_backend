@@ -1,10 +1,10 @@
 import { Injectable, BadRequestException } from "@nestjs/common";
 import axios, { AxiosInstance } from "axios";
-import { PayPalConfig } from "./paypal.config";
+import { PayPalConfig } from "@payments/core/paypal/paypal.config";
 import { BadRequestRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
-import { PayPalProductDto } from "./dto/product.dto";
-import { PayPalPlanDto } from "./dto/plan.dto";
-import { PayPalSubscriptionDto } from "./dto/subscription.dto";
+import { PayPalProductDto } from "@payments/core/paypal/dto/product.dto";
+import { PayPalPlanDto } from "@payments/core/paypal/dto/plan.dto";
+import { PayPalSubscriptionDto } from "@payments/core/paypal/dto/subscription.dto";
 
 @Injectable()
 export class PayPalService {

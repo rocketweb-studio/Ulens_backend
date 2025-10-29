@@ -35,7 +35,7 @@ export class FilesClientService {
 	}
 
 	async getPostImages(postIds: string[]): Promise<PostImagesOutputForMapDto[]> {
-		const images = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_USER_POST_IMAGES }, postIds));
+		const images = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_POST_IMAGES }, postIds));
 		return images;
 	}
 

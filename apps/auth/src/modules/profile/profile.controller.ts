@@ -1,10 +1,10 @@
 import { Controller } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AuthMessages } from "@libs/constants/index";
-import { IProfileQueryRepository } from "./profile.interfaces";
+import { IProfileQueryRepository } from "@auth/modules/profile/profile.interfaces";
 import { ProfileInputDto } from "@libs/contracts/index";
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
-import { ProfileService } from "./profile.service";
+import { ProfileService } from "@auth/modules/profile/profile.service";
 
 @Controller()
 export class ProfileController {

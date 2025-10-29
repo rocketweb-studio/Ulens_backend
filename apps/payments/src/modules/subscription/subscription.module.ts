@@ -3,7 +3,7 @@ import { SubscriptionService } from "@payments/modules/subscription/subscription
 import { PrismaSubscriptionCommandRepository } from "@payments/modules/subscription/repositories/subscription.command.repository";
 import { PrismaSubscriptionQueryRepository } from "@payments/modules/subscription/repositories/subscription.query.repository";
 import { ISubscriptionCommandRepository, ISubscriptionQueryRepository } from "@payments/modules/subscription/subscription.interface";
-import { SubscriptionController } from "./subscription.controller";
+import { SubscriptionController } from "@payments/modules/subscription/subscription.controller";
 
 @Module({
 	imports: [],

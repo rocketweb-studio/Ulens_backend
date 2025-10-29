@@ -1,10 +1,10 @@
 import { Module } from "@nestjs/common";
-import { PostController } from "./post.controller";
-import { PostService } from "./post.service";
-import { IPostCommandRepository, IPostQueryRepository } from "./post.interface";
-import { PrismaPostCommandRepository } from "./repositories/post.command.repository";
-import { PrismaPostQueryRepository } from "./repositories/post.query.repository";
-import { EventStoreModule } from "../event-store/event-store.module";
+import { PostController } from "@main/modules/post/post.controller";
+import { PostService } from "@main/modules/post/post.service";
+import { IPostCommandRepository, IPostQueryRepository } from "@main/modules/post/post.interface";
+import { PrismaPostCommandRepository } from "@main/modules/post/repositories/post.command.repository";
+import { PrismaPostQueryRepository } from "@main/modules/post/repositories/post.query.repository";
+import { EventStoreModule } from "@main/modules/event-store/event-store.module";
 @Module({
 	imports: [EventStoreModule],
 	providers: [
@@ -13,6 +13,6 @@ import { EventStoreModule } from "../event-store/event-store.module";
 		PostService,
 	],
 	controllers: [PostController],
-	exports: [],
+	exports: [PostService],
 })
 export class PostModule {}

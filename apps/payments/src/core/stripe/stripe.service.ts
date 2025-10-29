@@ -1,9 +1,9 @@
 import { Inject, Injectable } from "@nestjs/common";
 import Stripe from "stripe";
-import { StripeOptionsSymbol } from "./types/stripe.types";
-import { StripeOptions } from "./types/stripe.types";
+import { StripeOptionsSymbol } from "@payments/core/stripe/types/stripe.types";
+import { StripeOptions } from "@payments/core/stripe/types/stripe.types";
 import { MeUserViewDto } from "@libs/contracts/index";
-import { StripeConfig } from "./stripe.config";
+import { StripeConfig } from "@payments/core/stripe/stripe.config";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { PaymentIntervalEnum } from "@libs/contracts/index";
 

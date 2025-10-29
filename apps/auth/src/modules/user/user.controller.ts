@@ -24,8 +24,8 @@ import { OauthInputDto } from "@auth/modules/user/dto/oauth.input.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { ProfilePostsDto } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
-import { GetUsersQueryGqlDto } from "./dto/get-users-query-gql.dto";
-import { GetUsersOutputDto } from "./dto/get-users.ouptut.dto";
+import { GetUsersQueryGqlDto } from "@auth/modules/user/dto/get-users-query-gql.dto";
+import { GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
 
 @Controller()
 export class UserController {

@@ -9,8 +9,8 @@ import { ITransactionCommandRepository, ITransactionQueryRepository } from "@pay
 import { IPlanQueryRepository } from "@payments/modules/plan/plan.interface";
 import { PrismaPlanQueryRepository } from "@payments/modules/plan/repositories/plan.query.repository";
 import { SubscriptionModule } from "@payments/modules/subscription/subscription.module";
-import { InboxCommandRepository } from "../event-store/repositories/inbox.command.repository";
-import { IInboxCommandRepository } from "../event-store/inbox.interface";
+import { InboxCommandRepository } from "@payments/modules/event-store/repositories/inbox.command.repository";
+import { IInboxCommandRepository } from "@payments/modules/event-store/inbox.interface";
 
 @Module({
 	imports: [SubscriptionModule],

@@ -5,9 +5,9 @@ import { StripeConfig } from "@payments/core/stripe/stripe.config";
 import { PaymentProvidersEnum, planIntervalsInDays, TransactionStatusEnum } from "@libs/contracts/index";
 import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 import { PlanService } from "../plan/plan.service";
-import { TransactionService } from "../transaction/transaction.service";
-import { SubscriptionService } from "../subscription/subscription.service";
-import { OutboxService } from "../event-store/outbox.service";
+import { TransactionService } from "@payments/modules/transaction/transaction.service";
+import { SubscriptionService } from "@payments/modules/subscription/subscription.service";
+import { OutboxService } from "@payments/modules/event-store/outbox.service";
 import { RabbitEvents } from "@libs/rabbit/rabbit.constants";
 
 @Injectable()

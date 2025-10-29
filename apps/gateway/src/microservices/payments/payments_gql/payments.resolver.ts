@@ -2,8 +2,8 @@ import { Query, Resolver, Args } from "@nestjs/graphql";
 import { GetPaymentsInput } from "@gateway/microservices/payments/payments_gql/inputs/get-payments.input";
 import { GqlJwtAuthGuard } from "@gateway/core/guards/gql-jwt-auth.guard";
 import { UseGuards } from "@nestjs/common";
-import { PaymentsClientService } from "../payments-client.service";
-import { TransactionsResponse } from "./models/payment.model";
+import { PaymentsClientService } from "@gateway/microservices/payments/payments-client.service";
+import { TransactionsResponse } from "@gateway/microservices/payments/payments_gql/models/payment.model";
 
 @Resolver("Payments")
 export class PaymentsGqlResolver {

@@ -1,9 +1,9 @@
 import { Injectable } from "@nestjs/common";
-import { CreateOutboxNotificationEmailEventDto } from "./dto/create-outbox-notification-email-event.dto";
-import { CreateOutBoxTransactionEventDto } from "./dto/create-outbox-transaction-event.dto";
-import { IOutboxCommandRepository } from "./outbox.interface";
-import { PlanService } from "../plan/plan.service";
-import { CreateOutboxNotificationRenewalCheckedEventDto } from "./dto/create-outbox-notification-renewal-event.dto";
+import { CreateOutboxNotificationEmailEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-email-event.dto";
+import { CreateOutBoxTransactionEventDto } from "@payments/modules/event-store/dto/create-outbox-transaction-event.dto";
+import { IOutboxCommandRepository } from "@payments/modules/event-store/outbox.interface";
+import { PlanService } from "@payments/modules/plan/plan.service";
+import { CreateOutboxNotificationRenewalCheckedEventDto } from "@payments/modules/event-store/dto/create-outbox-notification-renewal-event.dto";
 
 @Injectable()
 export class OutboxService {

@@ -1,7 +1,7 @@
 import { PrismaService } from "@notifications/core/prisma/prisma.service";
-import { INotificationCommandRepository } from "../notification.interface";
+import { INotificationCommandRepository } from "@notifications/modules/notification/notification.interface";
 import { Injectable } from "@nestjs/common";
-import { CreateNotificationInputDto } from "../dto/create-notification.input.dto";
+import { CreateNotificationInputDto } from "@notifications/modules/notification/dto/create-notification.input.dto";
 
 @Injectable()
 export class NotificationCommandRepository implements INotificationCommandRepository {
@@ -26,6 +26,13 @@ export class NotificationCommandRepository implements INotificationCommandReposi
 		await this.prisma.notification.update({
 			where: { id: notificationId },
 			data: { sentAt: sentAt },
+		});
+	}
+
+	async softDeleteUserNotifications(userId: string): Promise<void> {
+		await this.prisma.notification.updateMany({
+			where: { userId },
+			data: { deletedAt: new Date() },
 		});
 	}
 

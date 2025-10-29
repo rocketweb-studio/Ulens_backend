@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { IPlanCommandRepository } from "@payments/modules/plan/plan.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-import { PlanDto } from "../dto/plan.dto";
+import { PlanDto } from "@payments/modules/plan/dto/plan.dto";
 
 @Injectable()
 export class PrismaPlanCommandRepository implements IPlanCommandRepository {

@@ -1,4 +1,4 @@
-import { AvatarInputDto } from "./dto/avatar.input.dto";
+import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 
 /**
@@ -19,4 +19,5 @@ export abstract class IFilesCommandRepository {
 	abstract savePostImages(data: any): Promise<boolean>;
 	abstract deleteAvatarsByUserId(userId: string): Promise<boolean>;
 	abstract deleteDeletedFiles(): Promise<void>;
+	abstract softDeleteUserFiles(userId: string): Promise<void>;
 }

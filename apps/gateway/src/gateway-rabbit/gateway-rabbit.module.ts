@@ -1,8 +1,8 @@
 import { RabbitEventBus } from "@libs/rabbit/index";
 import { Module } from "@nestjs/common";
 import { RMQ_EVENT_BUS } from "@libs/rabbit/index";
-import { GatewayRabbitConsumer } from "./gateway-rabbit.consumer";
-import { WebsocketModule } from "../websocket/websocket.module";
+import { GatewayRabbitConsumer } from "@gateway/gateway-rabbit/gateway-rabbit.consumer";
+import { WebsocketModule } from "@gateway/websocket/websocket.module";
 
 @Module({
 	imports: [WebsocketModule],

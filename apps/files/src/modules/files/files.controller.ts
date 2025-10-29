@@ -6,7 +6,7 @@ import { FilesMessages } from "@libs/constants/files-messages";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { FilesService } from "@files/modules/files/files.service";
-import { IFilesQueryRepository } from "./files.interfaces";
+import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
 import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 
 @Controller()
@@ -56,7 +56,7 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		return response;
 	}
 
-	@MessagePattern({ cmd: FilesMessages.GET_USER_POST_IMAGES })
+	@MessagePattern({ cmd: FilesMessages.GET_POST_IMAGES })
 	async getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputForMapDto[]> {
 		const response = await this.filesQueryRepository.getImagesByPostIds(postIds);
 		return response;

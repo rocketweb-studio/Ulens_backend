@@ -7,8 +7,8 @@ import { Microservice } from "@libs/constants/microservices";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
 import { JwtModule } from "@nestjs/jwt";
-import { AuthClientModule } from "../auth/auth-client.module";
-import { PaymentsGqlResolver } from "./payments_gql/payments.resolver";
+import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module";
+import { PaymentsGqlResolver } from "@gateway/microservices/payments/payments_gql/payments.resolver";
 
 @Module({
 	imports: [

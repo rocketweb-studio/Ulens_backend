@@ -7,4 +7,7 @@ export class GetAdminPostsInput {
 
 	@Field(() => Number, { nullable: true, defaultValue: 10 })
 	pageSize: number;
+
+	@Field(() => String, { nullable: true, defaultValue: "" })
+	search: string;
 }

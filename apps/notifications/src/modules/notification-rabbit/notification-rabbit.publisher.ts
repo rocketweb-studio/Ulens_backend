@@ -31,8 +31,8 @@ export class NotificationRabbitPublisher {
 		this.running = true;
 		try {
 			const events = await this.outboxService.findPendingOutboxEvents(chanckSize);
-			console.log("events", events);
 			if (events.length === 0) return;
+			console.log("events", events);
 
 			for (const ev of events) {
 				// берем событие: инкрементируем attempts ТОЛЬКО если оно ещё PENDING

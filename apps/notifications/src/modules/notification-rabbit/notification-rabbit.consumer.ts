@@ -7,7 +7,7 @@ import { PaymentProvidersEnum } from "@libs/contracts/index";
 import { setupQueueWithRetryAndDLQ } from "@libs/rabbit/rabbit.setup";
 import { InboxService } from "@notifications/modules/event-store/inbox.service";
 import { OutboxService } from "@notifications/modules/event-store/outbox.service";
-import { NotificationService } from "../notification/notification.service";
+import { NotificationService } from "@notifications/modules/notification/notification.service";
 
 @Injectable()
 export class NotificationRabbitConsumer implements OnModuleInit {
@@ -30,6 +30,11 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 				baseQueue: RabbitMainQueues.NOTIFICATIONS_PAYMENTS_RENEWAL_CHECKED_Q,
 				exchange: RabbitExchanges.APP_EVENTS,
 				routingKey: RabbitEvents.PAYMENTS_RENEWAL_CHECKED,
+			},
+			{
+				baseQueue: RabbitMainQueues.NOTIFICATIONS_USER_DELETED_Q,
+				exchange: RabbitExchanges.APP_EVENTS,
+				routingKey: RabbitEvents.USER_DELETED,
 			},
 		];
 
@@ -199,6 +204,55 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 						this.ch.ack(msg);
 					} else {
 						this.ch.publish(RabbitExchanges.APP_DLX, `${RabbitMainQueues.NOTIFICATIONS_NOTIFICATION_SEND_Q}.dlq`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: msg.properties.headers,
+						});
+						this.ch.ack(msg);
+					}
+				}
+			},
+			{ noAck: false },
+		);
+
+		await this.ch.consume(
+			RabbitMainQueues.NOTIFICATIONS_USER_DELETED_Q,
+			async (msg) => {
+				if (!msg) return;
+				try {
+					const evt = JSON.parse(msg.content.toString()) as {
+						userId: string;
+						messageId: string;
+					};
+
+					console.log(`[NOTIFICATIONS][RMQ] consumed event - ${RabbitMainQueues.NOTIFICATIONS_USER_DELETED_Q}`);
+
+					try {
+						// сохраняем сообщение в БД
+						await this.inboxService.createInboxMessage({
+							id: evt.messageId,
+							type: RabbitEvents.USER_DELETED,
+							source: RabbitEventSources.AUTH_SERVICE,
+							payload: evt,
+						});
+
+						await this.notificationService.softDeleteUserNotifications(evt.userId);
+					} catch (e) {
+						console.error("[notifications][RMQ] error creating inbox message", e);
+					}
+
+					this.ch.ack(msg);
+				} catch (_e) {
+					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
+					if (retries < 3) {
+						this.ch.sendToQueue(`${RabbitMainQueues.NOTIFICATIONS_USER_DELETED_Q}.retry.1m`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: { ...(msg.properties.headers || {}), "x-retries": retries + 1 },
+						});
+						this.ch.ack(msg);
+					} else {
+						this.ch.publish(RabbitExchanges.APP_DLX, `${RabbitMainQueues.NOTIFICATIONS_USER_DELETED_Q}.dlq`, msg.content, {
 							persistent: true,
 							contentType: APPLICATION_JSON,
 							headers: msg.properties.headers,

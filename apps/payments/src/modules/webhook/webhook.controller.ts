@@ -1,8 +1,8 @@
 import { Controller } from "@nestjs/common";
-import { WebhookStripeService } from "./webhook-stripe.service";
+import { WebhookStripeService } from "@payments/modules/webhook/webhook-stripe.service";
 import { PaymentsMessages } from "@libs/constants/payment-messages";
 import { MessagePattern, Payload } from "@nestjs/microservices";
-import { WebhookPaypalService } from "./webhook-paypal.service";
+import { WebhookPaypalService } from "@payments/modules/webhook/webhook-paypal.service";
 
 @Controller()
 export class WebhookController {

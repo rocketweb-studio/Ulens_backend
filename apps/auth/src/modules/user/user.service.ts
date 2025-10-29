@@ -10,7 +10,7 @@ import {
 	CreateOauthUserDto,
 	SessionMetadataDto,
 } from "@libs/contracts/index";
-import { IUserCommandRepository } from "./user.interfaces";
+import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { UserEnvConfig } from "@auth/modules/user/user.config";
@@ -34,6 +34,7 @@ import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { RedisService } from "@libs/redis/redis.service";
 import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
+import { OutboxService } from "@auth/modules/event-store/outbox.service";
 
 @Injectable()
 export class UserService {
@@ -44,6 +45,7 @@ export class UserService {
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
 		private readonly redisService: RedisService,
+		private readonly outboxService: OutboxService,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -291,8 +293,9 @@ export class UserService {
 		return { refreshToken, payloadForJwt };
 	}
 
-	async deleteUser(userId: string): Promise<any> {
-		return this.userCommandRepository.deleteUser(userId);
+	async deleteUser(userId: string): Promise<boolean> {
+		await this.userCommandRepository.deleteUser(userId);
+		return true;
 	}
 
 	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {

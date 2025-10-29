@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
-import { ProfileService } from "./profile.service";
-import { PrismaProfileCommandRepository } from "./repositories/profile.command.repository";
-import { IProfileCommandRepository, IProfileQueryRepository } from "./profile.interfaces";
-import { PrismaProfileQueryRepository } from "./repositories/profile.query.repository";
-import { ProfileController } from "./profile.controller";
+import { ProfileService } from "@auth/modules/profile/profile.service";
+import { PrismaProfileCommandRepository } from "@auth/modules/profile/repositories/profile.command.repository";
+import { IProfileCommandRepository, IProfileQueryRepository } from "@auth/modules/profile/profile.interfaces";
+import { PrismaProfileQueryRepository } from "@auth/modules/profile/repositories/profile.query.repository";
+import { ProfileController } from "@auth/modules/profile/profile.controller";
 
 @Module({
 	imports: [],

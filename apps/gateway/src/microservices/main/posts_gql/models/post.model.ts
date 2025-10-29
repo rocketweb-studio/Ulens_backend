@@ -24,10 +24,10 @@ class PostImageModel {
 
 @ObjectType()
 class OwnerModel {
-	@Field(() => String)
-	firstName: string;
-	@Field(() => String)
-	lastName: string;
+	@Field(() => String, { nullable: true })
+	firstName: string | null;
+	@Field(() => String, { nullable: true })
+	lastName: string | null;
 }
 
 @ObjectType()
@@ -46,8 +46,8 @@ export class PostModel {
 	updatedAt: string;
 	@Field(() => PostImageModel)
 	images: PostImageModel;
-	@Field(() => String)
-	avatarOwner: string;
+	@Field(() => String, { nullable: true })
+	avatarOwner: string | null;
 	@Field(() => OwnerModel)
 	owner: OwnerModel;
 	@Field(() => Number)

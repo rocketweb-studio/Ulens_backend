@@ -1,5 +1,5 @@
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-import { ISubscriptionQueryRepository } from "../subscription.interface";
+import { ISubscriptionQueryRepository } from "@payments/modules/subscription/subscription.interface";
 import { SubscriptionOutputDto } from "@libs/contracts/index";
 import { Subscription } from "@payments/core/prisma/generated/client";
 import { Injectable } from "@nestjs/common";

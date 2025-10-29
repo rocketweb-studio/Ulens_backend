@@ -4,8 +4,8 @@ import { UsersGqlClientService } from "@gateway/microservices/auth/users_gql/use
 import { GetUsersInput } from "@gateway/microservices/auth/users_gql/inputs/get-users.input";
 import { DeleteUserInput } from "@gateway/microservices/auth/users_gql/inputs/delete-user.input";
 import { SetBlockStatusForUserInput } from "@gateway/microservices/auth/users_gql/inputs/set-block-status.input";
-import { LoginAdminInput } from "./inputs/login-admin.input";
-import { LoginAdminModel } from "./models/login-admin.model";
+import { LoginAdminInput } from "@gateway/microservices/auth/users_gql/inputs/login-admin.input";
+import { LoginAdminModel } from "@gateway/microservices/auth/users_gql/models/login-admin.model";
 import { GqlJwtAuthGuard } from "@gateway/core/guards/gql-jwt-auth.guard";
 import { UseGuards } from "@nestjs/common";
 @Resolver("Users")

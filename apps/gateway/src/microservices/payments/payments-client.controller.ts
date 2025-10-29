@@ -1,5 +1,5 @@
 import { Controller, Get, Param, Post, Body, Delete, UseGuards, HttpCode, HttpStatus, Headers, RawBody, Query } from "@nestjs/common";
-import { PaymentsClientService } from "./payments-client.service";
+import { PaymentsClientService } from "@gateway/microservices/payments/payments-client.service";
 import {
 	PaginationWithSortQueryDto,
 	PayloadFromRequestDto,

@@ -1,5 +1,5 @@
 import { PaymentProvidersEnum, TransactionStatusEnum } from "@libs/contracts/index";
-import { ITransactionCommandRepository } from "../transaction.interface";
+import { ITransactionCommandRepository } from "@payments/modules/transaction/transaction.interface";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
@@ -109,6 +109,12 @@ export class TransactionCommandRepository implements ITransactionCommandReposito
 				id: messageId,
 				status: INBOX_STATUS.PROCESSED,
 			});
+		});
+	}
+	async softDeleteUserTransactions(userId: string): Promise<void> {
+		await this.prisma.transaction.updateMany({
+			where: { userId },
+			data: { deletedAt: new Date() },
 		});
 	}
 

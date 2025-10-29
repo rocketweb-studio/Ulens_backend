@@ -5,8 +5,8 @@
 
 import { PaginationWithSortQueryDto, PaymentProvidersEnum, TransactionWithPageInfoOutputDto } from "@libs/contracts/index";
 import { UpdateTransactionDto } from "@payments/modules/transaction/dto/update-transaction.dto";
-import { CreateTransactionDto } from "./dto/create-transaction.dto";
-import { PremiumActivatedInput } from "./dto/permium-activated.input.dto";
+import { CreateTransactionDto } from "@payments/modules/transaction/dto/create-transaction.dto";
+import { PremiumActivatedInput } from "@payments/modules/transaction/dto/permium-activated.input.dto";
 
 export abstract class ITransactionQueryRepository {
 	abstract getTransactions(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto>;
@@ -19,4 +19,5 @@ export abstract class ITransactionCommandRepository {
 	abstract changeStatusOfExpiredTransactions(): Promise<void>;
 	abstract finalizeAfterPremiumActivated(input: PremiumActivatedInput): Promise<void>;
 	abstract deleteDeletedTransactions(): Promise<void>;
+	abstract softDeleteUserTransactions(userId: string): Promise<void>;
 }

@@ -63,6 +63,18 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 		return result.count > 0;
 	}
 
+	async softDeleteUserFiles(userId: string): Promise<void> {
+		await this.prisma.avatar.updateMany({
+			where: { parentId: userId },
+			data: { deletedAt: new Date() },
+		});
+
+		await this.prisma.post.updateMany({
+			where: { parentId: userId },
+			data: { deletedAt: new Date() },
+		});
+	}
+
 	private _mapToViewDto(avatar: Avatar): string {
 		return avatar.url;
 	}

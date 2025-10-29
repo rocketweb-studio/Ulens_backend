@@ -1,9 +1,9 @@
 import { DynamicModule, Module } from "@nestjs/common";
 import { CoreModule } from "@main/core/core.module";
 import { CoreEnvConfig } from "@main/core/core.config";
-import { PostModule } from "./modules/post/post.module";
-import { PostRabbitModule } from "./modules/post-rabbit/post-rabbit.module";
-import { EventStoreModule } from "./modules/event-store/event-store.module";
+import { PostModule } from "@main/modules/post/post.module";
+import { PostRabbitModule } from "@main/modules/post-rabbit/post-rabbit.module";
+import { EventStoreModule } from "@main/modules/event-store/event-store.module";
 @Module({
 	// 1
 	imports: [CoreModule, PostModule, PostRabbitModule, EventStoreModule], // 2

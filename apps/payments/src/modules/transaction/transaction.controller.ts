@@ -3,9 +3,9 @@ import { MeUserViewDto, PaginationWithSortQueryDto, PaymentInputDto, PaymentOutp
 import { Controller } from "@nestjs/common";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { TransactionService } from "@payments/modules/transaction/transaction.service";
-import { ITransactionQueryRepository } from "./transaction.interface";
+import { ITransactionQueryRepository } from "@payments/modules/transaction/transaction.interface";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
-import { IPlanQueryRepository } from "../plan/plan.interface";
+import { IPlanQueryRepository } from "@payments/modules/plan/plan.interface";
 
 @Controller()
 export class TransactionController {

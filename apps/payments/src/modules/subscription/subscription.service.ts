@@ -58,6 +58,10 @@ export class SubscriptionService {
 		return await this.subscriptionCommandRepository.deleteSubscription(+subscriptionId);
 	}
 
+	async softDeleteUserSubscriptions(userId: string): Promise<void> {
+		await this.subscriptionCommandRepository.softDeleteUserSubscriptions(userId);
+	}
+
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
 	async deleteDeletedSubscriptions() {
 		await this.subscriptionCommandRepository.deleteDeletedSubscriptions();

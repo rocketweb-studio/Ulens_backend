@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@payments/core/prisma/prisma.service";
-import { ISubscriptionCommandRepository } from "../subscription.interface";
-import { SubscriptionCreateDto } from "../dto/subscription-create.dto";
+import { ISubscriptionCommandRepository } from "@payments/modules/subscription/subscription.interface";
+import { SubscriptionCreateDto } from "@payments/modules/subscription/dto/subscription-create.dto";
 
 @Injectable()
 export class PrismaSubscriptionCommandRepository implements ISubscriptionCommandRepository {
@@ -22,6 +22,14 @@ export class PrismaSubscriptionCommandRepository implements ISubscriptionCommand
 		return subscription;
 	}
 
+	//todo дублирвоание методов для удаления
+	async softDeleteUserSubscriptions(userId: string): Promise<void> {
+		await this.prisma.subscription.updateMany({
+			where: { userId },
+			data: { deletedAt: new Date() },
+		});
+	}
+	//todo дублирвоание методов для удаления
 	async deleteSubscription(subscriptionId: number): Promise<boolean> {
 		const deletedSubscription = await this.prisma.subscription.update({ where: { id: subscriptionId }, data: { deletedAt: new Date() } });
 		return deletedSubscription.id !== null;

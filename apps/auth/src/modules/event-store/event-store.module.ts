@@ -12,6 +12,10 @@ import { InboxCommandRepository } from "@auth/modules/event-store/repositories/i
 		{ provide: IOutboxCommandRepository, useClass: OutboxCommandRepository },
 		{ provide: IInboxCommandRepository, useClass: InboxCommandRepository },
 	],
-	exports: [OutboxService, { provide: IInboxCommandRepository, useClass: InboxCommandRepository }],
+	exports: [
+		OutboxService,
+		{ provide: IInboxCommandRepository, useClass: InboxCommandRepository },
+		{ provide: IOutboxCommandRepository, useClass: OutboxCommandRepository },
+	],
 })
 export class EventStoreModule {}

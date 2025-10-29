@@ -1,8 +1,8 @@
 import { Injectable } from "@nestjs/common";
-import { CreatePostWithUserIdDto } from "./dto/create-post.userId.input.dto";
-import { IPostCommandRepository } from "./post.interface";
+import { CreatePostWithUserIdDto } from "@main/modules/post/dto/create-post.userId.input.dto";
+import { IPostCommandRepository } from "@main/modules/post/post.interface";
 import { CreatePostOutputDto, UpdatePostDto } from "@libs/contracts/index";
-import { DeletePostDto } from "./dto/delete-post.input.dto";
+import { DeletePostDto } from "@main/modules/post/dto/delete-post.input.dto";
 import { ForbiddenRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { Cron, CronExpression } from "@nestjs/schedule";
 
@@ -25,6 +25,11 @@ export class PostService {
 		if (post.userId !== userId) throw new ForbiddenRpcException();
 
 		const result = await this.postCommandRepository.deletePost(postId);
+		return result;
+	}
+
+	async softDeleteUserPosts(userId: string): Promise<boolean> {
+		const result = await this.postCommandRepository.softDeleteUserPosts(userId);
 		return result;
 	}
 

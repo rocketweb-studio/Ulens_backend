@@ -39,6 +39,11 @@ export class PaymentsRabbitConsumer implements OnModuleInit {
 				exchange: RabbitExchanges.APP_EVENTS,
 				routingKey: RabbitEvents.NOTIFICATION_RENEWAL_CHECK,
 			},
+			{
+				baseQueue: RabbitMainQueues.PAYMENTS_USER_DELETED_Q,
+				exchange: RabbitExchanges.APP_EVENTS,
+				routingKey: RabbitEvents.USER_DELETED,
+			},
 		];
 
 		// 1) Устанавливаем очереди
@@ -175,6 +180,57 @@ export class PaymentsRabbitConsumer implements OnModuleInit {
 						});
 						this.ch.ack(msg);
 						console.log("[PAYMENTS][RMQ] sent to DLQ payments.auth.premium.activated.q.dlq");
+					}
+				}
+			},
+			{ noAck: false },
+		);
+
+		await this.ch.consume(
+			RabbitMainQueues.PAYMENTS_USER_DELETED_Q,
+			async (msg) => {
+				if (!msg) return;
+				try {
+					const evt = JSON.parse(msg.content.toString()) as {
+						userId: string;
+						messageId: string;
+					};
+
+					console.log(`[PAYMENTS][RMQ] consumed event - ${RabbitMainQueues.PAYMENTS_USER_DELETED_Q}`);
+
+					try {
+						// сохраняем сообщение в БД
+						await this.inboxService.createInboxMessage({
+							id: evt.messageId,
+							type: RabbitEvents.USER_DELETED,
+							source: RabbitEventSources.AUTH_SERVICE,
+							payload: evt,
+							status: INBOX_STATUS.RECEIVED,
+						});
+
+						await this.transactionService.softDeleteUserTransactions(evt.userId);
+						await this.subscriptionService.softDeleteUserSubscriptions(evt.userId);
+					} catch (e) {
+						console.error("[PAYMENTS][RMQ] error creating inbox message", e);
+					}
+
+					this.ch.ack(msg);
+				} catch (_e) {
+					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
+					if (retries < 3) {
+						this.ch.sendToQueue(`${RabbitMainQueues.PAYMENTS_USER_DELETED_Q}.retry.1m`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: { ...(msg.properties.headers || {}), "x-retries": retries + 1 },
+						});
+						this.ch.ack(msg);
+					} else {
+						this.ch.publish(RabbitExchanges.APP_DLX, `${RabbitMainQueues.PAYMENTS_USER_DELETED_Q}.dlq`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: msg.properties.headers,
+						});
+						this.ch.ack(msg);
 					}
 				}
 			},

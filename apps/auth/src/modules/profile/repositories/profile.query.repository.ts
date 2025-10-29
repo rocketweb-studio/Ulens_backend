@@ -1,5 +1,5 @@
 import { Injectable } from "@nestjs/common";
-import { IProfileQueryRepository } from "../profile.interfaces";
+import { IProfileQueryRepository } from "@auth/modules/profile/profile.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { Profile } from "@auth/core/prisma/generated/client";
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";

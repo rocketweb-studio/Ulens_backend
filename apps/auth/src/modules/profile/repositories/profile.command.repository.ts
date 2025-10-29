@@ -1,7 +1,7 @@
 import { Injectable } from "@nestjs/common";
-import { IProfileCommandRepository } from "../profile.interfaces";
+import { IProfileCommandRepository } from "@auth/modules/profile/profile.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { ProfileUpdateInputDto } from "../dto/profile-update.input.dto";
+import { ProfileUpdateInputDto } from "@auth/modules/profile/dto/profile-update.input.dto";
 @Injectable()
 export class PrismaProfileCommandRepository implements IProfileCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}

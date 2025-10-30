@@ -4,6 +4,7 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { Profile } from "@auth/core/prisma/generated/client";
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { Prisma } from "@auth/core/prisma/generated";
 
 @Injectable()
 export class PrismaProfileQueryRepository implements IProfileQueryRepository {
@@ -20,6 +21,13 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 	async getProfiles(userIds: string[]): Promise<ProfileOutputDto[]> {
 		const profiles = await this.prisma.profile.findMany({
 			where: { userId: { in: userIds }, deletedAt: null },
+		});
+		return profiles.map(this._mapToView);
+	}
+
+	async getProfilesByUserName(userName: string): Promise<ProfileOutputDto[]> {
+		const profiles = await this.prisma.profile.findMany({
+			where: { userName: { contains: userName, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
 		});
 		return profiles.map(this._mapToView);
 	}

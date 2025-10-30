@@ -14,6 +14,7 @@ export abstract class IPostQueryRepository {
 	abstract getUserPostsCount(userId: string): Promise<number>;
 	abstract getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]>;
 	abstract getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number; search: string }): Promise<UserPostsPageDto>;
+	abstract getAllPostsForAdminByUserIds(dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto>;
 }
 
 export abstract class IPostCommandRepository {

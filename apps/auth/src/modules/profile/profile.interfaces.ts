@@ -4,6 +4,7 @@ import { ProfileUpdateInputDto } from "@auth/modules/profile/dto/profile-update.
 export abstract class IProfileQueryRepository {
 	abstract getProfileByUserId(userId: string): Promise<ProfileOutputDto>;
 	abstract getProfiles(userIds: string[]): Promise<ProfileOutputDto[]>;
+	abstract getProfilesByUserName(userName: string): Promise<ProfileOutputDto[]>;
 }
 
 export abstract class IProfileCommandRepository {

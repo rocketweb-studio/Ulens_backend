@@ -23,6 +23,11 @@ export class ProfileController {
 		return await this.profileQueryRepository.getProfiles(payload.userIds);
 	}
 
+	@MessagePattern({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME })
+	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<ProfileOutputDto[]> {
+		return await this.profileQueryRepository.getProfilesByUserName(payload.userName);
+	}
+
 	@MessagePattern({ cmd: AuthMessages.UPDATE_PROFILE })
 	async updateProfile(@Payload() payload: { userId: string; dto: ProfileInputDto }): Promise<ProfileOutputDto> {
 		const profileUserId = await this.profileService.updateProfile(payload.userId, payload.dto);

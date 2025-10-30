@@ -20,7 +20,7 @@ import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
 // import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
-import { GetAdminPostsInput } from "../posts_gql/inputs/get-admin-posts.input";
+import { GetAdminPostsInput, GetAdminPostsInputWithUserIds } from "../posts_gql/inputs/get-admin-posts.input";
 import { RedisPubSub } from "graphql-redis-subscriptions";
 
 @Injectable()
@@ -95,6 +95,11 @@ export class PostsClientService {
 
 	async getAllPostsForAdmin(input: GetAdminPostsInput): Promise<UserPostsPageDto> {
 		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_ALL_POSTS_FOR_ADMIN }, input));
+		return posts;
+	}
+
+	async getAllPostsForAdminByUserIds(input: GetAdminPostsInputWithUserIds): Promise<UserPostsPageDto> {
+		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS }, input));
 		return posts;
 	}
 

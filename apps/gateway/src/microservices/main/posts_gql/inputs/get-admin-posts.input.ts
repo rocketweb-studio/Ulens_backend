@@ -11,3 +11,7 @@ export class GetAdminPostsInput {
 	@Field(() => String, { nullable: true, defaultValue: "" })
 	search: string;
 }
+
+export class GetAdminPostsInputWithUserIds extends GetAdminPostsInput {
+	userIds: string[];
+}

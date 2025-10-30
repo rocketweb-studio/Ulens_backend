@@ -58,4 +58,9 @@ export class PostController {
 	async getAllPostsForAdmin(@Payload() dto: { endCursorPostId: string; pageSize: number; search: string }): Promise<UserPostsPageDto> {
 		return this.postQueryRepository.getAllPostsForAdmin(dto);
 	}
+
+	@MessagePattern({ cmd: MainMessages.GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS })
+	async getAllPostsForAdminByUserIds(@Payload() dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto> {
+		return this.postQueryRepository.getAllPostsForAdminByUserIds(dto);
+	}
 }

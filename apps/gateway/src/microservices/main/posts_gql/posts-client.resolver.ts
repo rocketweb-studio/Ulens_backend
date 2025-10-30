@@ -26,6 +26,18 @@ export class PostsClientResolver {
 	@UseGuards(GqlJwtAuthGuard)
 	@Query(() => PostsResponse, { name: "getAllPostsForAdmin" })
 	async getAllPostsForAdmin(@Args("input") input: GetAdminPostsInput) {
+		if (input.search) {
+			return this.getAllPostsForAdminWithSearch(input);
+		}
+		return this.getAllPostsForAdminWithoutSearch(input);
+	}
+
+	@Subscription(() => PostModel, { name: "newPostAdded" })
+	newPostAdded() {
+		return this.pubSub.asyncIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
+	}
+
+	private async getAllPostsForAdminWithoutSearch(input: GetAdminPostsInput) {
 		const posts: UserPostsPageDto = await this.postsClientService.getAllPostsForAdmin(input);
 		const postIds = posts.items.map((post) => post.id);
 		const postProfilesIds = [...new Set(posts.items.map((post) => post.userId))];
@@ -67,8 +79,45 @@ export class PostsClientResolver {
 		};
 	}
 
-	@Subscription(() => PostModel, { name: "newPostAdded" })
-	newPostAdded() {
-		return this.pubSub.asyncIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
+	private async getAllPostsForAdminWithSearch(input: GetAdminPostsInput) {
+		const matchedProfiles = await this.profileClientService.getProfilesByUserName(input.search);
+		const userIds = matchedProfiles.map((profile) => profile.id);
+		const posts: UserPostsPageDto = await this.postsClientService.getAllPostsForAdminByUserIds({ ...input, userIds });
+		const postIds = posts.items.map((post) => post.id);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+		const profilesAvatars: { userId: string; avatars: AvatarImagesOutputDto }[] = await this.filesClientService.getAvatarsByUserIds(userIds);
+
+		return {
+			totalCount: posts.totalCount,
+			pageSize: posts.pageSize,
+			pageInfo: {
+				endCursorPostId: posts.pageInfo.endCursorPostId,
+				hasNextPage: posts.pageInfo.hasNextPage,
+			},
+			items: posts.items.map((post) => ({
+				id: post.id,
+				ownerId: post.userId,
+				userName: matchedProfiles.find((profile) => profile.id === post.userId)?.userName,
+				description: post.description,
+				createdAt: post.createdAt.toString(),
+				updatedAt: post.updatedAt.toString(),
+				images: {
+					small: postsImages
+						.filter((img) => img.parentId === post.id && img.size === "small")
+						.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+					medium: postsImages
+						.filter((img) => img.parentId === post.id && img.size === "medium")
+						.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+				},
+				avatarOwner: profilesAvatars.find((avatar) => avatar.userId === post.userId)?.avatars.small?.url,
+				owner: {
+					firstName: matchedProfiles.find((profile) => profile.id === post.userId)?.firstName,
+					lastName: matchedProfiles.find((profile) => profile.id === post.userId)?.lastName,
+				},
+				likeCount: 0,
+				isLiked: false,
+				avatarWhoLikes: false,
+			})),
+		};
 	}
 }

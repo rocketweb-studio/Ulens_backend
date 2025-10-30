@@ -10,7 +10,7 @@ import { PostImagesOutputForMapDto } from "@libs/contracts/files-contracts/outpu
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { AvatarImagesOutputDto } from "@libs/contracts/files-contracts/output/avatar-images.output.dto";
-import { PubSub } from "graphql-subscriptions";
+import { RedisPubSub } from "graphql-redis-subscriptions";
 import { GraphqlPubSubMessages, PUB_SUB_GQL } from "@libs/constants/index";
 import { PostModel } from "@gateway/microservices/main/posts_gql/models/post.model";
 
@@ -20,7 +20,7 @@ export class PostsClientResolver {
 		private readonly filesClientService: FilesClientService,
 		private readonly profileClientService: ProfileAuthClientService,
 		private readonly postsClientService: PostsClientService,
-		@Inject(PUB_SUB_GQL) private readonly pubSub: PubSub,
+		@Inject(PUB_SUB_GQL) private readonly pubSub: RedisPubSub,
 	) {}
 
 	@UseGuards(GqlJwtAuthGuard)
@@ -69,6 +69,6 @@ export class PostsClientResolver {
 
 	@Subscription(() => PostModel, { name: "newPostAdded" })
 	newPostAdded() {
-		return this.pubSub.asyncIterableIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
+		return this.pubSub.asyncIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
 	}
 }

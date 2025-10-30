@@ -21,7 +21,7 @@ import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { GetAdminPostsInput } from "../posts_gql/inputs/get-admin-posts.input";
-import { PubSub } from "graphql-subscriptions";
+import { RedisPubSub } from "graphql-redis-subscriptions";
 
 @Injectable()
 export class PostsClientService {
@@ -30,7 +30,7 @@ export class PostsClientService {
 		private readonly filesClientService: FilesClientService,
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 		private readonly profileClientService: ProfileAuthClientService,
-		@Inject(PUB_SUB_GQL) private readonly pubSub: PubSub,
+		@Inject(PUB_SUB_GQL) private readonly pubSub: RedisPubSub,
 	) {}
 
 	async uploadPostImages(postId: string, req: Request): Promise<any> {

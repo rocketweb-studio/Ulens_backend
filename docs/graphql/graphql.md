@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Gateway service implements a GraphQL API using **NestJS**, **Apollo Server**, and **GraphQL Subscriptions** for real-time updates. This document describes the architecture, components, and how GraphQL is connected and used throughout the system.
+The Gateway service implements a GraphQL API using **NestJS**, **Apollo Server**, and **GraphQL Subscriptions** for real-time updates. Subscriptions are backed by **RedisPubSub** and support the **graphql-ws** protocol (with legacy `subscriptions-transport-ws` also enabled). This document describes the architecture, components, and how GraphQL is connected and used throughout the system.
 
 ## Table of Contents
 
@@ -38,7 +38,8 @@ apps/gateway/src/
 │   ├── main/posts_gql/ (Posts resolver)
 │   └── payments/payments_gql/ (Payments resolver)
 └── pubSubGql/
-    └── pubSub-gql.module.ts (PubSub instance)
+    ├── pubSub-gql.module.ts (Redis-backed PubSub instance)
+    └── pubSub-gql.config.ts (loads REDIS_URI)
 ```
 
 ---
@@ -52,14 +53,27 @@ Located in `apps/gateway/src/core/core.module.ts`:
 ```typescript
 GraphQLModule.forRoot<ApolloDriverConfig>({
   driver: ApolloDriver,
-  playground: true,                    // Enable GraphQL Playground
-  path: "api/v1/graphql",              // Endpoint: /api/v1/graphql
+  playground: true,                               // Enable GraphQL Playground
+  path: "api/v1/graphql",                         // Endpoint: /api/v1/graphql
   autoSchemaFile: join(process.cwd(), "apps/gateway/src/core/graphql/schema.gql"),
-  sortSchema: true,                    // Sort schema alphabetically
-  introspection: true,                 // Allow schema introspection in production
-  context: ({ req, res }) => ({ req, res }),  // Pass request/response to context
-  installSubscriptionHandlers: true,   // Enable subscriptions
-  formatError: (error) => ({          // Custom error formatting
+  sortSchema: true,                               // Sort schema alphabetically
+  introspection: true,                            // Allow schema introspection in production
+  context: ({ req, res }) => ({ req, res }),      // Pass request/response to context
+  subscriptions: {                                // Enable subscriptions
+    'graphql-ws': {
+      path: '/api/v1/graphql',
+      onConnect: (ctx: any) => {
+        console.log('[GATEWAY][GRAPHQL] graphql-ws protocol connected', ctx);
+      },
+    },
+    'subscriptions-transport-ws': {
+      path: '/api/v1/graphql',
+      onConnect: (ctx: any) => {
+        console.log('[GATEWAY][GRAPHQL] subscriptions-transport-ws protocol connected', ctx);
+      },
+    },
+  },
+  formatError: (error) => ({                     // Custom error formatting
     message: error.message,
     originalError: error.extensions?.originalError,
   }),
@@ -71,7 +85,7 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 1. **Playground**: Enabled for development/testing at `/api/v1/graphql`
 2. **Schema Location**: Auto-generated at `apps/gateway/src/core/graphql/schema.gql`
 3. **Context**: Provides access to HTTP request/response for authentication
-4. **Subscriptions**: Enabled via `installSubscriptionHandlers: true`
+4. **Subscriptions**: `graphql-ws` (and legacy `subscriptions-transport-ws`) enabled at `/api/v1/graphql`
 
 ---
 
@@ -81,20 +95,31 @@ GraphQLModule.forRoot<ApolloDriverConfig>({
 
 **Location**: `apps/gateway/src/pubSubGql/pubSub-gql.module.ts`
 
-Provides a singleton PubSub instance for GraphQL subscriptions:
+Provides a singleton Redis-backed PubSub instance for GraphQL subscriptions:
 
 ```typescript
 @Module({
-  providers: [{
-    provide: PUB_SUB_GQL,
-    useValue: new PubSub(),
-  }],
+  providers: [
+    PubSubGqlConfig,
+    {
+      provide: PUB_SUB_GQL,
+      useFactory: (config: PubSubGqlConfig) => {
+        return new RedisPubSub({
+          publisher: new Redis(config.redisUri),
+          subscriber: new Redis(config.redisUri),
+        });
+      },
+      inject: [PubSubGqlConfig],
+    },
+  ],
   exports: [PUB_SUB_GQL],
 })
 export class PubSubGqlModule {}
 ```
 
-**Usage**: Injected into resolvers/services that need to publish or subscribe to events.
+Configuration is provided by `pubSub-gql.config.ts`, which reads `REDIS_URI` from environment variables and validates it.
+
+**Usage**: Injected into resolvers/services that need to publish or subscribe to events. The injected type is `RedisPubSub`.
 
 ### 2. Auth Client Module (Users GQL)
 
@@ -211,7 +236,7 @@ Defined in `PostsClientResolver`:
 ```typescript
 @Subscription(() => PostModel, { name: "newPostAdded" })
 newPostAdded() {
-  return this.pubSub.asyncIterableIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
+  return this.pubSub.asyncIterator(GraphqlPubSubMessages.NEW_POST_ADDED);
 }
 ```
 
@@ -437,6 +462,7 @@ The schema is auto-generated from TypeScript decorators. Key types include:
 
 - **GraphQL Endpoint**: `http://host:port/api/v1/graphql`
 - **GraphQL Playground**: `http://host:port/api/v1/graphql` (browser)
+- **WebSocket Subscriptions**: `ws://host:port/api/v1/graphql` (supports `graphql-ws` and legacy `subscriptions-transport-ws`)
 - **Schema File**: `apps/gateway/src/core/graphql/schema.gql`
 
 ---
@@ -500,5 +526,8 @@ Key packages:
 - `@nestjs/graphql`: GraphQL integration for NestJS
 - `@nestjs/apollo`: Apollo Server driver
 - `graphql`: GraphQL core
-- `graphql-subscriptions`: PubSub implementation
+- `graphql-redis-subscriptions`: Redis-backed PubSub implementation
+- `ioredis`: Redis client for Node.js
+- `graphql-ws`: WebSocket GraphQL protocol (server integrated via NestJS Apollo)
+- `subscriptions-transport-ws`: Legacy subscriptions protocol (still supported)
 - `@nestjs/jwt`: JWT token validation

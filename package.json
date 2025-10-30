@@ -97,8 +97,9 @@
     "device-detector-js": "^3.0.3",
     "geoip-lite": "^1.4.10",
     "graphql": "^16.11.0",
-    "graphql-subscriptions": "^3.0.0",
-    "ioredis": "^5.7.0",
+    "graphql-redis-subscriptions": "^2.7.0",
+    "graphql-ws": "^6.0.6",
+    "ioredis": "^5.8.2",
     "multer": "^2.0.2",
     "nodemailer": "^7.0.5",
     "passport": "^0.7.0",
@@ -108,7 +109,8 @@
     "reflect-metadata": "^0.2.2",
     "rxjs": "^7.8.1",
     "sharp": "^0.34.3",
-    "stripe": "^18.5.0"
+    "stripe": "^18.5.0",
+    "ws": "^8.18.3"
   },
   "devDependencies": {
     "@biomejs/biome": "2.2.0",

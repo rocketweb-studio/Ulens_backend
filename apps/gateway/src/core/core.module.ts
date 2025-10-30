@@ -20,7 +20,20 @@ import { join } from "path";
 			sortSchema: true,
 			introspection: true, // Разрешает отображение схемы в GraphQL Playground на проде
 			context: ({ req, res }) => ({ req, res }),
-			installSubscriptionHandlers: true,
+			subscriptions: {
+				"graphql-ws": {
+					path: "/api/v1/graphql",
+					onConnect: (ctx: any) => {
+						console.log("[GATEWAY][GRAPHQL] graphql-ws protocol connected", ctx);
+					},
+				},
+				"subscriptions-transport-ws": {
+					path: "/api/v1/graphql",
+					onConnect: (ctx: any) => {
+						console.log("[GATEWAY][GRAPHQL] subscriptions-transport-ws protocol connected", ctx);
+					},
+				},
+			},
 			formatError: (error) => {
 				return {
 					message: error.message,

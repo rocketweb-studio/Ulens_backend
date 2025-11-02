@@ -22,7 +22,20 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 	@WebSocketServer() server: Server;
 
 	afterInit(_server: Server) {
-		console.log("✅ WebSocket Gateway initialized");
+		this.server.use((socket, next) => {
+			const token = socket.handshake.auth.token;
+			if (!token) {
+				return next(new Error("Missing token"));
+			}
+			try {
+				const payload = this.jwtService.verify(token);
+				socket.userId = payload.userId;
+				console.log("✅ WebSocket Gateway initialized");
+				next();
+			} catch {
+				next(new Error("Invalid token"));
+			}
+		});
 		setInterval(() => {
 			this.server.emit(WebsocketEvents.TEST_NOTIFICATION, {
 				message: "Hello, world!",
@@ -31,19 +44,7 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 	}
 
 	handleConnection(client: Socket) {
-		const token = client.handshake.auth.token;
-		if (!token) {
-			this.forceDisconnect(client, "Missing token");
-			return;
-		}
-		try {
-			const payload = this.jwtService.verify(token);
-			client.userId = payload.userId;
-			console.log(`WebSocket Client connected: ${client.id}`);
-		} catch (_e) {
-			this.forceDisconnect(client, "Invalid token");
-			return;
-		}
+		console.log(`WebSocket Client connected: ${client.id}`);
 	}
 
 	handleDisconnect(client: Socket) {
@@ -69,11 +70,5 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 		} catch (e) {
 			throw new Error(e.message);
 		}
-	}
-
-	private forceDisconnect(client: Socket, message: string) {
-		console.log("[GATEWAY][WS] WebsocketGateway: forceDisconnect", message);
-		client.emit(WebsocketEvents.ERROR, message);
-		client.disconnect(true);
 	}
 }

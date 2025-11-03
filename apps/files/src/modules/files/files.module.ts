@@ -17,6 +17,6 @@ import { PrismaFilesQueryRepository } from "@files/modules/files/repositories/fi
 		{ provide: IFilesQueryRepository, useClass: PrismaFilesQueryRepository },
 	],
 	controllers: [FilesController],
-	exports: [],
+	exports: [FilesService],
 })
 export class FilesModule {}

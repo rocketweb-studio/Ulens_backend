@@ -4,7 +4,7 @@ import { Microservice } from "@libs/constants/microservices";
 import { ThrottlerModule } from "@nestjs/throttler";
 import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
-import { StreamClientService } from "./stream-client.service";
+import { StreamClientService } from "@gateway/microservices/files/stream-client.service";
 
 @Module({
 	imports: [

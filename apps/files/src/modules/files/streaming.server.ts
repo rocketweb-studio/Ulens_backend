@@ -4,6 +4,7 @@ import * as sharp from "sharp";
 import { PassThrough } from "stream";
 import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { randomUUID } from "crypto";
+import { ImageSizesDto } from "@libs/contracts/index";
 
 // TCP сервер для потоковой загрузки файлов
 export class StreamingServer {
@@ -55,7 +56,7 @@ export class StreamingServer {
 		let originalname: string | null = null;
 		let folder: string | null = null;
 		let headerReceived = false;
-		let imageSizes: string[] | null = null;
+		let imageSizes: ImageSizesDto[] | null = null;
 
 		// Первый пакет от клиента всегда содержит заголовок (filename, size)
 		socket.on("data", async (data) => {
@@ -106,39 +107,43 @@ export class StreamingServer {
 	}
 
 	// Генерация имени файла с суффиксом размера
-	private generateFilename(folder: string, size: string): string {
+	private generateFilename(folder: string, width: string): string {
 		const uniqueId = randomUUID();
 
-		return `${folder}/${uniqueId}_${size}.webp`;
+		return `${folder}/${uniqueId}_${width}.webp`;
 	}
 
 	// Обработка потока файла после получения заголовка
-	private async processStream(socket: net.Socket, folder: string, imageSizes: string[], expectedSize?: number, firstChunk?: Buffer) {
+	private async processStream(socket: net.Socket, folder: string, imageSizes: ImageSizesDto[], expectedSize?: number, firstChunk?: Buffer) {
 		try {
 			// Генерируем имена файлов для разных размеров
-			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size));
+			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size.width));
 
 			const imagesParams = imageSizes.map((fs) => ({
-				width: Number(fs.split("x")[0]),
-				height: Number(fs.split("x")[1]),
+				width: fs.width,
+				height: 0,
 				name: fs,
 				fileSize: 0,
+				size: fs.type,
 			}));
-			// const fileSizes = imageSizes.map(fs => ({ [fs]: 0 }));
 
 			console.log(`[PROCESS] Start processing file stream: ${fileNames.join(", ")}`);
 
 			const transformers = imagesParams.map((fs, index) => {
-				return sharp()
-					.resize(fs.width, fs.height)
-					.webp()
-					.on("info", (info) => {
-						console.log(`[SHARP-${fs.width}x${fs.height}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
-						imagesParams[index].fileSize = info.size;
-					})
-					.on("error", (err) => {
-						console.error(`[SHARP-${fs.width}x${fs.height}] Error:`, err);
-					});
+				return (
+					sharp()
+						// ресайзим изображение до нужного размера, передаем только ширину чтобы сохранить пропорции
+						.resize(Number(fs.width))
+						.webp()
+						.on("info", (info) => {
+							console.log(`[SHARP-${fs.width}] Output info: width=${info.width}, height=${info.height}, size=${info.size}`);
+							imagesParams[index].fileSize = info.size;
+							imagesParams[index].height = info.height;
+						})
+						.on("error", (err) => {
+							console.error(`[SHARP-${fs.width}] Error:`, err);
+						})
+				);
 			});
 
 			// PassThrough — прокси-поток для записи байтов файла
@@ -215,9 +220,10 @@ export class StreamingServer {
 				success: true,
 				versions: imagesParams.map((fs, index) => ({
 					url: fileNames[index],
-					width: fs.width,
+					width: Number(fs.width),
 					height: fs.height,
 					fileSize: imagesParams[index].fileSize,
+					size: fs.size,
 				})),
 			};
 

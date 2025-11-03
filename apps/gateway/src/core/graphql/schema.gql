@@ -1,0 +1,162 @@
+# ------------------------------------------------------
+# THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+# ------------------------------------------------------
+
+input DeleteUserInput {
+  userId: String!
+}
+
+enum FilterByStatus {
+  ALL
+  BLOCKED
+  NOT_BLOCKED
+}
+
+input GetAdminPostsInput {
+  endCursorPostId: String = null
+  pageSize: Float = 10
+  search: String = ""
+}
+
+input GetPaymentsInput {
+  pageNumber: Float = 1
+  pageSize: Float = 8
+  sortBy: SortableTransactionFields = CREATED_AT
+  sortDirection: SortDirection = DESC
+  userId: String!
+}
+
+input GetUsersInput {
+  filterByStatus: FilterByStatus = ALL
+  pageNumber: Float = 1
+  pageSize: Float = 8
+  search: String = ""
+  sortBy: SortabeFieldsForUsers = CREATED_AT
+  sortDirection: SortDirection = DESC
+}
+
+type ImageModel {
+  createdAt: String!
+  fileSize: Float!
+  height: Float!
+  url: String!
+  width: Float!
+}
+
+input LoginAdminInput {
+  email: String!
+  password: String!
+}
+
+type LoginAdminModel {
+  adminAccessToken: String!
+}
+
+type Mutation {
+  deleteUser(input: DeleteUserInput!): Boolean!
+  loginAdmin(input: LoginAdminInput!): LoginAdminModel!
+  setBlockStatusForUser(input: SetBlockStatusForUserInput!): Boolean!
+}
+
+type OwnerModel {
+  firstName: String
+  lastName: String
+}
+
+type PageInfoModel {
+  endCursorPostId: String
+  hasNextPage: Boolean!
+}
+
+type PostImageModel {
+  medium: [ImageModel!]!
+  small: [ImageModel!]!
+}
+
+type PostModel {
+  avatarOwner: String
+  avatarWhoLikes: Boolean!
+  createdAt: String!
+  description: String!
+  id: String!
+  images: PostImageModel!
+  isLiked: Boolean!
+  likeCount: Float!
+  owner: OwnerModel!
+  ownerId: String!
+  updatedAt: String!
+  userName: String!
+}
+
+type PostsResponse {
+  items: [PostModel!]!
+  pageInfo: PageInfoModel!
+  pageSize: Float!
+  totalCount: Float!
+}
+
+type Query {
+  getAllPostsForAdmin(input: GetAdminPostsInput!): PostsResponse!
+  getPayments(input: GetPaymentsInput!): TransactionsResponse!
+  getUsers(input: GetUsersInput!): UsersResponse!
+}
+
+input SetBlockStatusForUserInput {
+  isBlocked: Boolean!
+  reason: String
+  userId: String!
+}
+
+enum SortDirection {
+  ASC
+  DESC
+}
+
+enum SortabeFieldsForUsers {
+  CREATED_AT
+  EMAIL
+  IS_BLOCKED
+  USER_NAME
+}
+
+enum SortableTransactionFields {
+  AMOUNT
+  CREATED_AT
+  EXPIRES_AT
+  PROVIDER
+}
+
+type Subscription {
+  newPostAdded: PostModel!
+}
+
+type TransactionModel {
+  amount: Float!
+  currency: String!
+  expiresAt: String!
+  id: Float!
+  interval: String!
+  provider: String!
+  status: String!
+}
+
+type TransactionsResponse {
+  items: [TransactionModel!]!
+  page: Float!
+  pageSize: Float!
+  totalCount: Float!
+}
+
+type UserModel {
+  createdAt: String!
+  id: String!
+  isBlocked: Boolean!
+  userName: String
+}
+
+type UsersResponse {
+  items: [UserModel!]!
+  page: Float!
+  pageSize: Float!
+  totalCount: Float!
+}

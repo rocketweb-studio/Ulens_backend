@@ -87,7 +87,7 @@ describe("PostsController (upload images)", () => {
 		}>(userId, {}, 200, accessToken);
 
 		expect(body.totalCount).toBe(0);
-		expect(body.pageSize).toBe(8); // по дефолту
+		expect(body.pageSize).toBe(10); // по дефолту
 		expect(Array.isArray(body.items)).toBe(true);
 		expect(body.items.length).toBe(0);
 		expect(body.pageInfo.hasNextPage).toBe(false);

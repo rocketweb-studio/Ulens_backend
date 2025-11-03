@@ -25,9 +25,13 @@ model User {
 	confirmationCodeExpDate DateTime?
   recoveryCode String? @unique
   recoveryCodeExpDate DateTime?
+	premiumExpDate DateTime?
   googleUserId String? 
   githubUserId String? @unique
 	deletedAt DateTime?
+	isBlocked Boolean @default(false)
+	blockedAt DateTime?
+	blockedReason String?
 
   sessions Session[]  // обратная сторона связи
 	profile Profile?
@@ -75,7 +79,7 @@ model Profile {
   lastName String?
   city String?
   country String?
-  region String?
+  region String? // TODO: remove this field
   dateOfBirth DateTime?
   aboutMe String?
   createdAt DateTime @default(now())
@@ -84,4 +88,50 @@ model Profile {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("profiles")
+}
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  // Для маршрутизации/реплея:
+  aggregateType  String       // "subscription" | "transaction" | "user"
+  eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?      // опционально: имя топика/роутинга
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+
+/**
+ * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
+ * Если messageId уже есть — повтор не обрабатываем.
+ */
+model InboxEvent {
+  id            String      @id                 // используйте messageId из брокера/вебхука
+  type          String
+  source        String                           // "stripe", "paypal", "auth-service", ...
+  payload       Json
+  status        InboxStatus  @default(RECEIVED)
+  error         String?
+  receivedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  @@map("inbox_events")
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
 }

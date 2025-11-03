@@ -1,9 +1,10 @@
 import { Injectable } from "@nestjs/common";
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
 import { PrismaService } from "@main/core/prisma/prisma.service";
-import { GetUserPostsInputDto } from "../dto/get-user-posts.input.dto";
-import { UserPostsPageDto } from "@libs/contracts/index";
+import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
+import { PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
 import { PostQueryHelper } from "@main/utils/post.query.repo.helper";
+import { Post } from "@main/core/prisma/generated";
 
 @Injectable()
 export class PrismaPostQueryRepository implements IPostQueryRepository {
@@ -21,9 +22,9 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 	 */
 
 	async getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto> {
+		// todo change helper to transform in dto
 		const pageSize = this.helpers.clampPageSize(dto.pageSize);
-		const baseWhere = this.helpers.buildBaseWhere(dto.userId);
-
+		const baseWhere = { userId: dto.userId, deletedAt: null };
 		// 1.Первая страница, если курсор не передан
 		if (!dto.endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
@@ -41,5 +42,75 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// 3. Получаем "следующую страницу" после курсора
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor(baseWhere, cursor, pageSize);
 		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	//todo 2 повторяющихся метода для получения постов для админа
+	async getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number }): Promise<UserPostsPageDto> {
+		const { endCursorPostId, pageSize } = dto;
+
+		if (!endCursorPostId) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+		const cursor = await this.helpers.resolveCursor({ deletedAt: null }, endCursorPostId);
+
+		if (!cursor) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null }, cursor, pageSize);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	async getAllPostsForAdminByUserIds(dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto> {
+		const { endCursorPostId, pageSize, userIds } = dto;
+
+		if (!endCursorPostId) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: userIds } }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+		const cursor = await this.helpers.resolveCursor({ deletedAt: null, userId: { in: userIds } }, endCursorPostId);
+
+		if (!cursor) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: userIds } }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null, userId: { in: userIds } }, cursor, pageSize);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	async getPostById(id: string): Promise<PostDbOutputDto | null> {
+		const post = await this.prisma.post.findUnique({
+			where: { id },
+		});
+		return post ? this._mapToView(post) : null;
+	}
+
+	async getUserPostsCount(userId: string): Promise<number> {
+		const count = await this.prisma.post.count({
+			where: { userId, deletedAt: null },
+		});
+		return count;
+	}
+
+	async getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]> {
+		const posts = await this.prisma.post.findMany({
+			where: { deletedAt: null },
+			orderBy: { createdAt: "desc" },
+			take: pageSize,
+		});
+		return posts.map((post) => this._mapToView(post));
+	}
+
+	private _mapToView(post: Post): PostDbOutputDto {
+		return {
+			id: post.id,
+			userId: post.userId,
+			description: post.description,
+			createdAt: post.createdAt,
+			updatedAt: post.updatedAt,
+		};
 	}
 }

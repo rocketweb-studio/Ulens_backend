@@ -4,12 +4,17 @@ import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { ConfirmCodeDto } from "@libs/contracts/index";
 import { BaseRpcException } from "@libs/exeption/index";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
-import { ConfirmationCodeInputRepoDto } from "../dto/confirm-repo.input.dto";
+import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
 import { NewPasswordInputRepoDto } from "@auth/modules/user/dto/new-pass-repo.input.dto";
 import { UserOauthDbInputDto } from "@auth/modules/user/dto/user-google-db.input.dto";
-import { Prisma } from "@auth/core/prisma/generated/client";
+import { Prisma } from "@auth/core/prisma/generated";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
+import { INBOX_STATUS } from "@libs/constants/outbox-statuses.constants";
+import { RabbitEvents, RabbitEventSources } from "@libs/rabbit/rabbit.constants";
+import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
+import { IInboxCommandRepository } from "@auth/modules/event-store/inbox.interface";
+import { IOutboxCommandRepository } from "@auth/modules/event-store/outbox.interface";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -17,7 +22,11 @@ type UserWithProfile = Prisma.UserGetPayload<{
 
 @Injectable()
 export class PrismaUserCommandRepository implements IUserCommandRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly inboxCommandRepository: IInboxCommandRepository,
+		private readonly outboxCommandRepository: IOutboxCommandRepository,
+	) {}
 
 	async createUserAndProfile(userDto: UserDbInputDto): Promise<UserOutputRepoDto> {
 		const user = await this.prisma.user.create({
@@ -137,14 +146,37 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		return this._mapToUse(user);
 	}
 
+	async findAnyUserByEmail(email: string): Promise<UserOutputRepoDto | null> {
+		const user = await this.prisma.user.findUnique({
+			where: { email },
+			include: {
+				profile: true,
+			},
+		});
+		if (!user) return null;
+
+		return this._mapToUse(user);
+	}
+
 	async findUserByEmailOrUserName(email: string, userName: string): Promise<{ field: string } | null> {
 		const user = await this.prisma.user.findFirst({
-			where: { OR: [{ email }, { profile: { userName } }], deletedAt: null },
+			where: { OR: [{ email }, { profile: { userName } }] },
 		});
 		if (!user) return null;
 		const field = user.email === email ? "email" : "userName";
 
 		return { field };
+	}
+	async findUserById(id: string): Promise<UserOutputRepoDto | null> {
+		const user = await this.prisma.user.findUnique({
+			where: { id, deletedAt: null },
+			include: {
+				profile: true,
+			},
+		});
+		if (!user) return null;
+
+		return this._mapToUse(user);
 	}
 
 	async findUserByRecoveryCode(recoveryCode: string): Promise<UserOutputRepoDto | null> {
@@ -173,6 +205,48 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		console.log(`Deleted not confirmed users: [${count}]`);
 	}
 
+	async activatePremiumStatus(dto: PremiumInputDto): Promise<{ premiumExpDate: string; email: string }> {
+		const { messageId, userId, expiresAt } = dto;
+
+		return this.prisma.$transaction(async (tx) => {
+			try {
+				// 1) Inbox (идемпотентность)
+				await this.inboxCommandRepository.createInboxMessage(tx, {
+					id: messageId,
+					type: RabbitEvents.PAYMENT_SUCCEEDED,
+					source: RabbitEventSources.PAYMENTS_SERVICE,
+					payload: dto as unknown as Prisma.InputJsonValue,
+					status: INBOX_STATUS.RECEIVED,
+				});
+			} catch (e) {
+				if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") {
+					// уже обработали — просто вернём текущее premiumUntil
+					const u = await tx.user.findUnique({
+						where: { id: userId },
+						select: { premiumExpDate: true, email: true },
+					});
+					const premiumExpDate = u?.premiumExpDate ? u.premiumExpDate.toISOString() : "";
+					return { premiumExpDate, email: u?.email || "" };
+				}
+				throw e;
+			}
+
+			// 2)Обновляем пользователя
+			const user = await tx.user.update({
+				where: { id: userId },
+				data: { premiumExpDate: expiresAt },
+			});
+
+			// 3) Inbox → PROCESSED
+			await this.inboxCommandRepository.updateInboxMessage(tx, {
+				id: messageId,
+				status: INBOX_STATUS.PROCESSED,
+			});
+
+			return { premiumExpDate: expiresAt, email: user.email };
+		});
+	}
+
 	private _mapToUse(user: UserWithProfile): UserOutputRepoDto {
 		return {
 			id: user.id,
@@ -189,5 +263,50 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 			googleUserId: user.googleUserId,
 			githubUserId: user.githubUserId,
 		};
+	}
+
+	// todo реализовать через рфббит с другими сервисами
+	async deleteUser(userId: string): Promise<boolean> {
+		await this.prisma.$transaction(async (tx) => [
+			await tx.user.update({
+				where: { id: userId },
+				data: { deletedAt: new Date() },
+			}),
+			await tx.profile.updateMany({
+				where: { userId },
+				data: { deletedAt: new Date() },
+			}),
+			await tx.session.updateMany({
+				where: { userId },
+				data: { deletedAt: new Date() },
+			}),
+
+			await this.outboxCommandRepository.createOutboxUserDeletedEvent(tx, { userId }),
+		]);
+
+		return true;
+	}
+
+	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
+		const data: Prisma.UserUpdateInput = { isBlocked, blockedAt: null, blockedReason: reason };
+		if (isBlocked) {
+			data.blockedAt = new Date();
+			data.blockedReason = reason;
+		} else {
+			data.blockedAt = null;
+			data.blockedReason = null;
+		}
+		await this.prisma.user.update({
+			where: { id: userId },
+			data,
+		});
+		return true;
+	}
+
+	async deleteDeletedUsers(): Promise<void> {
+		const { count } = await this.prisma.user.deleteMany({
+			where: { deletedAt: { not: null } },
+		});
+		console.log(`Deleted deleted users: [${count}]`);
 	}
 }

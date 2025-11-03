@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
-
 export class ProfileOutputDto {
-	@ApiProperty({ description: "User name", example: "John Doe" })
+	@ApiProperty({ description: "User name", example: "JohnDoe" })
 	userName: string;
 	@ApiProperty({ description: "User ID", example: "123e4567-e89b-12d3-a456-426614174000" })
 	id: string;
@@ -13,10 +12,8 @@ export class ProfileOutputDto {
 	city: string | null;
 	@ApiProperty({ description: "Country", example: "USA" })
 	country: string | null;
-	@ApiProperty({ description: "Region", example: "NY" })
-	region: string | null;
-	@ApiProperty({ description: "Date of birth", example: "2000-01-01" })
-	dateOfBirth: Date | null;
+	@ApiProperty({ description: "Date of birth", example: "08.28.2007" })
+	dateOfBirth: string | null;
 	@ApiProperty({ description: "About me", example: "I am a software engineer" })
 	aboutMe: string | null;
 	@ApiProperty({ description: "Created at", example: "2021-01-01T00:00:00.000Z" })
@@ -24,7 +21,7 @@ export class ProfileOutputDto {
 }
 
 export class AvatarOutputDto {
-	@ApiProperty({ description: "URL", example: "https://example.com/image.jpg" })
+	@ApiProperty({ description: "URL", example: "folder/image.jpg" })
 	url: string;
 	@ApiProperty({ description: "Width", example: 300 })
 	width: number;
@@ -36,9 +33,22 @@ export class AvatarOutputDto {
 	createdAt: Date;
 }
 
+class ImageOutputDto {
+	@ApiProperty({
+		description: "Small avatar",
+		type: AvatarOutputDto,
+	})
+	small: AvatarOutputDto | null;
+	@ApiProperty({
+		description: "Medium avatar",
+		type: AvatarOutputDto,
+	})
+	medium: AvatarOutputDto | null;
+}
+
 export class ProfileOutputWithAvatarDto extends ProfileOutputDto {
-	@ApiProperty({ description: "Avatars" })
-	avatars: AvatarOutputDto[];
+	@ApiProperty({ description: "Avatars", type: ImageOutputDto })
+	avatars: ImageOutputDto;
 	@ApiProperty({ description: "Publications count", example: 10 })
 	publicationsCount: number;
 	@ApiProperty({ description: "Followers count", example: 10 })

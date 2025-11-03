@@ -1,5 +1,5 @@
 export enum AuthMessages {
-	GET_USERS = "get_users",
+	GET_USERS_COUNT = "get_users_count",
 	CREATE_USER = "create_user",
 	REGISTRATION = "registration",
 	REGISTRATION_OAUTH2 = "registration_oauth2",
@@ -18,6 +18,14 @@ export enum AuthMessages {
 	UPDATE_PROFILE = "update_profile",
 	DELETE_PROFILE = "delete_profile",
 	GET_USER_CONFIRMATION_BY_EMAIL = "get_user_confirmation_by_email",
+	GET_SESSIONS = "get_sessions",
+	LOGOUT_SESSION = "logout_session",
+	LOGOUT_OTHER_SESSIONS = "logout_other_sessions",
+	ADMIN_GET_USERS = "admin_get_users",
+	ADMIN_DELETE_USER = "admin_delete_user",
+	ADMIN_SET_BLOCK_STATUS_FOR_USER = "admin_set_block_status_for_user",
+	GET_PROFILES = "get_profiles",
+	GET_PROFILES_BY_USER_NAME = "get_profiles_by_user_name",
 }
 
 export enum Oauth2Providers {

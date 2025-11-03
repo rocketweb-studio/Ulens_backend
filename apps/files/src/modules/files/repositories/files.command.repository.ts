@@ -22,6 +22,7 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 				width: version.width,
 				height: version.height,
 				fileSize: version.fileSize,
+				size: version.size,
 			})),
 		});
 		if (result.count > 0) {
@@ -41,11 +42,12 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 	async savePostImages(data: any): Promise<boolean> {
 		const result = await this.prisma.post.createMany({
 			data: data.versions.map((version) => ({
-				parentId: data.userId,
+				parentId: data.postId,
 				url: version.url,
 				width: version.width,
 				height: version.height,
 				fileSize: version.fileSize,
+				size: version.size,
 			})),
 		});
 		if (result.count > 0) {
@@ -61,7 +63,30 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 		return result.count > 0;
 	}
 
+	async softDeleteUserFiles(userId: string): Promise<void> {
+		await this.prisma.avatar.updateMany({
+			where: { parentId: userId },
+			data: { deletedAt: new Date() },
+		});
+
+		await this.prisma.post.updateMany({
+			where: { parentId: userId },
+			data: { deletedAt: new Date() },
+		});
+	}
+
 	private _mapToViewDto(avatar: Avatar): string {
 		return avatar.url;
+	}
+
+	async deleteDeletedFiles(): Promise<void> {
+		const { count } = await this.prisma.avatar.deleteMany({
+			where: { deletedAt: { not: null } },
+		});
+		console.log(`Deleted deleted avatars: [${count}]`);
+		const { count: postCount } = await this.prisma.post.deleteMany({
+			where: { deletedAt: { not: null } },
+		});
+		console.log(`Deleted deleted posts: [${postCount}]`);
 	}
 }

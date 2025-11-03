@@ -10,8 +10,9 @@ import {
 	EmailDto,
 	RecoveryPasswordDto,
 	PayloadFromRequestDto,
+	UsersCountOutputDto,
 } from "@libs/contracts/index";
-import { ApiBearerAuth, ApiExcludeEndpoint, ApiOkResponse, ApiOperation, ApiTags, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { ApiTags } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { Response, Request } from "express";
 import { getSessionMetadata } from "@gateway/utils/session-metadata.util";
@@ -31,6 +32,7 @@ import { ThrottlerGuard } from "@nestjs/throttler";
 import { Environments } from "@gateway/core/core.config";
 import { RecaptchaGuard } from "@gateway/core/guards/recaptcha.guard";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
+import { GetUsersCountSwagger } from "@gateway/core/decorators/swagger/auth/get-users-count.decorator";
 
 @ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -140,28 +142,10 @@ export class AuthClientController {
 		return userInfo;
 	}
 
-	@ApiOperation({ summary: "Get users - TEST ENDPOINT" })
-	@ApiOkResponse({ description: "Successfully received users", type: [MeUserViewDto] })
-	@ApiUnauthorizedResponse({
-		description: "If the access token is wrong or expired",
-	})
-	@ApiBearerAuth()
-	@UseGuards(JwtAccessAuthGuard)
-	@Get(AuthRouterPaths.USERS)
+	@GetUsersCountSwagger()
+	@Get(AuthRouterPaths.USERS_COUNT)
 	@HttpCode(HttpStatus.OK)
-	async getUsers(): Promise<MeUserViewDto[]> {
-		const users = await this.authClientService.getUsers();
-		return users;
-	}
-
-	// тестовый эндпоинт для публикации сообщения
-	@ApiExcludeEndpoint()
-	@Get("ping-rabbit")
-	async pingRabbit() {
-		// использовали для отладки, это рабочий метод
-		// await this.authClientService.publishTestEvent();
-
-		await this.authClientService.publishUserRegisteredEvent();
-		return { ok: true };
+	async getUsersCount(): Promise<UsersCountOutputDto> {
+		return await this.authClientService.getUsersCount();
 	}
 }

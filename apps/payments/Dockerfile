@@ -1,5 +1,5 @@
 # Check out https://hub.docker.com/_/node to select a new base image
-FROM node:20.11-alpine
+FROM node:22-alpine
 ARG port
 ARG service
 ENV SERVICE=$service
@@ -26,6 +26,9 @@ RUN yarn install
 # Bundle app source code
 COPY --chown=node . .
 
+# Fix: Use correct path for Prisma schema
+RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
+
 RUN yarn build:libs
 
 RUN yarn build:${SERVICE}
@@ -34,4 +37,4 @@ RUN yarn build:${SERVICE}
 
 EXPOSE ${PORT}
 
-CMD yarn 'start:payments'
+CMD yarn 'prisma:migrateDeploy:payments' && yarn 'start:payments'

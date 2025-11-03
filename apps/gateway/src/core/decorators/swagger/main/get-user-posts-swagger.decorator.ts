@@ -1,6 +1,6 @@
 import { applyDecorators } from "@nestjs/common";
-import { ApiExtraModels, ApiOkResponse, ApiOperation, ApiQuery, ApiUnauthorizedResponse } from "@nestjs/swagger";
-import { ImageDto, LocationDto, OwnerDto, PageInfoDto, PostItemDto, UserPostsOutputDto } from "@libs/contracts/index";
+import { ApiOkResponse, ApiOperation, ApiQuery, ApiUnauthorizedResponse } from "@nestjs/swagger";
+import { UserPostsOutputDto } from "@libs/contracts/index";
 
 /**
  * @swagger
@@ -9,16 +9,15 @@ import { ImageDto, LocationDto, OwnerDto, PageInfoDto, PostItemDto, UserPostsOut
  */
 export const GetUserPostsSwagger = () => {
 	const decorators = [
-		ApiExtraModels(UserPostsOutputDto, PostItemDto, ImageDto, LocationDto, OwnerDto, PageInfoDto),
 		ApiQuery({
 			name: "pageSize",
 			required: false,
-			description: "page size is number of items that should be returned (min: 1, max: 8)",
-			schema: { type: "integer", minimum: 1, maximum: 8, default: 8 },
+			description: "page size is number of items that should be returned (min: 1, max: 10)",
+			schema: { type: "integer", minimum: 1, maximum: 10, default: 10 },
 		}),
 		ApiOperation({ summary: "Get all posts by userId with pagination" }),
 		ApiOkResponse({ description: "Success", type: UserPostsOutputDto }),
-		ApiUnauthorizedResponse({ description: "If the refresh token is wrong or expired" }),
+		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];
 
 	return applyDecorators(...decorators);

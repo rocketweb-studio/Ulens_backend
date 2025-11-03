@@ -1,11 +1,14 @@
 import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
-import { ProfileInputDto } from "@libs/contracts/index";
+import { ProfileUpdateInputDto } from "@auth/modules/profile/dto/profile-update.input.dto";
 
 export abstract class IProfileQueryRepository {
-	abstract getProfile(userId: string): Promise<ProfileOutputDto>;
+	abstract getProfileByUserId(userId: string): Promise<ProfileOutputDto>;
+	abstract getProfiles(userIds: string[]): Promise<ProfileOutputDto[]>;
+	abstract getProfilesByUserName(userName: string): Promise<ProfileOutputDto[]>;
 }
 
 export abstract class IProfileCommandRepository {
-	abstract updateProfile(userId: string, dto: ProfileInputDto): Promise<ProfileOutputDto>;
+	abstract updateProfile(userId: string, dto: ProfileUpdateInputDto): Promise<string>;
 	abstract deleteProfile(userId: string): Promise<boolean>;
+	abstract findProfileByUsername(userName: string): Promise<string | null>;
 }

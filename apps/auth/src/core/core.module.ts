@@ -1,17 +1,16 @@
 import { configModule } from "@auth/core/env-config/env-config.module";
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { CoreEnvConfig } from "@auth/core/core.config";
 import { PrismaModule } from "@auth/core/prisma/prisma.module";
-import { TestConsumer } from "./rabbit/test.consumer";
-import { AuthEventsPublisher } from "./rabbit/events.publisher";
 import { RabbitModule } from "@libs/rabbit/index";
 import { ScheduleModule } from "@nestjs/schedule";
 import { RedisModule } from "@libs/redis/redis.module";
+import { UserModule } from "../modules/user/user.module";
 
 @Module({
-	imports: [configModule, PrismaModule, RabbitModule, ScheduleModule.forRoot(), RedisModule.forRoot()],
+	imports: [configModule, PrismaModule, RabbitModule, ScheduleModule.forRoot(), RedisModule.forRoot(), forwardRef(() => UserModule)],
 	controllers: [],
-	providers: [CoreEnvConfig, TestConsumer, AuthEventsPublisher],
-	exports: [CoreEnvConfig, AuthEventsPublisher],
+	providers: [CoreEnvConfig],
+	exports: [CoreEnvConfig],
 })
 export class CoreModule {}

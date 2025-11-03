@@ -10,6 +10,7 @@ import {
 	SessionMetadataDto,
 	CreateOauthUserDto,
 	UserConfirmationOutputDto,
+	UsersCountOutputDto,
 } from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages, Oauth2Providers } from "@libs/constants/auth-messages";
@@ -20,14 +21,12 @@ import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.con
 import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract";
 import { MeUserViewDto } from "@libs/contracts/index";
 import * as amqp from "amqplib";
-import { EventEnvelope } from "@libs/contracts/index";
-import { randomUUID } from "crypto";
-
+import { RMQ_CHANNEL } from "@libs/rabbit/index";
 @Injectable()
 export class AuthClientService implements IAuthClientService {
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
-		@Inject("RMQ_CHANNEL") private readonly ch: amqp.Channel,
+		@Inject(RMQ_CHANNEL) private readonly ch: amqp.Channel,
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
@@ -62,14 +61,16 @@ export class AuthClientService implements IAuthClientService {
 	async resendEmail(resendEmailDto: ResendEmailDto): Promise<void> {
 		const { code } = await firstValueFrom(this.client.send({ cmd: AuthMessages.RESEND_EMAIL }, resendEmailDto));
 
-		this.notificationsClientService
-			.sendRegistrationEmail({
-				email: resendEmailDto.email,
-				code: code,
-			})
-			.catch((error) => {
-				console.log(error);
-			});
+		if (code) {
+			this.notificationsClientService
+				.sendRegistrationEmail({
+					email: resendEmailDto.email,
+					code: code,
+				})
+				.catch((error) => {
+					console.log(error);
+				});
+		}
 
 		return;
 	}
@@ -138,50 +139,12 @@ export class AuthClientService implements IAuthClientService {
 		return userInfo;
 	}
 
-	async getUsers(): Promise<MeUserViewDto[]> {
-		const users = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS }, {}));
-		return users;
+	async getUsersCount(): Promise<UsersCountOutputDto> {
+		return await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS_COUNT }, {}));
 	}
 
 	async getUserConfirmation(email: string): Promise<UserConfirmationOutputDto> {
 		const user = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USER_CONFIRMATION_BY_EMAIL }, { email }));
 		return user;
-	}
-
-	// тестовый метод для публикации сообщения
-	async publishTestEvent() {
-		const event = {
-			messageId: Date.now().toString(),
-			type: "test.event",
-			payload: { hello: "world" },
-		};
-
-		this.ch.publish(
-			"app.events", // exchange
-			"test.event", // routing key
-			Buffer.from(JSON.stringify(event)),
-			{ persistent: true, contentType: "application/json" },
-		);
-		console.log("[RMQ] Published test.event:", event);
-	}
-
-	// тестовый метод с "реальным" событием
-	async publishUserRegisteredEvent() {
-		const event: EventEnvelope<{ userId: string; email: string }> = {
-			messageId: randomUUID(),
-			traceId: randomUUID(),
-			type: "auth.user.registered.v1", // ← новый тип
-			occurredAt: new Date().toISOString(),
-			producer: "gateway", // пока публикуем из gateway
-			payload: { userId: "demo-user-id", email: "demo@example.com" },
-		};
-
-		this.ch.publish(
-			"app.events", // общий topic exchange
-			"auth.user.registered.v1", // ← routing key в тему события
-			Buffer.from(JSON.stringify(event)),
-			{ persistent: true, contentType: "application/json" },
-		);
-		console.log("[RMQ] Published auth.user.registered.v1:", event);
 	}
 }

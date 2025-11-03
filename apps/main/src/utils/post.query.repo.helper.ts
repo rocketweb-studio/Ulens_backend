@@ -2,12 +2,9 @@
 import { Prisma } from "@main/core/prisma/generated";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { PrismaService } from "@main/core/prisma/prisma.service";
+import { DEFAULT_PAGE_SIZE, MIN_PAGE_SIZE, MAX_PAGE_SIZE } from "@libs/constants/paginations";
 
-export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date };
-
-export const DEFAULT_PAGE_SIZE = 8;
-export const MIN_PAGE_SIZE = 1;
-export const MAX_PAGE_SIZE = 8;
+export type Row = { id: string; description: string; createdAt: Date; updatedAt: Date; userId: string };
 
 export class PostQueryHelper {
 	constructor(private readonly prisma: PrismaService) {}
@@ -23,7 +20,7 @@ export class PostQueryHelper {
 				where,
 				orderBy: this.getOrderBy(),
 				take: pageSize,
-				select: { id: true, description: true, createdAt: true, updatedAt: true },
+				select: { id: true, description: true, createdAt: true, updatedAt: true, userId: true },
 			}),
 		]);
 	}
@@ -51,7 +48,7 @@ export class PostQueryHelper {
 				cursor: { createdAt_id: { createdAt: cursor.createdAt, id: cursor.id } },
 				skip: 1,
 				take: pageSize,
-				select: { id: true, description: true, createdAt: true, updatedAt: true },
+				select: { id: true, description: true, createdAt: true, updatedAt: true, userId: true },
 			}),
 		]);
 	}
@@ -74,20 +71,16 @@ export class PostQueryHelper {
 			pageSize,
 			items: rows.map((r) => ({
 				id: r.id,
+				userId: r.userId,
 				description: r.description,
-				createdAt: r.createdAt.toISOString(),
-				updatedAt: r.updatedAt.toISOString(),
+				createdAt: r.createdAt,
+				updatedAt: r.updatedAt,
 			})),
 			pageInfo: {
 				endCursorPostId: endCursor,
 				hasNextPage: rows.length === pageSize,
 			},
 		};
-	}
-
-	/* Базовый фильтр: только посты конкретного пользователя и не удалённые. */
-	buildBaseWhere(userId: string): Prisma.PostWhereInput {
-		return { userId, deletedAt: null };
 	}
 
 	/* Защита на pageSize */

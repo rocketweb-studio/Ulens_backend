@@ -2,19 +2,19 @@ import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsInt, IsOptional, IsString, IsUUID, Max, Min } from "class-validator";
 import { Type } from "class-transformer";
 
-export enum SortDirection {
+enum SortDirection {
 	ASC = "asc",
 	DESC = "desc",
 }
 
 export class GetUserPostsQueryDto {
-	@ApiPropertyOptional({ description: "page size is number of items that should be returned", default: 8 })
+	@ApiPropertyOptional({ description: "page size is number of items that should be returned", default: 10 })
 	@IsOptional()
 	@Type(() => Number)
 	@IsInt()
 	@Min(1)
-	@Max(8)
-	pageSize?: number = 8;
+	@Max(10)
+	pageSize?: number = 10;
 
 	@ApiPropertyOptional({
 		description: "Cursor (postId) of the last item from previous page. If omitted — the first page is returned",

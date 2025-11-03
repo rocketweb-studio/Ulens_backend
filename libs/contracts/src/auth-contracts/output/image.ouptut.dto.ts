@@ -1,5 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
 
+export enum FilesSizes {
+	SMALL = "small",
+	MEDIUM = "medium",
+	LARGE = "large",
+}
+
 export class ImageOutputDto {
 	@ApiProperty({
 		description: "Image URL",
@@ -21,6 +27,13 @@ export class ImageOutputDto {
 		example: 100000,
 	})
 	fileSize: number;
+	@ApiProperty({
+		description: "Image size",
+		example: "small",
+		enum: FilesSizes,
+		enumName: "FilesSizes",
+	})
+	size: FilesSizes;
 	@ApiProperty({
 		description: "Image created at",
 		example: "2021-01-01T00:00:00.000Z",

@@ -14,12 +14,8 @@ export class ValidationErrorDto {
 		type: [ErrorMessage],
 		example: [
 			{
-				field: "userName",
-				message: "User name must be between 6 and 30 characters",
-			},
-			{
-				field: "firstName",
-				message: "First name is required",
+				field: "value",
+				message: "value must be correct",
 			},
 		],
 	})

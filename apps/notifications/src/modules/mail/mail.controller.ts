@@ -1,7 +1,8 @@
 import { Controller } from "@nestjs/common";
 import { EventPattern, Payload } from "@nestjs/microservices";
-import { EmailService, MailPurpose } from "@notifications/modules/mail/mail.service";
+import { EmailService } from "@notifications/modules/mail/mail.service";
 import { NotificationMessages } from "@libs/constants/notification-messages";
+import { MailPurpose } from "@libs/constants/notification.constants";
 
 //вынести класс в библиотеку
 class SendEmailDto {
@@ -19,11 +20,11 @@ export class MailController {
 	 */
 	@EventPattern(NotificationMessages.SEND_REGISTRATION_EMAIL)
 	async sendRegistrationEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
-		await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.REGISTRATION);
+		await this.emailService.sendEmail(sendEmailDto.email, { code: sendEmailDto.code }, MailPurpose.REGISTRATION);
 	}
 
 	@EventPattern(NotificationMessages.SEND_PASSWORD_RECOVERY_EMAIL)
 	async sendPasswordRecoveryEmail(@Payload() sendEmailDto: SendEmailDto): Promise<void> {
-		await this.emailService.sendEmail(sendEmailDto.email, sendEmailDto.code, MailPurpose.PASSWORD_RECOVERY);
+		await this.emailService.sendEmail(sendEmailDto.email, { code: sendEmailDto.code }, MailPurpose.PASSWORD_RECOVERY);
 	}
 }

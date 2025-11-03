@@ -4,7 +4,7 @@ export enum RouterPrefix {
 
 export enum AuthRouterPaths {
 	AUTH = "auth",
-	USERS = "users",
+	USERS_COUNT = "users-count",
 	SUBSCRIPTIONS = "subscriptions",
 	REGISTRATION = "registration",
 	REGISTRATION_CONFIRMATION = "registration-confirmation",
@@ -28,9 +28,14 @@ export enum ProfileRouterPaths {
 	AVATAR = "avatar",
 }
 
+export enum SessionRouterPaths {
+	SESSIONS = "sessions",
+}
+
 export enum MainRouterPaths {
 	POSTS = "posts",
 	IMAGES = ":postId/images",
+	LATEST_POSTS = "latest",
 }
 
 export enum RouteParams {
@@ -44,4 +49,7 @@ export enum ApiTagsNames {
 	OAuth2 = "OAuth2",
 	FILES = "Files",
 	POSTS = "Posts",
+	PAYMENTS = "Payments",
+	SESSIONS = "Sessions",
+	NOTIFICATIONS = "Notifications",
 }

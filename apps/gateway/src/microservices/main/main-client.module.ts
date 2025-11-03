@@ -6,7 +6,9 @@ import { JwtModule } from "@nestjs/jwt";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 import { PostsClientService } from "@gateway/microservices/main/posts/posts-client.service";
 import { PostsClientController } from "@gateway/microservices/main/posts/posts-client.controller";
-import { AuthClientModule } from "../auth/auth-client.module";
+import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module";
+import { PostsClientResolver } from "@gateway/microservices/main/posts_gql/posts-client.resolver";
+import { PubSubGqlModule } from "@gateway/pubSubGql/pubSub-gql.module";
 
 @Module({
 	imports: [
@@ -33,9 +35,10 @@ import { AuthClientModule } from "../auth/auth-client.module";
 		}),
 		FilesClientModule,
 		AuthClientModule,
+		PubSubGqlModule,
 	],
 	controllers: [PostsClientController],
-	providers: [MainClientEnvConfig, PostsClientService],
+	providers: [MainClientEnvConfig, PostsClientService, PostsClientResolver],
 	exports: [PostsClientService],
 })
 export class MainClientModule {}

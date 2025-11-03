@@ -23,9 +23,21 @@ export class CoreEnvConfig {
 	})
 	tcpPort: number;
 
+	@IsNotEmpty({
+		message: "Set Env variable NOTIFICATIONS_POSTGRES_URL, example: postgresql://user:password@host:port/database",
+	})
+	databaseUrl: string;
+
+	@IsNotEmpty({
+		message: "Set Env variable RMQ_URL, example: amqp://localhost:5672",
+	})
+	rabbitUri: string;
+
 	constructor(private configService: ConfigService<any, true>) {
 		this.tcpHost = this.configService.get<string>("NOTIFICATIONS_TCP_HOST");
 		this.tcpPort = this.configService.get<number>("NOTIFICATIONS_TCP_PORT");
+		this.databaseUrl = this.configService.get<string>("NOTIFICATIONS_POSTGRES_URL");
+		this.rabbitUri = this.configService.get<string>("RMQ_URL");
 
 		configValidationUtility.validateConfig(this);
 	}

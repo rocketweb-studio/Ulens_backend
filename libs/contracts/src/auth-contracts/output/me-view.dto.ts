@@ -5,12 +5,9 @@ export class MeUserViewDto {
 	id: string;
 	@ApiProperty({ example: "user.email@gmail.com" })
 	email: string;
-	@ApiProperty({ example: "John Doe" })
+	@ApiProperty({ example: "JohnDoe" })
 	userName: string;
 
-	constructor(model: any) {
-		this.id = model.id;
-		this.userName = model.profile.userName;
-		this.email = model.email;
-	}
+	@ApiProperty({ example: true })
+	isPremium: boolean;
 }

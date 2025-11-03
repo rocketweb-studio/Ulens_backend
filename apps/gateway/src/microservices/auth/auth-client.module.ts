@@ -11,10 +11,14 @@ import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
 import { AuthClientOAuthController } from "@gateway/microservices/auth/contollers/oauth.auth-client.controller";
-import { ProfileAuthClientController } from "./profile/profile-auth-client.controller";
-import { ProfileAuthClientService } from "./profile/profile-auth-clien.service";
-import { FilesClientModule } from "../files/files-client.module";
-import { MainClientEnvConfig } from "../main/main-client.config";
+import { ProfileAuthClientController } from "@gateway/microservices/auth/profile/profile-auth-client.controller";
+import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
+import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
+import { MainClientEnvConfig } from "@gateway/microservices/main/main-client.config";
+import { SessionAuthClientController } from "@gateway/microservices/auth/session/session-auth-client.controller";
+import { SessionAuthClientService } from "@gateway/microservices/auth/session/session-auth-clien.service";
+import { UsersGqlResolver } from "@gateway/microservices/auth/users_gql/users.resolver";
+import { UsersGqlClientService } from "@gateway/microservices/auth/users_gql/users.service";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -59,8 +63,18 @@ import { MainClientEnvConfig } from "../main/main-client.config";
 		NotificationsClientModule,
 		FilesClientModule,
 	],
-	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController],
-	providers: [AuthClientService, AuthClientEnvConfig, GoogleStrategy, GithubStrategy, CoreEnvConfig, ProfileAuthClientService],
-	exports: [ProfileAuthClientService],
+	controllers: [AuthClientController, AuthClientOAuthController, ProfileAuthClientController, SessionAuthClientController],
+	providers: [
+		AuthClientService,
+		AuthClientEnvConfig,
+		GoogleStrategy,
+		GithubStrategy,
+		CoreEnvConfig,
+		ProfileAuthClientService,
+		SessionAuthClientService,
+		UsersGqlResolver,
+		UsersGqlClientService,
+	],
+	exports: [ProfileAuthClientService, AuthClientService],
 })
 export class AuthClientModule {}

@@ -1,0 +1,156 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("PAYMENTS_POSTGRES_URL")
+}
+
+model Transaction {
+  id        Int      @id @default(autoincrement())
+
+  amount Float 
+  currency String
+  
+  stripeSubscriptionId String? 
+	stripeSessionId String? 
+  status TransactionStatus @default(PENDING)
+
+	paypalSessionId String?
+	paypalPlanId String?
+	
+  createdAt DateTime @default(now())
+	expiresAt DateTime?
+	expiresLinkAt DateTime?
+
+	provider TransactionProvider
+	planId Int?
+
+	outboxFlowStatus OutboxFlowStatus @default(PENDING)
+
+	deletedAt DateTime?
+
+  userId String
+
+	plan Plan? @relation(fields: [planId], references: [id])
+
+  @@map("transactions")
+}
+
+model Subscription {
+	id Int @id @default(autoincrement())
+	userId String
+	planId Int
+	createdAt DateTime
+	expiresAt DateTime
+  stripeSubscriptionId String? 
+
+	paypalSubscriptionId String?
+
+	isAutoRenewal Boolean @default(true)
+
+	plan Plan @relation(fields: [planId], references: [id])
+
+	deletedAt DateTime?
+
+	@@map("subscriptions")
+}
+
+model Plan {
+	id Int @id @default(autoincrement())
+	title String
+	description String
+	stripeProductId String
+	stripePlanId String
+	price Float
+	currency String
+	interval String
+	paypalProductId String
+	paypalPlanId String
+
+	createdAt DateTime @default(now())
+
+	Transaction Transaction[]
+	Subscription Subscription[]
+
+	@@map("plans")
+}
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  // Для маршрутизации/реплея:
+  aggregateType  String       // "subscription" | "transaction" | "user"
+  eventType      String       // "SubscriptionActivated" | "PaymentSucceeded" ...
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?      // опционально: имя топика/роутинга
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+
+/**
+ * INBOX: фиксация входящих сообщений (webhooks/команды/события) для идемпотентной обработки.
+ * Если messageId уже есть — повтор не обрабатываем.
+ */
+model InboxEvent {
+  id            String      @id                 // используйте messageId из брокера/вебхука
+  type          String
+  source        String                           // "stripe", "paypal", "auth-service", ...
+  payload       Json
+  status        InboxStatus  @default(RECEIVED)
+  error         String?
+  receivedAt    DateTime     @default(now())
+  processedAt   DateTime?
+
+  @@map("inbox_events")
+}
+
+enum TransactionStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  EXPIRED
+
+  @@map("transaction_statuses")
+}
+
+enum TransactionProvider {
+  STRIPE
+  PAYPAL
+
+  @@map("transaction_providers")
+}
+
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
+}
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+enum OutboxFlowStatus {
+	PENDING
+  PUBLISHED
+	PROCESSED
+  FAILED
+}
+
+

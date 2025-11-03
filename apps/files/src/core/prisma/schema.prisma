@@ -21,6 +21,7 @@ model Avatar {
   width Int
   height Int
   fileSize Int
+	size Size
   createdAt DateTime @default(now())
 	deletedAt DateTime?
 
@@ -33,8 +34,60 @@ model Post {
   width Int
   height Int
   fileSize Int
+  size Size
   createdAt DateTime @default(now())
 	deletedAt DateTime?
 
   @@map("posts")  
+}
+
+enum Size {
+  small
+  medium
+  large
+
+  @@map("sizes")
+}
+
+
+enum InboxStatus {
+  RECEIVED
+  PROCESSED
+  FAILED
+}
+
+model InboxEvent {
+  id           String      @id            // messageId из брокера / eventId из webhooks
+  type         String
+  source       String                      // "payments-service" | "stripe" и т.п.
+  payload      Json
+  status       InboxStatus @default(RECEIVED)
+  error        String?
+  receivedAt   DateTime    @default(now())
+  processedAt  DateTime?
+
+  @@map("inbox_events")
+  @@index([status])
+  @@index([source, type])
+}
+
+model OutboxEvent {
+  id             String       @id @default(uuid())
+  aggregateType  String
+  eventType      String
+  payload        Json
+  headers        Json?
+  status         OutboxStatus @default(PENDING)
+  attempts       Int          @default(0)
+  nextAttemptAt  DateTime?
+  topic          String?
+  createdAt      DateTime     @default(now())
+  publishedAt    DateTime?
+
+  @@map("outbox_events")
+}
+enum OutboxStatus {
+  PENDING
+  PUBLISHED
+  FAILED
 }

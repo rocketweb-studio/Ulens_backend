@@ -1,9 +1,8 @@
 import { Injectable } from "@nestjs/common";
 import { IPostCommandRepository } from "@main/modules/post/post.interface";
 import { PrismaService } from "@main/core/prisma/prisma.service";
-import { CreatePostWithUserIdDto } from "../dto/create-post.userId.input.dto";
-import { CreatePostOutputDto, UpdatePostDto } from "@libs/contracts/index";
-import { PostDbOutputDto } from "../dto/post-db.output";
+import { CreatePostWithUserIdDto } from "@main/modules/post/dto/create-post.userId.input.dto";
+import { CreatePostOutputDto, PostDbOutputDto, UpdatePostDto } from "@libs/contracts/index";
 
 @Injectable()
 export class PrismaPostCommandRepository implements IPostCommandRepository {
@@ -20,7 +19,7 @@ export class PrismaPostCommandRepository implements IPostCommandRepository {
 	async getPostById(id: string): Promise<PostDbOutputDto | null> {
 		const row = await this.prisma.post.findFirst({
 			where: { id, deletedAt: null },
-			select: { id: true, userId: true, description: true, createdAt: true },
+			select: { id: true, userId: true, description: true, createdAt: true, updatedAt: true },
 		});
 		return row;
 	}
@@ -38,6 +37,21 @@ export class PrismaPostCommandRepository implements IPostCommandRepository {
 		const { count } = await this.prisma.post.updateMany({
 			where: { id, deletedAt: null },
 			data: { description },
+		});
+		return count === 1;
+	}
+
+	async deleteDeletedPosts(): Promise<void> {
+		const { count } = await this.prisma.post.deleteMany({
+			where: { deletedAt: { not: null } },
+		});
+		console.log(`Deleted deleted posts: [${count}]`);
+	}
+
+	async softDeleteUserPosts(userId: string): Promise<boolean> {
+		const { count } = await this.prisma.post.updateMany({
+			where: { userId, deletedAt: null },
+			data: { deletedAt: new Date() },
 		});
 		return count === 1;
 	}

@@ -5,4 +5,9 @@ export enum MainMessages {
 	UPDATE_POST = "update_post",
 	GET_USER_POSTS = "get_user_posts",
 	GET_ALL_USER_POSTS = "get_all_user_posts",
+	GET_POST = "get_post",
+	GET_USER_POSTS_COUNT = "get_user_posts_count",
+	GET_LATEST_POSTS = "get_latest_posts",
+	GET_ALL_POSTS_FOR_ADMIN = "get_all_posts_for_admin",
+	GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS = "get_all_posts_for_admin_by_user_ids",
 }

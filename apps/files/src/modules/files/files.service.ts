@@ -1,10 +1,10 @@
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { IFilesCommandRepository } from "@files/modules/files/files.interfaces";
 import { Injectable } from "@nestjs/common";
-import { UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
+import { NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeption/rpc-exeption";
 import { StorageAdapter } from "@files/core/storage/storage.adapter";
-import { ImageOutputDto } from "@libs/contracts/index";
-
+import { AvatarImagesOutputDto } from "@libs/contracts/index";
+import { Cron, CronExpression } from "@nestjs/schedule";
 @Injectable()
 export class FilesService {
 	constructor(
@@ -31,14 +31,29 @@ export class FilesService {
 		return isSaved;
 	}
 
-	async deleteAvatarsByUserId(userId: string, avatars: ImageOutputDto[]): Promise<boolean> {
-		avatars.forEach(async (avatar) => {
-			await this.storageService.deleteFile(avatar.url);
-		});
+	async deleteAvatarsByUserId(userId: string, avatars: AvatarImagesOutputDto): Promise<boolean> {
+		if (!avatars.small && !avatars.medium) {
+			throw new NotFoundRpcException("Avatar not found");
+		}
+		if (avatars.small) {
+			await this.storageService.deleteFile(avatars.small.url);
+		}
+		if (avatars.medium) {
+			await this.storageService.deleteFile(avatars.medium.url);
+		}
 		const isDeleted = await this.filesCommandRepository.deleteAvatarsByUserId(userId);
 		if (!isDeleted) {
 			throw new UnexpectedErrorRpcException("Something went wrong while deleting avatars");
 		}
 		return isDeleted;
+	}
+
+	async softDeleteUserFiles(userId: string): Promise<void> {
+		await this.filesCommandRepository.softDeleteUserFiles(userId);
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedFiles() {
+		await this.filesCommandRepository.deleteDeletedFiles();
 	}
 }

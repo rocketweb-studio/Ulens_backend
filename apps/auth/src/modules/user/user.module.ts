@@ -1,4 +1,4 @@
-import { Module } from "@nestjs/common";
+import { forwardRef, Module } from "@nestjs/common";
 import { CoreModule } from "@auth/core/core.module";
 import { UserController } from "@auth/modules/user/user.controller";
 import { UserService } from "@auth/modules/user/user.service";
@@ -9,6 +9,7 @@ import { UserEnvConfig } from "@auth/modules/user/user.config";
 import { JwtModule } from "@nestjs/jwt";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
+import { EventStoreModule } from "@auth/modules/event-store/event-store.module";
 
 /**
  * { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository}
@@ -19,7 +20,7 @@ import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
  */
 @Module({
 	imports: [
-		CoreModule,
+		forwardRef(() => CoreModule),
 		SessionModule,
 		BlacklistModule,
 		JwtModule.registerAsync({
@@ -29,6 +30,7 @@ import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 			inject: [UserEnvConfig],
 			extraProviders: [UserEnvConfig],
 		}),
+		EventStoreModule,
 	],
 	controllers: [UserController],
 	providers: [
@@ -37,6 +39,6 @@ import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 		{ provide: IUserCommandRepository, useClass: PrismaUserCommandRepository },
 		{ provide: IUserQueryRepository, useClass: PrismaUserQueryRepository },
 	],
-	exports: [UserService],
+	exports: [UserService, IUserCommandRepository],
 })
 export class UserModule {}

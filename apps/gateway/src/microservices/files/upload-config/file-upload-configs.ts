@@ -1,10 +1,13 @@
+import { FilesSizes } from "@libs/constants/index";
+import { ImageSizesDto } from "@libs/contracts/index";
+
 export class FileUploadOptionsDto {
 	fieldName: string; // Имя поля в form-data (avatar, images, etc.)
 	folder: string; // Папка для сохранения в s3
 	maxFiles: number; // Максимальное количество файлов (по умолчанию 1)
 	allowedTypes: string[]; // Разрешенные MIME типы
 	maxSize: number; // Максимальный размер файла в байтах
-	fileSizes: string[]; // Размеры файлов
+	fileSizes: ImageSizesDto[]; // Размеры файлов
 }
 
 export class FileUploadConfigs {
@@ -12,9 +15,12 @@ export class FileUploadConfigs {
 		fieldName: "avatar",
 		folder: "avatars",
 		maxFiles: 1,
-		allowedTypes: ["image/jpeg", "image/png", "image/webp", "image/gif"],
+		allowedTypes: ["image/jpeg", "image/png"],
 		maxSize: 10 * 1024 * 1024, // 10MB
-		fileSizes: ["192x192", "45x45"],
+		fileSizes: [
+			{ type: FilesSizes.SMALL, width: "45" },
+			{ type: FilesSizes.MEDIUM, width: "512" },
+		],
 	};
 
 	static readonly POST_IMAGES: FileUploadOptionsDto = {
@@ -22,7 +28,10 @@ export class FileUploadConfigs {
 		folder: "posts",
 		maxFiles: 10,
 		allowedTypes: ["image/jpeg", "image/png"],
-		maxSize: 5 * 1024 * 1024, // 20MB
-		fileSizes: ["192x192", "512x512"],
+		maxSize: 20 * 1024 * 1024, // 20MB
+		fileSizes: [
+			{ type: FilesSizes.SMALL, width: "360" },
+			{ type: FilesSizes.MEDIUM, width: "1024" },
+		],
 	};
 }

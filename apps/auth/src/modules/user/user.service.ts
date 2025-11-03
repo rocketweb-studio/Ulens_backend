@@ -10,7 +10,7 @@ import {
 	CreateOauthUserDto,
 	SessionMetadataDto,
 } from "@libs/contracts/index";
-import { IUserCommandRepository } from "./user.interfaces";
+import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
 import * as bcrypt from "bcrypt";
 import { JwtService } from "@nestjs/jwt";
 import { UserEnvConfig } from "@auth/modules/user/user.config";
@@ -32,8 +32,9 @@ import { Oauth2Providers } from "@libs/constants/auth-messages";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
-import { AuthEventsPublisher } from "@auth/core/rabbit/events.publisher";
 import { RedisService } from "@libs/redis/redis.service";
+import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
+import { OutboxService } from "@auth/modules/event-store/outbox.service";
 
 @Injectable()
 export class UserService {
@@ -43,8 +44,8 @@ export class UserService {
 		private readonly userEnvConfig: UserEnvConfig,
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
-		private readonly authEventsPublisher: AuthEventsPublisher,
 		private readonly redisService: RedisService,
+		private readonly outboxService: OutboxService,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -53,7 +54,7 @@ export class UserService {
 		const userField = await this.userCommandRepository.findUserByEmailOrUserName(email, userName);
 
 		if (userField) {
-			throw new BadRequestRpcException(`User with this ${userField.field} is already registered`, userField.field);
+			throw new BadRequestRpcException(`User with this ${userField.field.toLowerCase()} is already registered`, userField.field);
 		}
 
 		const passwordHash = await bcrypt.hash(password, 10);
@@ -73,8 +74,6 @@ export class UserService {
 			throw new UnexpectedErrorRpcException("User was not created");
 		}
 
-		await this.authEventsPublisher.publishUserRegistered({ userId: createdUser.id, email: createdUser.email });
-
 		return {
 			email: createdUser.email,
 			confirmationCode: createdUser.confirmationCode,
@@ -87,7 +86,7 @@ export class UserService {
 
 		const providerField = provider === Oauth2Providers.GOOGLE ? "googleUserId" : "githubUserId";
 
-		const existedUser = await this.userCommandRepository.findUserByEmail(email);
+		const existedUser = await this.userCommandRepository.findAnyUserByEmail(email);
 
 		if (existedUser && !existedUser[providerField]) {
 			await this.userCommandRepository.setOauthUserId(email, { [providerField]: providerProfileId });
@@ -130,6 +129,10 @@ export class UserService {
 
 		if (!user) {
 			throw new BadRequestRpcException("User with this email was not found", "email");
+		}
+
+		if (user.confirmationCodeConfirmed) {
+			throw new BadRequestRpcException("User with this email already confirmed", "email");
 		}
 
 		const newConfirmationCodeBody: ConfirmationCodeInputRepoDto = {
@@ -190,7 +193,7 @@ export class UserService {
 		if (!result) {
 			throw new BadRequestRpcException("New password was not set");
 		}
-		await this.sessionService.deleteSessions(user.id);
+		await this.sessionService.deleteAllSessions(user.id);
 
 		return true;
 	}
@@ -221,6 +224,7 @@ export class UserService {
 		if (!passwordIsValid) {
 			return null;
 		}
+		// todo check deleted user
 
 		return user;
 	}
@@ -249,6 +253,10 @@ export class UserService {
 	async logout(dto: RefreshDecodedDto): Promise<any> {
 		const session = await this.sessionService.deleteSession(dto.deviceId);
 		return session;
+	}
+
+	async activatePremiumStatus(payload: PremiumInputDto) {
+		return this.userCommandRepository.activatePremiumStatus(payload);
 	}
 
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
@@ -283,5 +291,19 @@ export class UserService {
 		await this.sessionService.createSession(userId, deviceId, metadata, payloadFromJwt);
 
 		return { refreshToken, payloadForJwt };
+	}
+
+	async deleteUser(userId: string): Promise<boolean> {
+		await this.userCommandRepository.deleteUser(userId);
+		return true;
+	}
+
+	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
+		return this.userCommandRepository.setBlockStatusForUser(userId, isBlocked, reason);
+	}
+
+	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)
+	async deleteDeletedUsers() {
+		await this.userCommandRepository.deleteDeletedUsers();
 	}
 }

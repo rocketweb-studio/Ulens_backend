@@ -1,5 +1,5 @@
 import { Controller, HttpCode, HttpStatus, Get, Query, UseGuards } from "@nestjs/common";
-import { SearchUsersInputDto, SearchUsersOutputDto, UsersCountOutputDto } from "@libs/contracts/index";
+import { SearchUsersInputDto, SearchUsersOutputWithAvatarDto, UsersCountOutputDto } from "@libs/contracts/index";
 import { ApiTags } from "@nestjs/swagger";
 import { AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
 import { GetUsersCountSwagger } from "@gateway/core/decorators/swagger/auth/get-users-count.decorator";
@@ -23,7 +23,7 @@ export class UsersClientController {
 	@UseGuards(JwtAccessAuthGuard)
 	@Get()
 	@HttpCode(HttpStatus.OK)
-	async getUsersBySearch(@Query() payload: SearchUsersInputDto): Promise<SearchUsersOutputDto> {
+	async getUsersBySearch(@Query() payload: SearchUsersInputDto): Promise<SearchUsersOutputWithAvatarDto> {
 		return await this.usersClientService.getUsersBySearch(payload);
 	}
 }

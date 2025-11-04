@@ -32,7 +32,7 @@ export class PrismaProfileCommandRepository implements IProfileCommandRepository
 
 	async findProfileByUsername(userName: string): Promise<string | null> {
 		const profile = await this.prisma.profile.findFirst({
-			where: { userName, deletedAt: null },
+			where: { userName },
 			select: {
 				userId: true,
 			},

@@ -12,6 +12,8 @@ import {
 	MeUserViewDto,
 	UserConfirmationOutputDto,
 	UsersCountOutputDto,
+	SearchUsersInputDto,
+	SearchUsersOutputDto,
 } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
@@ -145,5 +147,10 @@ export class UserController {
 			throw new NotFoundRpcException("User not found");
 		}
 		return await this.userService.setBlockStatusForUser(payload.userId, payload.isBlocked, payload.reason);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_USERS_BY_SEARCH })
+	async getUsersBySearch(@Payload() payload: SearchUsersInputDto): Promise<SearchUsersOutputDto> {
+		return await this.userQueryRepository.getUsersBySearch(payload);
 	}
 }

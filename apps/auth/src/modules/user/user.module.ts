@@ -10,7 +10,7 @@ import { JwtModule } from "@nestjs/jwt";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 import { EventStoreModule } from "@auth/modules/event-store/event-store.module";
-
+import { UserQueryHelper } from "@auth/modules/user/repositories/user.query.repo.helper";
 /**
  * { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository}
  * Явно указываем что при передаче зависимости IUserCommandRepository
@@ -36,6 +36,7 @@ import { EventStoreModule } from "@auth/modules/event-store/event-store.module";
 	providers: [
 		UserService,
 		UserEnvConfig,
+		UserQueryHelper,
 		{ provide: IUserCommandRepository, useClass: PrismaUserCommandRepository },
 		{ provide: IUserQueryRepository, useClass: PrismaUserQueryRepository },
 	],

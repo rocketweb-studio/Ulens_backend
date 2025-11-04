@@ -10,7 +10,6 @@ import {
 	EmailDto,
 	RecoveryPasswordDto,
 	PayloadFromRequestDto,
-	UsersCountOutputDto,
 } from "@libs/contracts/index";
 import { ApiTags } from "@nestjs/swagger";
 import { HttpStatuses, AuthRouterPaths, ApiTagsNames } from "@libs/constants/index";
@@ -32,7 +31,6 @@ import { ThrottlerGuard } from "@nestjs/throttler";
 import { Environments } from "@gateway/core/core.config";
 import { RecaptchaGuard } from "@gateway/core/guards/recaptcha.guard";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
-import { GetUsersCountSwagger } from "@gateway/core/decorators/swagger/auth/get-users-count.decorator";
 
 @ApiTags(ApiTagsNames.AUTH)
 @Controller(AuthRouterPaths.AUTH)
@@ -140,12 +138,5 @@ export class AuthClientController {
 	async me(@ExtractUserFromRequest() dto: PayloadFromRequestDto): Promise<MeUserViewDto> {
 		const userInfo = await this.authClientService.me(dto.userId);
 		return userInfo;
-	}
-
-	@GetUsersCountSwagger()
-	@Get(AuthRouterPaths.USERS_COUNT)
-	@HttpCode(HttpStatus.OK)
-	async getUsersCount(): Promise<UsersCountOutputDto> {
-		return await this.authClientService.getUsersCount();
 	}
 }

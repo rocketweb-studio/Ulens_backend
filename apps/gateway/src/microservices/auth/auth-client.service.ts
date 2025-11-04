@@ -10,7 +10,6 @@ import {
 	SessionMetadataDto,
 	CreateOauthUserDto,
 	UserConfirmationOutputDto,
-	UsersCountOutputDto,
 } from "@libs/contracts/index";
 import { Microservice } from "@libs/constants/microservices";
 import { AuthMessages, Oauth2Providers } from "@libs/constants/auth-messages";
@@ -137,10 +136,6 @@ export class AuthClientService implements IAuthClientService {
 	async me(userId: string): Promise<MeUserViewDto> {
 		const userInfo = await firstValueFrom(this.client.send({ cmd: AuthMessages.ME }, { userId }));
 		return userInfo;
-	}
-
-	async getUsersCount(): Promise<UsersCountOutputDto> {
-		return await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_USERS_COUNT }, {}));
 	}
 
 	async getUserConfirmation(email: string): Promise<UserConfirmationOutputDto> {

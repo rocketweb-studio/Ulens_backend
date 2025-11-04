@@ -4,6 +4,7 @@ export enum RouterPrefix {
 
 export enum AuthRouterPaths {
 	AUTH = "auth",
+	USERS = "users",
 	USERS_COUNT = "users-count",
 	SUBSCRIPTIONS = "subscriptions",
 	REGISTRATION = "registration",
@@ -45,6 +46,7 @@ export enum RouteParams {
 
 export enum ApiTagsNames {
 	AUTH = "Auth",
+	USERS = "Users",
 	PROFILE = "Profile",
 	OAuth2 = "OAuth2",
 	FILES = "Files",

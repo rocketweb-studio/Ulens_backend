@@ -26,6 +26,7 @@ export enum AuthMessages {
 	ADMIN_SET_BLOCK_STATUS_FOR_USER = "admin_set_block_status_for_user",
 	GET_PROFILES = "get_profiles",
 	GET_PROFILES_BY_USER_NAME = "get_profiles_by_user_name",
+	GET_USERS_BY_SEARCH = "get_users_by_search",
 }
 
 export enum Oauth2Providers {

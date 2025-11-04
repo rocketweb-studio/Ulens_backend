@@ -1,12 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
-import { MeUserViewDto, ProfilePostsDto, UserConfirmationOutputDto, UsersCountOutputDto } from "@libs/contracts/index";
+import {
+	MeUserViewDto,
+	ProfilePostsDto,
+	SearchUsersInputDto,
+	SearchUsersOutputDto,
+	UserConfirmationOutputDto,
+	UsersCountOutputDto,
+} from "@libs/contracts/index";
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { GetUsersQueryGqlDto } from "../dto/get-users-query-gql.dto";
 import { FilterByStatus } from "@libs/constants/auth.constants";
 import { GetUserOutputDto, GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
+import { UserQueryHelper } from "./user.query.repo.helper";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -14,7 +22,10 @@ type UserWithProfile = Prisma.UserGetPayload<{
 
 @Injectable()
 export class PrismaUserQueryRepository implements IUserQueryRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly helpers: UserQueryHelper,
+	) {}
 
 	async findUserById(id: string): Promise<MeUserViewDto | null> {
 		const user = await this.prisma.user.findFirst({
@@ -148,5 +159,39 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			pageSize: pageSize,
 			items: mappedUsers,
 		};
+	}
+
+	async getUsersBySearch(dto: SearchUsersInputDto): Promise<SearchUsersOutputDto> {
+		const { endCursorUserId, pageSize, search } = dto;
+
+		if (!search) {
+			return this.helpers.buildPage(0, pageSize, []);
+		}
+		if (!endCursorUserId) {
+			const [totalCount, rows] = await this.helpers.getFirstPage(
+				{ userName: { contains: search, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
+				pageSize,
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+		const cursor = await this.helpers.resolveCursor(
+			{ userName: { contains: search, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
+			endCursorUserId,
+		);
+
+		if (!cursor) {
+			const [totalCount, rows] = await this.helpers.getFirstPage(
+				{ userName: { contains: search, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
+				pageSize,
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor(
+			{ userName: { contains: search, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
+			cursor,
+			pageSize,
+		);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
 	}
 }

@@ -1,6 +1,6 @@
 import { Query, Resolver, Args, Mutation } from "@nestjs/graphql";
 import { UsersResponse } from "@gateway/microservices/auth/users_gql/models/user.model";
-import { UsersGqlClientService } from "@gateway/microservices/auth/users_gql/users.service";
+import { UsersGqlClientService } from "@gateway/microservices/auth/users_gql/users_gql.service";
 import { GetUsersInput } from "@gateway/microservices/auth/users_gql/inputs/get-users.input";
 import { DeleteUserInput } from "@gateway/microservices/auth/users_gql/inputs/delete-user.input";
 import { SetBlockStatusForUserInput } from "@gateway/microservices/auth/users_gql/inputs/set-block-status.input";

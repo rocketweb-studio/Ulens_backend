@@ -19,12 +19,12 @@ export class ProfileController {
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES })
-	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<ProfileOutputDto[]> {
+	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
 		return await this.profileQueryRepository.getProfiles(payload.userIds);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME })
-	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<ProfileOutputDto[]> {
+	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
 		return await this.profileQueryRepository.getProfilesByUserName(payload.userName);
 	}
 

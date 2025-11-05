@@ -28,6 +28,7 @@ import { ProfilePostsDto } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { GetUsersQueryGqlDto } from "@auth/modules/user/dto/get-users-query-gql.dto";
 import { GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
+import { FollowInputDto } from "./dto/follow.input.dto";
 
 @Controller()
 export class UserController {
@@ -149,8 +150,14 @@ export class UserController {
 		return await this.userService.setBlockStatusForUser(payload.userId, payload.isBlocked, payload.reason);
 	}
 
+	// HTTP ENDPOINTS
 	@MessagePattern({ cmd: AuthMessages.GET_USERS_BY_SEARCH })
 	async getUsersBySearch(@Payload() payload: SearchUsersInputDto): Promise<SearchUsersOutputDto> {
 		return await this.userQueryRepository.getUsersBySearch(payload);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.FOLLOWING })
+	async manageFollowing(@Payload() payload: FollowInputDto): Promise<boolean> {
+		return await this.userService.manageFollowing(payload);
 	}
 }

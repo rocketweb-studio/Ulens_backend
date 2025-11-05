@@ -28,8 +28,6 @@ export class ProfileAuthClientService {
 			...profile,
 			avatars,
 			publicationsCount: postsCount,
-			followers: 0,
-			following: 0,
 		};
 	}
 

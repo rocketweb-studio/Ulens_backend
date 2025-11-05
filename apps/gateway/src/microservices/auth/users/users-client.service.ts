@@ -1,10 +1,11 @@
-import { AuthMessages } from "@libs/constants/index";
-import { SearchUsersInputDto, SearchUsersOutputWithAvatarDto, UsersCountOutputDto } from "@libs/contracts/index";
+import { AuthMessages, FollowType } from "@libs/constants/index";
+import { FollowingOutputDto, SearchUsersInputDto, SearchUsersOutputWithAvatarDto, UsersCountOutputDto } from "@libs/contracts/index";
 import { Inject, Injectable } from "@nestjs/common";
 import { firstValueFrom } from "rxjs";
 import { Microservice } from "@libs/constants/microservices";
 import { ClientProxy } from "@nestjs/microservices";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
+import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class UsersClientService {
@@ -27,6 +28,22 @@ export class UsersClientService {
 				...user,
 				avatar: usersAvatars.find((avatar) => avatar.userId === user.id)?.avatars.small?.url || null,
 			})),
+		};
+	}
+
+	async follow(dto: { currentUserId: string; userId: string }): Promise<FollowingOutputDto> {
+		const isSuccess = await firstValueFrom(this.client.send({ cmd: AuthMessages.FOLLOWING }, { ...dto, followType: FollowType.FOLLOW }));
+		if (!isSuccess) throw new BadRequestRpcException("Failed to follow user");
+		return {
+			success: true,
+		};
+	}
+
+	async unfollow(dto: { currentUserId: string; userId: string }): Promise<FollowingOutputDto> {
+		const isSuccess = await firstValueFrom(this.client.send({ cmd: AuthMessages.FOLLOWING }, { ...dto, followType: FollowType.UNFOLLOW }));
+		if (!isSuccess) throw new BadRequestRpcException("Failed to unfollow user");
+		return {
+			success: true,
 		};
 	}
 }

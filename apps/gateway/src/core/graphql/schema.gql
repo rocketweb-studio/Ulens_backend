@@ -149,8 +149,10 @@ type TransactionsResponse {
 
 type UserModel {
   createdAt: String!
+  firstName: String
   id: String!
   isBlocked: Boolean!
+  lastName: String
   userName: String
 }
 

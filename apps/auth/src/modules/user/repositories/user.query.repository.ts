@@ -147,6 +147,8 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			id: user.id,
 			userName: user.profile?.userName || null,
 			createdAt: user.createdAt.toISOString(),
+			firstName: user.profile?.firstName || null,
+			lastName: user.profile?.lastName || null,
 			isBlocked: user.isBlocked,
 		}));
 

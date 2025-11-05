@@ -42,4 +42,6 @@ export abstract class IUserCommandRepository {
 	abstract setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean>;
 	abstract findAnyUserByEmail(email: string): Promise<UserOutputRepoDto | null>;
 	abstract deleteDeletedUsers(): Promise<void>;
+	abstract follow(currentUserId: string, userId: string): Promise<boolean>;
+	abstract unfollow(currentUserId: string, userId: string): Promise<boolean>;
 }

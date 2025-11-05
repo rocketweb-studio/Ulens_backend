@@ -18,6 +18,10 @@ export class ProfileOutputDto {
 	aboutMe: string | null;
 	@ApiProperty({ description: "Created at", example: "2021-01-01T00:00:00.000Z" })
 	createdAt: Date | null;
+	@ApiProperty({ description: "Followers count", example: 10 })
+	followers: number;
+	@ApiProperty({ description: "Following count", example: 10 })
+	following: number;
 }
 
 export class AvatarOutputDto {
@@ -51,8 +55,4 @@ export class ProfileOutputWithAvatarDto extends ProfileOutputDto {
 	avatars: ImageOutputDto;
 	@ApiProperty({ description: "Publications count", example: 10 })
 	publicationsCount: number;
-	@ApiProperty({ description: "Followers count", example: 10 })
-	followers: number;
-	@ApiProperty({ description: "Following count", example: 10 })
-	following: number;
 }

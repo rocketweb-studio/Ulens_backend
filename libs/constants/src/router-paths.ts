@@ -4,8 +4,6 @@ export enum RouterPrefix {
 
 export enum AuthRouterPaths {
 	AUTH = "auth",
-	USERS = "users",
-	USERS_COUNT = "users-count",
 	SUBSCRIPTIONS = "subscriptions",
 	REGISTRATION = "registration",
 	REGISTRATION_CONFIRMATION = "registration-confirmation",
@@ -22,6 +20,13 @@ export enum AuthRouterPaths {
 	GITHUB_LOGIN = "github-login",
 	GITHUB_CALLBACK = "github-callback",
 	FILES = "files",
+}
+
+export enum UsersRouterPaths {
+	USERS = "users",
+	USERS_COUNT = "users-count",
+	FOLLOW = "follow",
+	UNFOLLOW = "unfollow",
 }
 
 export enum ProfileRouterPaths {

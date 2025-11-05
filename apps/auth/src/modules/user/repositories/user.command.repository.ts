@@ -309,4 +309,18 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		});
 		console.log(`Deleted deleted users: [${count}]`);
 	}
+
+	async follow(currentUserId: string, userId: string): Promise<boolean> {
+		const existingFollow = await this.prisma.follow.findFirst({ where: { followerId: currentUserId, followingId: userId } });
+		if (existingFollow) return false;
+		await this.prisma.follow.create({ data: { followerId: currentUserId, followingId: userId } });
+		return true;
+	}
+
+	async unfollow(currentUserId: string, userId: string): Promise<boolean> {
+		const existingFollow = await this.prisma.follow.findFirst({ where: { followerId: currentUserId, followingId: userId } });
+		if (!existingFollow) return false;
+		await this.prisma.follow.deleteMany({ where: { followerId: currentUserId, followingId: userId } });
+		return true;
+	}
 }

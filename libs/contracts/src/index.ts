@@ -52,3 +52,5 @@ export * from "./notifications-contracts/notifications-constants";
 export * from "./notifications-contracts/input/read-notification.input.dto";
 export * from "./auth-contracts/input/search-users.input.dto";
 export * from "./auth-contracts/output/search-users.output.dto";
+export * from "./auth-contracts/input/following.input.dto";
+export * from "./auth-contracts/output/following.output.dto";

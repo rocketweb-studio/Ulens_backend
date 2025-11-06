@@ -34,7 +34,6 @@ import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { RedisService } from "@libs/redis/redis.service";
 import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
-import { OutboxService } from "@auth/modules/event-store/outbox.service";
 import { FollowInputDto } from "./dto/follow.input.dto";
 import { FollowType } from "@libs/constants/index";
 
@@ -47,7 +46,6 @@ export class UserService {
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
 		private readonly redisService: RedisService,
-		private readonly outboxService: OutboxService,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {

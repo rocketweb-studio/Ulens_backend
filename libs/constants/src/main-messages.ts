@@ -10,4 +10,5 @@ export enum MainMessages {
 	GET_LATEST_POSTS = "get_latest_posts",
 	GET_ALL_POSTS_FOR_ADMIN = "get_all_posts_for_admin",
 	GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS = "get_all_posts_for_admin_by_user_ids",
+	GET_FOLLOWINGS_POSTS = "get_followings_posts",
 }

@@ -3,7 +3,7 @@ import { PostService } from "@main/modules/post/post.service";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { MainMessages } from "@libs/constants/index";
 import { CreatePostWithUserIdDto } from "@main/modules/post/dto/create-post.userId.input.dto";
-import { CreatePostOutputDto, PostDbOutputDto, UpdatePostDto } from "@libs/contracts/index";
+import { CreatePostOutputDto, GetFollowingsPostsQueryDto, PostDbOutputDto, UpdatePostDto } from "@libs/contracts/index";
 import { DeletePostDto } from "@main/modules/post/dto/delete-post.input.dto";
 import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
@@ -62,5 +62,10 @@ export class PostController {
 	@MessagePattern({ cmd: MainMessages.GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS })
 	async getAllPostsForAdminByUserIds(@Payload() dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto> {
 		return this.postQueryRepository.getAllPostsForAdminByUserIds(dto);
+	}
+
+	@MessagePattern({ cmd: MainMessages.GET_FOLLOWINGS_POSTS })
+	async getFollowingsPosts(@Payload() dto: { followingsIds: string[]; query: GetFollowingsPostsQueryDto }): Promise<UserPostsPageDto> {
+		return this.postQueryRepository.getFollowingsPosts(dto.followingsIds, dto.query);
 	}
 }

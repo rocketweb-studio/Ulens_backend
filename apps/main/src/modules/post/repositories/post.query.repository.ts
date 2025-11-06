@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
 import { PrismaService } from "@main/core/prisma/prisma.service";
 import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
-import { PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
+import { GetFollowingsPostsQueryDto, PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
 import { PostQueryHelper } from "@main/utils/post.query.repo.helper";
 import { Post } from "@main/core/prisma/generated";
 
@@ -78,6 +78,23 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		}
 
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null, userId: { in: userIds } }, cursor, pageSize);
+		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	async getFollowingsPosts(followingsIds: string[], query: GetFollowingsPostsQueryDto): Promise<UserPostsPageDto> {
+		const { endCursorPostId, pageSize } = query;
+		if (!endCursorPostId) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: followingsIds } }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+		const cursor = await this.helpers.resolveCursor({ deletedAt: null, userId: { in: followingsIds } }, endCursorPostId);
+
+		if (!cursor) {
+			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: followingsIds } }, pageSize);
+			return this.helpers.buildPage(totalCount, pageSize, rows);
+		}
+
+		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null, userId: { in: followingsIds } }, cursor, pageSize);
 		return this.helpers.buildPage(totalCount, pageSize, rows);
 	}
 

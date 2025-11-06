@@ -22,6 +22,8 @@ export class ProfileOutputDto {
 	followers: number;
 	@ApiProperty({ description: "Following count", example: 10 })
 	following: number;
+	@ApiProperty({ description: "Is followed", example: true })
+	isFollowed: boolean | null;
 }
 
 export class AvatarOutputDto {

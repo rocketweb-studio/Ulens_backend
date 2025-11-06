@@ -19,8 +19,8 @@ export class ProfileAuthClientService {
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 	) {}
 
-	async getProfile(userId: string): Promise<ProfileOutputWithAvatarDto> {
-		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId }));
+	async getProfile(userId: string, authorizedCurrentUserId: string | null = null): Promise<ProfileOutputWithAvatarDto> {
+		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId, authorizedCurrentUserId }));
 		const avatars = await this.filesClientService.getAvatarsByUserId(userId);
 		const postsCount = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS_COUNT }, { userId }));
 

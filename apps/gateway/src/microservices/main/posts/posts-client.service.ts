@@ -9,6 +9,7 @@ import { GraphqlPubSubMessages, MainMessages, Microservice, PUB_SUB_GQL } from "
 import { ClientProxy } from "@nestjs/microservices";
 import {
 	CreatePostOutputDto,
+	GetFollowingsPostsQueryDto,
 	GetUserPostsQueryDto,
 	PostDbOutputDto,
 	PostImagesOutputForMapDto,
@@ -22,6 +23,7 @@ import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contract
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { GetAdminPostsInput, GetAdminPostsInputWithUserIds } from "../posts_gql/inputs/get-admin-posts.input";
 import { RedisPubSub } from "graphql-redis-subscriptions";
+import { UsersClientService } from "@gateway/microservices/auth/users/users-client.service";
 
 @Injectable()
 export class PostsClientService {
@@ -30,6 +32,7 @@ export class PostsClientService {
 		private readonly filesClientService: FilesClientService,
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 		private readonly profileClientService: ProfileAuthClientService,
+		private readonly usersClientService: UsersClientService,
 		@Inject(PUB_SUB_GQL) private readonly pubSub: RedisPubSub,
 	) {}
 
@@ -103,9 +106,9 @@ export class PostsClientService {
 		return posts;
 	}
 
-	async getPost(postId: string): Promise<PostOutputDto> {
+	async getPost(postId: string, authorizedCurrentUserId: string | null = null): Promise<PostOutputDto> {
 		const post = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST }, { postId }));
-		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(post.userId);
+		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(post.userId, authorizedCurrentUserId);
 		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages([postId]);
 
 		return this.buildPostOutput(post, profile, postsImages);
@@ -129,6 +132,35 @@ export class PostsClientService {
 				postsImages.filter((img) => img.parentId === post.id),
 			);
 		});
+	}
+
+	async getFollowingsPosts(userId: string, query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
+		const followings = await this.usersClientService.getAllFollowings(userId);
+		const followingsIds = followings.map((following) => following.id);
+
+		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_FOLLOWINGS_POSTS }, { followingsIds, query }));
+		const postIds = toPostIdArray(posts);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+
+		return {
+			totalCount: posts.totalCount,
+			pageSize: posts.pageSize,
+			items: posts.items.map((post) => {
+				const profile = followings.find((following) => following.id === post.userId);
+				if (!profile) {
+					throw new NotFoundRpcException(`Profile not found for user ${post.userId}`);
+				}
+				return this.buildPostOutput(
+					post,
+					profile,
+					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+				);
+			}),
+			pageInfo: {
+				endCursorPostId: posts.pageInfo.endCursorPostId,
+				hasNextPage: posts.pageInfo.hasNextPage,
+			},
+		};
 	}
 
 	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputForMapDto[]): PostOutputDto {
@@ -172,6 +204,7 @@ export class PostsClientService {
 				firstName: profile.firstName,
 				lastName: profile.lastName,
 			},
+			isFollowed: profile.isFollowed,
 			likeCount: 0,
 			isLiked: false,
 			avatarWhoLikes: false,

@@ -305,7 +305,7 @@ export class UserService {
 	}
 
 	async manageFollowing(payload: FollowInputDto): Promise<boolean> {
-		//todo add rabbit message for notification
+		//todo add rabbit message for notification? now its handled in the command repository
 		const { currentUserId, userId, followType } = payload;
 		const user = await this.userCommandRepository.findUserById(userId);
 		if (!user) throw new NotFoundRpcException("User not found");
@@ -316,6 +316,7 @@ export class UserService {
 		if (followType === FollowType.UNFOLLOW) {
 			return await this.userCommandRepository.unfollow(currentUserId, userId);
 		}
+
 		throw new BadRequestRpcException("Invalid follow type");
 	}
 

@@ -5,7 +5,15 @@ import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-f
 import { UploadPostImagesSwagger } from "@gateway/core/decorators/swagger/post/upload-post-images.decorator";
 import { ApiTagsNames, MainRouterPaths, RouteParams } from "@libs/constants/index";
 import { Request } from "express";
-import { CreatePostDto, CreatePostOutputDto, GetUserPostsQueryDto, PayloadFromRequestDto, PostIdParamDto, UserIdParamDto } from "@libs/contracts/index";
+import {
+	CreatePostDto,
+	CreatePostOutputDto,
+	GetFollowingsPostsQueryDto,
+	GetUserPostsQueryDto,
+	PayloadFromRequestDto,
+	PostIdParamDto,
+	UserIdParamDto,
+} from "@libs/contracts/index";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { CreatePostSwagger } from "@gateway/core/decorators/swagger/main/create-post-swagger.decorator";
 import { DeletePostSwagger } from "@gateway/core/decorators/swagger/main/delete-post-swagger.decorator";
@@ -15,7 +23,8 @@ import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contract
 import { ApiTags } from "@nestjs/swagger";
 import { GetPostSwagger } from "@gateway/core/decorators/swagger/main/get-post.decorator";
 import { GetLatestPostsSwagger } from "@gateway/core/decorators/swagger/main/get-latest-posts.decorator";
-
+import { JwtAccessCheckGuard } from "@gateway/core/guards/jwt-access-check.guard";
+import { GetFollowingsPostsSwagger } from "@gateway/core/decorators/swagger/main/get-followings-posts.decorator";
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
 @Controller(MainRouterPaths.POSTS)
@@ -71,10 +80,21 @@ export class PostsClientController {
 		return await this.postsClientService.getLatestPosts();
 	}
 
+	@GetFollowingsPostsSwagger()
+	@UseGuards(JwtAccessAuthGuard)
+	@Get(`followings`)
+	@HttpCode(HttpStatus.OK)
+	async getFollowingsPost(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Query() query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
+		return await this.postsClientService.getFollowingsPosts(user.userId, query);
+	}
+
 	@GetPostSwagger()
+	@UseGuards(JwtAccessCheckGuard)
 	@Get(RouteParams.POST_ID)
 	@HttpCode(HttpStatus.OK)
-	async getPost(@Param() { postId }: PostIdParamDto): Promise<PostOutputDto> {
-		return await this.postsClientService.getPost(postId);
+	async getPost(@Req() req: Request, @Param() { postId }: PostIdParamDto): Promise<PostOutputDto> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getPost(postId, authorizedCurrentUserId);
 	}
 }

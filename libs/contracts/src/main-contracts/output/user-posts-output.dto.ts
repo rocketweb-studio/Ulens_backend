@@ -128,6 +128,9 @@ export class PostOutputDto {
 	@ApiProperty({ example: 12 })
 	likeCount: number;
 
+	@ApiProperty({ example: true, nullable: true })
+	isFollowed: boolean | null;
+
 	@ApiProperty({ example: true })
 	isLiked: boolean;
 

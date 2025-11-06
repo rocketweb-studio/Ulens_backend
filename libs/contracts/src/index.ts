@@ -54,3 +54,5 @@ export * from "./auth-contracts/input/search-users.input.dto";
 export * from "./auth-contracts/output/search-users.output.dto";
 export * from "./auth-contracts/input/following.input.dto";
 export * from "./auth-contracts/output/following.output.dto";
+export * from "./auth-contracts/input/get-follow.query.input.dto";
+export * from "./auth-contracts/output/get-follow.output.dto";

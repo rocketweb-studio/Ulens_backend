@@ -14,6 +14,9 @@ import {
 	UsersCountOutputDto,
 	SearchUsersInputDto,
 	SearchUsersOutputDto,
+	GetFollowersOutputDto,
+	GetFollowingsOutputDto,
+	FollowersOutputDto,
 } from "@libs/contracts/index";
 import { JwtRefreshAuthGuard } from "@auth/core/guards/jwt-refresh-auth.guard";
 import { CredentialsAuthGuard } from "@auth/core/guards/credentials-auth.guard";
@@ -29,6 +32,7 @@ import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { GetUsersQueryGqlDto } from "@auth/modules/user/dto/get-users-query-gql.dto";
 import { GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
 import { FollowInputDto } from "./dto/follow.input.dto";
+import { GetFollowQueryInputDto } from "@libs/contracts/auth-contracts/input/get-follow.query.input.dto";
 
 @Controller()
 export class UserController {
@@ -156,8 +160,23 @@ export class UserController {
 		return await this.userQueryRepository.getUsersBySearch(payload);
 	}
 
-	@MessagePattern({ cmd: AuthMessages.FOLLOWING })
+	@MessagePattern({ cmd: AuthMessages.MANAGE_FOLLOWING })
 	async manageFollowing(@Payload() payload: FollowInputDto): Promise<boolean> {
 		return await this.userService.manageFollowing(payload);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_FOLLOWERS })
+	async getFollowers(@Payload() payload: { userId: string; query: GetFollowQueryInputDto }): Promise<GetFollowersOutputDto> {
+		return await this.userQueryRepository.getFollowers(payload.userId, payload.query);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_FOLLOWINGS })
+	async getFollowings(@Payload() payload: { userId: string; query: GetFollowQueryInputDto }): Promise<GetFollowingsOutputDto> {
+		return await this.userQueryRepository.getFollowings(payload.userId, payload.query);
+	}
+
+	@MessagePattern({ cmd: AuthMessages.GET_ALL_FOLLOWINGS })
+	async getAllFollowings(@Payload() payload: { userId: string }): Promise<FollowersOutputDto[]> {
+		return await this.userQueryRepository.getAllFollowings(payload.userId);
 	}
 }

@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { IUserCommandRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import { ConfirmCodeDto } from "@libs/contracts/index";
-import { BaseRpcException } from "@libs/exeption/index";
+import { BaseRpcException, NotFoundRpcException } from "@libs/exeption/index";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
 import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
 import { RecoveryCodeInputRepoDto } from "@auth/modules/user/dto/recovery-repo.input.dto";
@@ -15,6 +15,7 @@ import { RabbitEvents, RabbitEventSources } from "@libs/rabbit/rabbit.constants"
 import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
 import { IInboxCommandRepository } from "@auth/modules/event-store/inbox.interface";
 import { IOutboxCommandRepository } from "@auth/modules/event-store/outbox.interface";
+import { FollowType } from "@libs/constants/auth.constants";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -313,14 +314,32 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 	async follow(currentUserId: string, userId: string): Promise<boolean> {
 		const existingFollow = await this.prisma.follow.findFirst({ where: { followerId: currentUserId, followingId: userId } });
 		if (existingFollow) return false;
-		await this.prisma.follow.create({ data: { followerId: currentUserId, followingId: userId } });
+		const followingProfile = await this.prisma.profile.findUnique({ where: { userId: currentUserId }, select: { userName: true } });
+		if (!followingProfile) throw new NotFoundRpcException("Following profile not found");
+		await this.prisma.$transaction(async (tx) => [
+			await tx.follow.create({ data: { followerId: currentUserId, followingId: userId } }),
+			await this.outboxCommandRepository.createOutboxFollowEvent(tx, {
+				followingId: userId,
+				followingUserName: followingProfile.userName,
+				followType: FollowType.FOLLOW,
+			}),
+		]);
 		return true;
 	}
 
 	async unfollow(currentUserId: string, userId: string): Promise<boolean> {
 		const existingFollow = await this.prisma.follow.findFirst({ where: { followerId: currentUserId, followingId: userId } });
 		if (!existingFollow) return false;
-		await this.prisma.follow.deleteMany({ where: { followerId: currentUserId, followingId: userId } });
+		const followingProfile = await this.prisma.profile.findUnique({ where: { userId }, select: { userName: true } });
+		if (!followingProfile) throw new NotFoundRpcException("Following profile not found");
+		await this.prisma.$transaction(async (tx) => [
+			await tx.follow.deleteMany({ where: { followerId: currentUserId, followingId: userId } }),
+			await this.outboxCommandRepository.createOutboxFollowEvent(tx, {
+				followingId: currentUserId,
+				followingUserName: followingProfile.userName,
+				followType: FollowType.UNFOLLOW,
+			}),
+		]);
 		return true;
 	}
 }

@@ -29,6 +29,7 @@ export enum RabbitEvents {
 	NOTIFICATION_RENEWAL_CHECK = "notification.renewal.check",
 	PAYMENTS_RENEWAL_CHECKED = "payments.renewal.checked",
 	USER_DELETED = "user.deleted",
+	FOLLOW_EVENT = "follow.event",
 }
 
 export enum RabbitMainQueues {
@@ -42,6 +43,7 @@ export enum RabbitMainQueues {
 	MAIN_USER_DELETED_Q = "main.user.deleted.q",
 	PAYMENTS_USER_DELETED_Q = "payments.user.deleted.q",
 	FILES_USER_DELETED_Q = "files.user.deleted.q",
+	NOTIFICATIONS_FOLLOW_EVENT_Q = "notifications.follow.event.q",
 }
 
 export const RabbitRetryTtlMs = 60_000;
@@ -61,4 +63,5 @@ export enum OutboxAggregateType {
 	PREMIUM_ACTIVATED = "premium.activated",
 	NOTIFICATION_SUBSCRIPTION = "notification.subscription",
 	USER_DELETED = "user.deleted",
+	FOLLOW = "follow",
 }

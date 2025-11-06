@@ -10,7 +10,7 @@ import { Prisma } from "@auth/core/prisma/generated";
 export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getProfileByUserId(userId: string): Promise<ProfileOutputDto> {
+	async getProfileByUserId(userId: string, authorizedCurrentUserId: string | null = null): Promise<ProfileOutputDto> {
 		const [profile, followersCount, followingCount] = await Promise.all([
 			this.prisma.profile.findFirst({
 				where: { userId, user: { deletedAt: null } },
@@ -30,25 +30,35 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 				},
 			}),
 		]);
+		const isFollowed =
+			authorizedCurrentUserId && authorizedCurrentUserId !== userId
+				? !!(await this.prisma.follow.findFirst({
+						where: {
+							followingId: userId,
+							following: { deletedAt: null },
+							follower: { deletedAt: null },
+						},
+					}))
+				: null;
 		if (!profile) throw new NotFoundRpcException("Profile not found");
-		return this._mapToView(profile, followersCount, followingCount);
+		return this._mapToView(profile, followersCount, followingCount, isFollowed);
 	}
 
-	async getProfiles(userIds: string[]): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
+	async getProfiles(userIds: string[]): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
 		const profiles = await this.prisma.profile.findMany({
 			where: { userId: { in: userIds }, deletedAt: null },
 		});
 		return profiles.map(this._mapToViewWithoutFollowersAndFollowing);
 	}
 
-	async getProfilesByUserName(userName: string): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
+	async getProfilesByUserName(userName: string): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
 		const profiles = await this.prisma.profile.findMany({
 			where: { userName: { contains: userName, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },
 		});
 		return profiles.map(this._mapToViewWithoutFollowersAndFollowing);
 	}
 
-	private _mapToView(profile: Profile, followersCount: number, followingCount: number): ProfileOutputDto {
+	private _mapToView(profile: Profile, followersCount: number, followingCount: number, isFollowed: boolean | null = null): ProfileOutputDto {
 		const formatDate = (date: Date): string => {
 			const day = String(date.getDate()).padStart(2, "0");
 			const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -67,9 +77,10 @@ export class PrismaProfileQueryRepository implements IProfileQueryRepository {
 			createdAt: profile.createdAt,
 			followers: followersCount,
 			following: followingCount,
+			isFollowed: typeof isFollowed === "boolean" ? isFollowed : null,
 		};
 	}
-	private _mapToViewWithoutFollowersAndFollowing(profile: Profile): Omit<ProfileOutputDto, "followers" | "following"> {
+	private _mapToViewWithoutFollowersAndFollowing(profile: Profile): Omit<ProfileOutputDto, "followers" | "following" | "isFollowed"> {
 		const formatDate = (date: Date): string => {
 			const day = String(date.getDate()).padStart(2, "0");
 			const month = String(date.getMonth() + 1).padStart(2, "0");

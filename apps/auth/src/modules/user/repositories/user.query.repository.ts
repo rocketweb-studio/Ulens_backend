@@ -2,6 +2,10 @@ import { Injectable } from "@nestjs/common";
 import { IUserQueryRepository } from "@auth/modules/user/user.interfaces";
 import { PrismaService } from "@auth/core/prisma/prisma.service";
 import {
+	FollowersOutputDto,
+	FollowingsOutputDto,
+	GetFollowersOutputDto,
+	GetFollowingsOutputDto,
 	MeUserViewDto,
 	ProfilePostsDto,
 	SearchUsersInputDto,
@@ -15,6 +19,7 @@ import { GetUsersQueryGqlDto } from "../dto/get-users-query-gql.dto";
 import { FilterByStatus } from "@libs/constants/auth.constants";
 import { GetUserOutputDto, GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
 import { UserQueryHelper } from "./user.query.repo.helper";
+import { GetFollowQueryInputDto } from "@libs/contracts/auth-contracts/input/get-follow.query.input.dto";
 
 type UserWithProfile = Prisma.UserGetPayload<{
 	include: { profile: true };
@@ -195,5 +200,87 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			pageSize,
 		);
 		return this.helpers.buildPage(totalCount, pageSize, rows);
+	}
+
+	async getFollowers(userId: string, query: GetFollowQueryInputDto): Promise<GetFollowersOutputDto> {
+		const { pageNumber, pageSize } = query;
+		const followers = await this.prisma.follow.findMany({
+			where: { followingId: userId },
+			include: { follower: { include: { profile: true } } },
+			orderBy: {
+				createdAt: "desc",
+			},
+			take: pageSize,
+			skip: (pageNumber - 1) * pageSize,
+		});
+
+		const totalCount = await this.prisma.follow.count({
+			where: { followingId: userId },
+		});
+		return {
+			totalCount,
+			pageSize,
+			pageNumber,
+			items: this._mapFolowersToView(followers),
+		};
+	}
+
+	async getFollowings(userId: string, query: GetFollowQueryInputDto): Promise<GetFollowingsOutputDto> {
+		const { pageNumber, pageSize } = query;
+		const followings = await this.prisma.follow.findMany({
+			where: { followerId: userId },
+			include: { following: { include: { profile: true } } },
+			orderBy: {
+				createdAt: "desc",
+			},
+			take: pageSize,
+			skip: (pageNumber - 1) * pageSize,
+		});
+
+		const totalCount = await this.prisma.follow.count({
+			where: { followerId: userId },
+		});
+		return {
+			totalCount,
+			pageSize,
+			pageNumber,
+			items: this._mapFollowingsToView(followings),
+		};
+	}
+
+	async getAllFollowings(userId: string): Promise<FollowersOutputDto[]> {
+		const followings = await this.prisma.follow.findMany({
+			where: { followerId: userId },
+			include: { following: { include: { profile: true } } },
+		});
+		return this._mapFollowingsToView(followings);
+	}
+
+	private _mapFolowersToView(followers: any[]): FollowersOutputDto[] {
+		return followers.map((follower) => ({
+			id: follower.followerId,
+			userName: follower.profile?.userName || null,
+			createdAt: follower.createdAt.toISOString(),
+			firstName: follower.profile?.firstName || null,
+			lastName: follower.profile?.lastName || null,
+			city: follower.profile?.city || null,
+			country: follower.profile?.country || null,
+			dateOfBirth: follower.profile?.dateOfBirth || null,
+			aboutMe: follower.profile?.aboutMe || null,
+		}));
+	}
+
+	private _mapFollowingsToView(followings: any[]): FollowingsOutputDto[] {
+		return followings.map((following) => ({
+			id: following.followingId,
+			userName: following.following.profile?.userName || null,
+			createdAt: following.createdAt.toISOString(),
+			firstName: following.following.profile?.firstName || null,
+			lastName: following.following.profile?.lastName || null,
+			city: following.following.profile?.city || null,
+			country: following.following.profile?.country || null,
+			dateOfBirth: following.following.profile?.dateOfBirth || null,
+			aboutMe: following.following.profile?.aboutMe || null,
+		}));
 	}
 }

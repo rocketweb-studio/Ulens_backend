@@ -14,24 +14,24 @@ export class ProfileController {
 	) {}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILE })
-	async getProfile(@Payload() payload: { userId: string }): Promise<ProfileOutputDto> {
-		return await this.profileQueryRepository.getProfileByUserId(payload.userId);
+	async getProfile(@Payload() payload: { userId: string; authorizedCurrentUserId: string | null }): Promise<ProfileOutputDto> {
+		return await this.profileQueryRepository.getProfileByUserId(payload.userId, payload.authorizedCurrentUserId);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES })
-	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
+	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
 		return await this.profileQueryRepository.getProfiles(payload.userIds);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME })
-	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<Omit<ProfileOutputDto, "followers" | "following">[]> {
+	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
 		return await this.profileQueryRepository.getProfilesByUserName(payload.userName);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.UPDATE_PROFILE })
 	async updateProfile(@Payload() payload: { userId: string; dto: ProfileInputDto }): Promise<ProfileOutputDto> {
 		const profileUserId = await this.profileService.updateProfile(payload.userId, payload.dto);
-		return await this.profileQueryRepository.getProfileByUserId(profileUserId);
+		return await this.profileQueryRepository.getProfileByUserId(profileUserId, null);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.DELETE_PROFILE })

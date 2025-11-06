@@ -27,6 +27,8 @@ export enum UsersRouterPaths {
 	USERS_COUNT = "users-count",
 	FOLLOW = "follow",
 	UNFOLLOW = "unfollow",
+	FOLLOWERS = "followers",
+	FOLLOWINGS = "followings",
 }
 
 export enum ProfileRouterPaths {

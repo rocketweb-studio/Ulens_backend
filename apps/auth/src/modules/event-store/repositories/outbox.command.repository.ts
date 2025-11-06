@@ -7,6 +7,7 @@ import { Injectable } from "@nestjs/common";
 import { OutboxEventStatuses } from "@libs/constants/index";
 import { CreateOutboxUserDeletedDto } from "@auth/modules/event-store/dto/create-outbox-user-deleted.dto";
 import { Prisma } from "@auth/core/prisma/generated/client";
+import { CreateOutboxFollowEventDto } from "../dto/create-outbox-follow.dto";
 
 @Injectable()
 export class OutboxCommandRepository implements IOutboxCommandRepository {
@@ -32,6 +33,26 @@ export class OutboxCommandRepository implements IOutboxCommandRepository {
 			},
 		});
 		return createdOutboxTransactionEvent.id;
+	}
+
+	async createOutboxFollowEvent(tx: Prisma.TransactionClient, dto: CreateOutboxFollowEventDto): Promise<string> {
+		const messageId = randomUUID();
+		const { followingId, followingUserName, followType } = dto;
+		const createdOutboxFollowEvent = await tx.outboxEvent.create({
+			data: {
+				aggregateType: OutboxAggregateType.FOLLOW,
+				eventType: RabbitEvents.FOLLOW_EVENT,
+				attempts: 0,
+				topic: RabbitExchanges.APP_EVENTS,
+				payload: {
+					messageId,
+					followingId,
+					followingUserName,
+					followType,
+				},
+			},
+		});
+		return createdOutboxFollowEvent.id;
 	}
 
 	async createOutboxUserDeletedEvent(tx: Prisma.TransactionClient, dto: CreateOutboxUserDeletedDto): Promise<string> {

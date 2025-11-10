@@ -58,3 +58,16 @@ export class ProfileOutputWithAvatarDto extends ProfileOutputDto {
 	@ApiProperty({ description: "Publications count", example: 10 })
 	publicationsCount: number;
 }
+
+export class ProfileOutputForMapDto {
+	userName: string;
+	id: string;
+	firstName: string | null;
+	lastName: string | null;
+	city: string | null;
+	country: string | null;
+	dateOfBirth: string | null;
+	aboutMe: string | null;
+	createdAt: Date | null;
+	isBlocked: boolean;
+}

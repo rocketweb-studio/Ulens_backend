@@ -50,7 +50,7 @@ export class GetFollowingsPostsQueryDto {
 	@Type(() => Number)
 	@IsInt()
 	@Min(1)
-	@Max(10)
+	@Max(100)
 	pageSize: number = 10;
 
 	@ApiPropertyOptional({
@@ -58,6 +58,5 @@ export class GetFollowingsPostsQueryDto {
 		format: "uuid",
 	})
 	@IsOptional()
-	@IsUUID("4")
 	endCursorPostId?: string;
 }

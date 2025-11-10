@@ -6,6 +6,8 @@ import { UploadPostImagesSwagger } from "@gateway/core/decorators/swagger/post/u
 import { ApiTagsNames, MainRouterPaths, RouteParams } from "@libs/constants/index";
 import { Request } from "express";
 import {
+	CommentOutputDto,
+	CreateCommentInputDto,
 	CreatePostDto,
 	CreatePostOutputDto,
 	GetFollowingsPostsQueryDto,
@@ -25,11 +27,19 @@ import { GetPostSwagger } from "@gateway/core/decorators/swagger/main/get-post.d
 import { GetLatestPostsSwagger } from "@gateway/core/decorators/swagger/main/get-latest-posts.decorator";
 import { JwtAccessCheckGuard } from "@gateway/core/guards/jwt-access-check.guard";
 import { GetFollowingsPostsSwagger } from "@gateway/core/decorators/swagger/main/get-followings-posts.decorator";
+import { CreatePostCommentSwagger } from "@gateway/core/decorators/swagger/main/create-post-comment.decorator";
+import { GetPostCommentsSwagger } from "@gateway/core/decorators/swagger/main/get-post-comments.decorator";
+import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
+import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
 @Controller(MainRouterPaths.POSTS)
 export class PostsClientController {
-	constructor(private readonly postsClientService: PostsClientService) {}
+	constructor(
+		private readonly postsClientService: PostsClientService,
+		private readonly profileClientService: ProfileAuthClientService,
+		private readonly filesClientService: FilesClientService,
+	) {}
 
 	@UploadPostImagesSwagger()
 	@Post(MainRouterPaths.IMAGES)
@@ -82,10 +92,35 @@ export class PostsClientController {
 
 	@GetFollowingsPostsSwagger()
 	@UseGuards(JwtAccessAuthGuard)
-	@Get(`followings`)
+	@Get(MainRouterPaths.FOLLOWINGS)
 	@HttpCode(HttpStatus.OK)
 	async getFollowingsPost(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Query() query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
 		return await this.postsClientService.getFollowingsPosts(user.userId, query);
+	}
+
+	@CreatePostCommentSwagger()
+	@Post(`${RouteParams.POST_ID}/${MainRouterPaths.COMMENTS}`)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(JwtAccessAuthGuard)
+	async createPostComment(
+		@ExtractUserFromRequest() user: PayloadFromRequestDto,
+		@Body() dto: CreateCommentInputDto,
+		@Param() { postId }: PostIdParamDto,
+	): Promise<CommentOutputDto> {
+		const result = await this.postsClientService.createPostComment(user.userId, dto, postId);
+		return result;
+	}
+
+	//todo infinity scroll for correct view
+	@GetPostCommentsSwagger()
+	@Get(`${RouteParams.POST_ID}/${MainRouterPaths.COMMENTS}`)
+	@UseGuards(JwtAccessCheckGuard)
+	@HttpCode(HttpStatus.OK)
+	async getPostComments(@Req() req: Request, @Param() { postId }: PostIdParamDto): Promise<CommentOutputDto[]> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		const result = await this.postsClientService.getPostComments(authorizedCurrentUserId, postId);
+		return result;
 	}
 
 	@GetPostSwagger()

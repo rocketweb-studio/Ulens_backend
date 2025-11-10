@@ -56,3 +56,5 @@ export * from "./auth-contracts/input/following.input.dto";
 export * from "./auth-contracts/output/following.output.dto";
 export * from "./auth-contracts/input/get-follow.query.input.dto";
 export * from "./auth-contracts/output/get-follow.output.dto";
+export * from "./main-contracts/input/create-comment.input.dto";
+export * from "./main-contracts/output/comment.output.dto";

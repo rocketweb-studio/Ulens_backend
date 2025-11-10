@@ -13,6 +13,7 @@ import {
 } from "@libs/contracts/index";
 import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
 import { AuthClientService } from "../auth/auth-client.service";
+import { GetPaymentsInput } from "./payments_gql/inputs/get-payments.input";
 
 @Injectable()
 export class PaymentsClientService {
@@ -62,8 +63,8 @@ export class PaymentsClientService {
 		return madePayment;
 	}
 
-	async getTransactions(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
-		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS }, { userId, query }));
+	async getTransactionsByUserId(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_ID }, { userId, query }));
 
 		return transactions;
 	}
@@ -77,5 +78,15 @@ export class PaymentsClientService {
 	async autoRenewalSubscription(userId: string, isAutoRenewal: boolean): Promise<void> {
 		await firstValueFrom(this.client.send({ cmd: PaymentsMessages.AUTO_RENEWAL_SUBSCRIPTION }, { userId, isAutoRenewal }));
 		return;
+	}
+
+	async getTransactionsByUserIds(userIds: string[], query: Omit<GetPaymentsInput, "search">) {
+		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_IDS }, { userIds, query }));
+		return transactions;
+	}
+
+	async getTransactions(query: Omit<GetPaymentsInput, "search">): Promise<TransactionWithPageInfoOutputDto> {
+		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS }, { query }));
+		return transactions;
 	}
 }

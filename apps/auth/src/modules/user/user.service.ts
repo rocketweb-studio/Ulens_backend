@@ -314,6 +314,9 @@ export class UserService {
 		if (followType === FollowType.UNFOLLOW) {
 			return await this.userCommandRepository.unfollow(currentUserId, userId);
 		}
+		if (currentUserId === userId) {
+			throw new BadRequestRpcException("You cannot follow or unfollow yourself");
+		}
 
 		throw new BadRequestRpcException("Invalid follow type");
 	}

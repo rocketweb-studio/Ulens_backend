@@ -8,6 +8,8 @@ import { firstValueFrom } from "rxjs";
 import { GraphqlPubSubMessages, MainMessages, Microservice, PUB_SUB_GQL } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import {
+	CommentOutputDto,
+	CreateCommentInputDto,
 	CreatePostOutputDto,
 	GetFollowingsPostsQueryDto,
 	GetUserPostsQueryDto,
@@ -209,5 +211,42 @@ export class PostsClientService {
 			isLiked: false,
 			avatarWhoLikes: false,
 		};
+	}
+
+	async createPostComment(userId: string, dto: CreateCommentInputDto, postId: string): Promise<CommentOutputDto> {
+		const comment = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.CREATE_POST_COMMENT }, { userId, content: dto.content, postId }));
+		const profile = await this.profileClientService.getProfile(comment.userId);
+		const avatar = await this.filesClientService.getAvatarsByUserId(comment.userId);
+
+		return {
+			id: comment.id,
+			postId: comment.postId,
+			content: comment.content,
+			createdAt: comment.createdAt,
+			commentator: {
+				id: profile.id,
+				username: profile.userName,
+				avatar: avatar?.small?.url || null,
+			},
+		};
+	}
+
+	//todo infinity scroll for correct view
+	async getPostComments(authorizedCurrentUserId: string | null, postId: string): Promise<CommentOutputDto[]> {
+		const comments = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST_COMMENTS }, { userId: authorizedCurrentUserId, postId }));
+		const userIds = comments.map((comment) => comment.userId);
+		const profiles = await this.profileClientService.getProfiles(userIds);
+		const avatars = await this.filesClientService.getAvatarsByUserIds(userIds);
+		return comments.map((comment) => ({
+			id: comment.id,
+			postId: comment.postId,
+			content: comment.content,
+			createdAt: comment.createdAt,
+			commentator: {
+				id: profiles.find((profile) => profile.id === comment.userId)?.id || "",
+				username: profiles.find((profile) => profile.id === comment.userId)?.userName || "",
+				avatar: avatars.find((avatar) => avatar.userId === comment.userId)?.avatars.small?.url || null,
+			},
+		}));
 	}
 }

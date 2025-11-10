@@ -17,7 +17,7 @@ import { OUTBOX_STATUS } from "@libs/constants/outbox-statuses.constants";
 export class TransactionQueryRepository implements ITransactionQueryRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	async getTransactions(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+	async getTransactionsByUserId(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
 		const { pageNumber = 1, pageSize = 10, sortBy = "createdAt", sortDirection = "desc" } = query;
 
 		const [totalCount, transactions] = await Promise.all([
@@ -27,6 +27,48 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 				include: {
 					plan: true,
 				},
+				skip: (pageNumber - 1) * pageSize,
+				take: pageSize,
+				orderBy: { [sortBy]: sortDirection },
+			}),
+		]);
+
+		return {
+			totalCount,
+			pageSize,
+			page: pageNumber,
+			items: transactions.map((t) => this._mapTransactionToViewDto(t)),
+		};
+	}
+
+	async getTransactionsByUserIds(userIds: string[], query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+		const { pageNumber, pageSize, sortBy, sortDirection } = query;
+		const [totalCount, transactions] = await Promise.all([
+			this.prisma.transaction.count({ where: { userId: { in: userIds } } }),
+			this.prisma.transaction.findMany({
+				where: { userId: { in: userIds } },
+				include: { plan: true },
+				skip: (pageNumber - 1) * pageSize,
+				take: pageSize,
+				orderBy: { [sortBy]: sortDirection },
+			}),
+		]);
+
+		return {
+			totalCount,
+			pageSize,
+			page: pageNumber,
+			items: transactions.map((t) => this._mapTransactionToViewDto(t)),
+		};
+	}
+
+	async getTransactions(query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+		const { pageNumber, pageSize, sortBy, sortDirection } = query;
+
+		const [totalCount, transactions] = await Promise.all([
+			this.prisma.transaction.count({ where: {} }),
+			this.prisma.transaction.findMany({
+				include: { plan: true },
 				skip: (pageNumber - 1) * pageSize,
 				take: pageSize,
 				orderBy: { [sortBy]: sortDirection },

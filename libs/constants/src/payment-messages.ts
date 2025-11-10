@@ -5,7 +5,9 @@ export enum PaymentsMessages {
 	WEBHOOK_STRIPE = "webhook_stripe",
 	WEBHOOK_PAYPAL = "webhook_paypal",
 	MAKE_PAYMENT = "make_payment",
-	GET_TRANSACTIONS = "get_transactions",
+	GET_TRANSACTIONS_BY_USER_ID = "get_transactions_by_user_id",
 	GET_SUBSCRIPTION = "get_subscription",
 	AUTO_RENEWAL_SUBSCRIPTION = "auto_renewal_subscription",
+	GET_TRANSACTIONS_BY_USER_IDS = "get_transactions_by_user_ids",
+	GET_TRANSACTIONS = "get_transactions",
 }

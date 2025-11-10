@@ -16,7 +16,7 @@ import {
 import { Prisma } from "@auth/core/prisma/generated/client";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 import { GetUsersQueryGqlDto } from "../dto/get-users-query-gql.dto";
-import { FilterByStatus } from "@libs/constants/auth.constants";
+import { FilterByStatus, SortabeFieldsForUsers } from "@libs/constants/auth.constants";
 import { GetUserOutputDto, GetUsersOutputDto } from "@auth/modules/user/dto/get-users.ouptut.dto";
 import { UserQueryHelper } from "./user.query.repo.helper";
 import { GetFollowQueryInputDto } from "@libs/contracts/auth-contracts/input/get-follow.query.input.dto";
@@ -134,9 +134,8 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			],
 		};
 
-		const orderBy = {
-			[sortBy]: sortDirection,
-		};
+		// Handle sorting by userName differently since it's on the Profile model
+		const orderBy = sortBy === SortabeFieldsForUsers.USER_NAME ? { profile: { userName: sortDirection } } : { [sortBy]: sortDirection };
 
 		const users = await this.prisma.user.findMany({
 			where: whereCondition,

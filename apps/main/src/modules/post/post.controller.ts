@@ -9,12 +9,16 @@ import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.inpu
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
 import { UserPostsPageDto } from "@libs/contracts/index";
 import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { CreatePostCommentInputDto } from "@main/modules/post/dto/create-post-comment.input.dto";
+import { ICommentQueryRepository } from "@main/modules/comment/comment.interface";
+import { CreateCommentDbOutputDto } from "../comment/dto/create-comment-db.output.dto";
 
 @Controller()
 export class PostController {
 	constructor(
 		private readonly postService: PostService,
 		private readonly postQueryRepository: IPostQueryRepository,
+		private readonly commentQueryRepository: ICommentQueryRepository,
 	) {}
 
 	@MessagePattern({ cmd: MainMessages.CREATE_POST })
@@ -67,5 +71,18 @@ export class PostController {
 	@MessagePattern({ cmd: MainMessages.GET_FOLLOWINGS_POSTS })
 	async getFollowingsPosts(@Payload() dto: { followingsIds: string[]; query: GetFollowingsPostsQueryDto }): Promise<UserPostsPageDto> {
 		return this.postQueryRepository.getFollowingsPosts(dto.followingsIds, dto.query);
+	}
+
+	@MessagePattern({ cmd: MainMessages.CREATE_POST_COMMENT })
+	async createPostComment(@Payload() dto: CreatePostCommentInputDto): Promise<CreateCommentDbOutputDto> {
+		const commentId = await this.postService.createPostComment(dto);
+		const comment = await this.commentQueryRepository.getCommentById(commentId);
+		if (!comment) throw new NotFoundRpcException("Comment not found");
+		return comment;
+	}
+
+	@MessagePattern({ cmd: MainMessages.GET_POST_COMMENTS })
+	async getPostComments(@Payload() dto: { userId: string | null; postId: string }): Promise<CreateCommentDbOutputDto[]> {
+		return this.commentQueryRepository.getPostComments(dto.userId, dto.postId);
 	}
 }

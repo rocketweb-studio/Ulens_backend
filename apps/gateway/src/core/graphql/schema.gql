@@ -20,10 +20,10 @@ input GetAdminPostsInput {
 
 input GetPaymentsInput {
   pageNumber: Float = 1
-  pageSize: Float = 8
+  pageSize: Float = 6
+  search: String = ""
   sortBy: SortableTransactionFields = CREATED_AT
   sortDirection: SortDirection = DESC
-  userId: String!
 }
 
 input GetUsersInput {
@@ -81,6 +81,7 @@ type PostModel {
   id: String!
   images: PostImageModel!
   isLiked: Boolean!
+  isOwnerBlocked: Boolean!
   likeCount: Float!
   owner: OwnerModel!
   ownerId: String!
@@ -97,7 +98,7 @@ type PostsResponse {
 
 type Query {
   getAllPostsForAdmin(input: GetAdminPostsInput!): PostsResponse!
-  getPayments(input: GetPaymentsInput!): TransactionsResponse!
+  getPaymentsForAdmin(input: GetPaymentsInput!): TransactionsResponseForAdmin!
   getUsers(input: GetUsersInput!): UsersResponse!
 }
 
@@ -140,8 +141,19 @@ type TransactionModel {
   status: String!
 }
 
-type TransactionsResponse {
-  items: [TransactionModel!]!
+type TransactionModelForAdmin {
+  amount: Float!
+  createdAt: String!
+  currency: String!
+  id: Float!
+  interval: String!
+  provider: String!
+  status: String!
+  user: UserModelForAdmin!
+}
+
+type TransactionsResponseForAdmin {
+  items: [TransactionModelForAdmin!]!
   page: Float!
   pageSize: Float!
   totalCount: Float!
@@ -154,6 +166,14 @@ type UserModel {
   isBlocked: Boolean!
   lastName: String
   userName: String
+}
+
+type UserModelForAdmin {
+  avatar: String!
+  firstName: String!
+  id: String!
+  lastName: String!
+  userName: String!
 }
 
 type UsersResponse {

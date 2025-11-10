@@ -9,7 +9,7 @@ import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.con
 import { JwtModule } from "@nestjs/jwt";
 import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module";
 import { PaymentsGqlResolver } from "@gateway/microservices/payments/payments_gql/payments.resolver";
-
+import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -40,6 +40,7 @@ import { PaymentsGqlResolver } from "@gateway/microservices/payments/payments_gq
 			extraProviders: [AuthClientEnvConfig],
 		}),
 		AuthClientModule,
+		FilesClientModule,
 	],
 	controllers: [PaymentsClientController],
 	providers: [PaymentsClientEnvConfig, PaymentsClientService, PaymentsGqlResolver],

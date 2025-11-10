@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AuthMessages } from "@libs/constants/index";
 import { IProfileQueryRepository } from "@auth/modules/profile/profile.interfaces";
 import { ProfileInputDto } from "@libs/contracts/index";
-import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
+import { ProfileOutputDto, ProfileOutputForMapDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { ProfileService } from "@auth/modules/profile/profile.service";
 
 @Controller()
@@ -19,12 +19,12 @@ export class ProfileController {
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES })
-	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
+	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<ProfileOutputForMapDto[]> {
 		return await this.profileQueryRepository.getProfiles(payload.userIds);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME })
-	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<Omit<ProfileOutputDto, "followers" | "following" | "isFollowed">[]> {
+	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<ProfileOutputForMapDto[]> {
 		return await this.profileQueryRepository.getProfilesByUserName(payload.userName);
 	}
 

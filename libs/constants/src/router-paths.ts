@@ -41,9 +41,11 @@ export enum SessionRouterPaths {
 }
 
 export enum MainRouterPaths {
+	COMMENTS = "comments",
 	POSTS = "posts",
 	IMAGES = ":postId/images",
 	LATEST_POSTS = "latest",
+	FOLLOWINGS = "followings",
 }
 
 export enum RouteParams {
@@ -61,4 +63,5 @@ export enum ApiTagsNames {
 	PAYMENTS = "Payments",
 	SESSIONS = "Sessions",
 	NOTIFICATIONS = "Notifications",
+	COMMENTS = "Comments",
 }

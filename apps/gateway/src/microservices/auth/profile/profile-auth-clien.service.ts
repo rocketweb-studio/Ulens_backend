@@ -7,7 +7,7 @@ import { StreamClientService } from "@gateway/microservices/files/stream-client.
 import { AuthMessages, Microservice } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import { ProfileInputDto, ProfileOutputDto, ProfileOutputWithAvatarDto } from "@libs/contracts/index";
+import { ProfileInputDto, ProfileOutputDto, ProfileOutputWithAvatarDto, ProfileOutputForMapDto } from "@libs/contracts/index";
 import { MainMessages } from "@libs/constants/index";
 
 @Injectable()
@@ -31,13 +31,13 @@ export class ProfileAuthClientService {
 		};
 	}
 
-	async getProfiles(userIds: string[]): Promise<ProfileOutputDto[]> {
-		const profiles: ProfileOutputWithAvatarDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES }, { userIds }));
+	async getProfiles(userIds: string[]): Promise<ProfileOutputForMapDto[]> {
+		const profiles: ProfileOutputForMapDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES }, { userIds }));
 		return profiles;
 	}
 
-	async getProfilesByUserName(userName: string): Promise<ProfileOutputDto[]> {
-		const profiles: ProfileOutputWithAvatarDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME }, { userName }));
+	async getProfilesByUserName(userName: string): Promise<ProfileOutputForMapDto[]> {
+		const profiles: ProfileOutputForMapDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME }, { userName }));
 		return profiles;
 	}
 

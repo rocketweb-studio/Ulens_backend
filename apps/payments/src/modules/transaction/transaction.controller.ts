@@ -27,7 +27,8 @@ export class TransactionController {
 
 	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_ID })
 	async getTransactionsByUserId(@Payload() dto: { userId: string; query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
-		return this.transactionQueryRepository.getTransactionsByUserId(dto.userId, dto.query);
+		const transactions = await this.transactionQueryRepository.getTransactionsByUserId(dto.userId, dto.query);
+		return transactions;
 	}
 
 	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_IDS })

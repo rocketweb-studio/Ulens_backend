@@ -13,4 +13,5 @@ export enum MainMessages {
 	GET_FOLLOWINGS_POSTS = "get_followings_posts",
 	CREATE_POST_COMMENT = "create_post_comment",
 	GET_POST_COMMENTS = "get_post_comments",
+	GET_POSTS_COMMENTS_COUNT = "get_posts_comments_count",
 }

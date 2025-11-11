@@ -2,18 +2,33 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@main/core/prisma/prisma.service";
 import { ICommentCommandRepository } from "../comment.interface";
 import { CreatePostCommentInputDto } from "@main/modules/post/dto/create-post-comment.input.dto";
+import { IOutboxCommandRepository } from "@main/modules/event-store/outbox.interface";
+import { PostDbOutputDto } from "@libs/contracts/index";
 
 @Injectable()
 export class PrismaCommentCommandRepository implements ICommentCommandRepository {
-	constructor(private readonly prisma: PrismaService) {}
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly outboxCommandRepository: IOutboxCommandRepository,
+	) {}
 
-	async createComment(dto: CreatePostCommentInputDto): Promise<string> {
-		console.log("CALL createComment", dto);
-		const comment = await this.prisma.comment.create({
-			data: { userId: dto.userId, postId: dto.postId, content: dto.content },
-			select: { id: true },
-		});
-		return comment.id;
+	async createComment(dto: CreatePostCommentInputDto, post: PostDbOutputDto): Promise<string> {
+		const comment = await this.prisma.$transaction(async (tx) => [
+			await tx.comment.create({
+				data: { userId: dto.userId, postId: dto.postId, content: dto.content },
+				select: { id: true },
+			}),
+			await this.outboxCommandRepository.createOutboxCommentEvent(tx, {
+				userId: post.userId,
+				commentatorId: dto.userId,
+				commentatorUserName: dto.userName,
+				postId: post.id,
+				postDescription: post.description,
+			}),
+		]);
+		console.log("comment", comment);
+
+		return comment[0]?.id || "";
 	}
 
 	async deleteDeletedComments(): Promise<void> {
@@ -30,14 +45,4 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 		});
 		return count === 1;
 	}
-
-	// private mapToView(comment: Comment): CommentOutputDto {
-	// 	return {
-	// 		id: comment.id,
-	// 		commentatorId: comment.userId,
-	// 		postId: comment.postId,
-	// 		content: comment.content,
-	// 		createdAt: comment.createdAt,
-	// 	};
-	// }
 }

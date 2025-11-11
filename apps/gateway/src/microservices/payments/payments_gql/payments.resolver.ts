@@ -1,8 +1,8 @@
 import { Query, Resolver, Args } from "@nestjs/graphql";
-import { GetPaymentsInput } from "@gateway/microservices/payments/payments_gql/inputs/get-payments.input";
+import { GetPaymentsInput, GetUserPaymentsInput } from "@gateway/microservices/payments/payments_gql/inputs/get-payments.input";
 import { GqlJwtAuthGuard } from "@gateway/core/guards/gql-jwt-auth.guard";
 import { UseGuards } from "@nestjs/common";
-import { TransactionsResponseForAdmin } from "@gateway/microservices/payments/payments_gql/models/payment.model";
+import { TransactionsResponse, TransactionsResponseForAdmin } from "@gateway/microservices/payments/payments_gql/models/payment.model";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 import { AvatarImagesOutputDto, ProfileOutputForMapDto } from "@libs/contracts/index";
@@ -30,6 +30,19 @@ export class PaymentsGqlResolver {
 			return await this.getPaymentsForAdminByUserName(input.search, query);
 		}
 		return await this.getPaymentsForAdminWithoutUserName(query);
+	}
+
+	@UseGuards(GqlJwtAuthGuard)
+	@Query(() => TransactionsResponse, { name: "getUserPayments" })
+	async getUserPayments(@Args("input") input: GetUserPaymentsInput) {
+		const userId = input.userId;
+		const query = {
+			pageNumber: input.pageNumber,
+			pageSize: input.pageSize,
+			sortDirection: input.sortDirection,
+			sortBy: input.sortBy,
+		};
+		return this.paymentsClientService.getTransactionsByUserId(userId, query);
 	}
 
 	private async getPaymentsForAdminByUserName(userName: string, query: Omit<GetPaymentsInput, "search">): Promise<TransactionsResponseForAdmin> {

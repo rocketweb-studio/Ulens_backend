@@ -136,6 +136,9 @@ export class PostOutputDto {
 
 	@ApiProperty({ example: true })
 	avatarWhoLikes: boolean;
+
+	@ApiProperty({ example: 10 })
+	commentsCount: number | null;
 }
 
 export class PageInfoDto {

@@ -17,8 +17,8 @@ export class TransactionModel {
 	@Field(() => String)
 	provider: string;
 
-	@Field(() => String)
-	expiresAt: string;
+	@Field(() => String, { nullable: true })
+	expiresAt: string | null;
 
 	@Field(() => String)
 	interval: string;

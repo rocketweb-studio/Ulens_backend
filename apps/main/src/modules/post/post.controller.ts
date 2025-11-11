@@ -85,4 +85,9 @@ export class PostController {
 	async getPostComments(@Payload() dto: { userId: string | null; postId: string }): Promise<CreateCommentDbOutputDto[]> {
 		return this.commentQueryRepository.getPostComments(dto.userId, dto.postId);
 	}
+
+	@MessagePattern({ cmd: MainMessages.GET_POSTS_COMMENTS_COUNT })
+	async getPostsCommentsCount(@Payload() dto: { postIds: string[] }): Promise<{ postId: string; commentsCount: number }[]> {
+		return this.commentQueryRepository.getPostsCommentsCount(dto.postIds);
+	}
 }

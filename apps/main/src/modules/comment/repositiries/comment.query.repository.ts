@@ -33,4 +33,13 @@ export class PrismaCommentQueryRepository implements ICommentQueryRepository {
 
 		return comments as CreateCommentDbOutputDto[];
 	}
+
+	async getPostsCommentsCount(postIds: string[]): Promise<{ postId: string; commentsCount: number }[]> {
+		const commentsCount = await this.prisma.comment.groupBy({
+			by: ["postId"],
+			_count: true,
+			where: { postId: { in: postIds }, deletedAt: null },
+		});
+		return commentsCount.map((comment) => ({ postId: comment.postId, commentsCount: comment._count }));
+	}
 }

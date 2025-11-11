@@ -42,6 +42,11 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 				exchange: RabbitExchanges.APP_EVENTS,
 				routingKey: RabbitEvents.FOLLOW_EVENT,
 			},
+			{
+				baseQueue: RabbitMainQueues.NOTIFICATIONS_COMMENT_EVENT_Q,
+				exchange: RabbitExchanges.APP_EVENTS,
+				routingKey: RabbitEvents.COMMENT_EVENT,
+			},
 		];
 
 		// 1) Устанавливаем очереди
@@ -325,6 +330,71 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 						this.ch.ack(msg);
 					} else {
 						this.ch.publish(RabbitExchanges.APP_DLX, `${RabbitMainQueues.NOTIFICATIONS_FOLLOW_EVENT_Q}.dlq`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: msg.properties.headers,
+						});
+						this.ch.ack(msg);
+					}
+				}
+			},
+			{ noAck: false },
+		);
+
+		await this.ch.consume(
+			RabbitMainQueues.NOTIFICATIONS_COMMENT_EVENT_Q,
+			async (msg) => {
+				if (!msg) return;
+				try {
+					const evt = JSON.parse(msg.content.toString()) as {
+						messageId: string;
+						userId: string;
+						commentatorId: string;
+						commentatorUserName: string;
+						postId: string;
+						postDescription: string;
+					};
+					console.log(`[NOTIFICATIONS][RMQ] consumed event - ${RabbitMainQueues.NOTIFICATIONS_COMMENT_EVENT_Q}`);
+
+					try {
+						// сохраняем сообщение в БД
+						await this.inboxService.createInboxMessage({
+							id: evt.messageId,
+							type: RabbitEvents.COMMENT_EVENT,
+							source: RabbitEventSources.MAIN_SERVICE,
+							payload: evt,
+						});
+
+						const newNotification = await this.notificationService.createNotification({
+							userId: evt.userId,
+							message: `${evt.commentatorUserName} оставил комментарий на вашем посте "${evt.postDescription.slice(0, 20)}..."`,
+						});
+						console.log("newNotification", newNotification);
+						await this.outboxService.createOutboxNotificationToGatewayEvent({
+							userId: evt.userId,
+							eventType: RabbitEvents.NOTIFICATION_SUBSCRIPTION,
+							message: newNotification.message,
+							notificationId: newNotification.id,
+							sentAt: newNotification.sentAt,
+							readAt: newNotification.readAt,
+							scheduledAt: new Date(),
+						});
+					} catch (e) {
+						console.error("[notifications][RMQ] error creating inbox message", e);
+					}
+
+					this.ch.ack(msg);
+				} catch (_e) {
+					const retries = Number(msg.properties.headers?.["x-retries"] ?? 0);
+					if (retries < 3) {
+						this.ch.sendToQueue(`${RabbitMainQueues.NOTIFICATIONS_COMMENT_EVENT_Q}.retry.1m`, msg.content, {
+							persistent: true,
+							contentType: APPLICATION_JSON,
+							headers: { ...(msg.properties.headers || {}), "x-retries": retries + 1 },
+						});
+						this.ch.ack(msg);
+					} else {
+						this.ch.publish(RabbitExchanges.APP_DLX, `${RabbitMainQueues.NOTIFICATIONS_COMMENT_EVENT_Q}.dlq`, msg.content, {
 							persistent: true,
 							contentType: APPLICATION_JSON,
 							headers: msg.properties.headers,

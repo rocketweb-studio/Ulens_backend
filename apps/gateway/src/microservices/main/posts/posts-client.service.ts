@@ -143,6 +143,9 @@ export class PostsClientService {
 		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_FOLLOWINGS_POSTS }, { followingsIds, query }));
 		const postIds = toPostIdArray(posts);
 		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+		const commentsCount: { postId: string; commentsCount: number }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_POSTS_COMMENTS_COUNT }, { postIds }),
+		);
 
 		return {
 			totalCount: posts.totalCount,
@@ -156,6 +159,7 @@ export class PostsClientService {
 					post,
 					profile,
 					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+					commentsCount.find((comment) => comment.postId === post.id)?.commentsCount || 0,
 				);
 			}),
 			pageInfo: {
@@ -165,7 +169,12 @@ export class PostsClientService {
 		};
 	}
 
-	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputForMapDto[]): PostOutputDto {
+	private buildPostOutput(
+		post: PostDbOutputDto,
+		profile: ProfileOutputWithAvatarDto,
+		postImages: PostImagesOutputForMapDto[],
+		commentsCount: number | null = null,
+	): PostOutputDto {
 		return {
 			id: post.id,
 			userName: profile.userName,
@@ -210,12 +219,15 @@ export class PostsClientService {
 			likeCount: 0,
 			isLiked: false,
 			avatarWhoLikes: false,
+			commentsCount: commentsCount,
 		};
 	}
 
 	async createPostComment(userId: string, dto: CreateCommentInputDto, postId: string): Promise<CommentOutputDto> {
-		const comment = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.CREATE_POST_COMMENT }, { userId, content: dto.content, postId }));
-		const profile = await this.profileClientService.getProfile(comment.userId);
+		const profile = await this.profileClientService.getProfile(userId);
+		const comment = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.CREATE_POST_COMMENT }, { userId, content: dto.content, postId, userName: profile.userName }),
+		);
 		const avatar = await this.filesClientService.getAvatarsByUserId(comment.userId);
 
 		return {

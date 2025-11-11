@@ -11,7 +11,7 @@ import {
 	PaginationWithSortQueryDto,
 	TransactionWithPageInfoOutputDto,
 } from "@libs/contracts/index";
-import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
+import { NotFoundRpcException, UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
 import { AuthClientService } from "../auth/auth-client.service";
 import { GetPaymentsInput } from "./payments_gql/inputs/get-payments.input";
 
@@ -64,6 +64,10 @@ export class PaymentsClientService {
 	}
 
 	async getTransactionsByUserId(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
+		const user = await this.authClientService.me(userId);
+		if (!user) {
+			throw new NotFoundRpcException("User not found");
+		}
 		const transactions = await firstValueFrom(this.client.send({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_ID }, { userId, query }));
 
 		return transactions;

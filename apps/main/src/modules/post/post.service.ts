@@ -55,7 +55,7 @@ export class PostService {
 		const post = await this.postCommandRepository.getPostById(dto.postId);
 		if (!post) throw new NotFoundRpcException("Post not found");
 
-		const commentId = await this.commentService.createComment(dto);
+		const commentId = await this.commentService.createComment(dto, post);
 		if (!commentId) throw new BadRequestRpcException("Failed to create comment");
 		return commentId;
 	}

@@ -27,3 +27,21 @@ export class GetPaymentsInput {
 	@Field(() => SortableTransactionFields, { nullable: true, defaultValue: SortableTransactionFields.CREATED_AT })
 	sortBy: SortableTransactionFields = SortableTransactionFields.CREATED_AT;
 }
+
+@InputType()
+export class GetUserPaymentsInput {
+	@Field(() => String)
+	userId: string;
+
+	@Field(() => Number, { nullable: true, defaultValue: 1 })
+	pageNumber: number = 1;
+
+	@Field(() => Number, { nullable: true, defaultValue: 6 })
+	pageSize: number = 6;
+
+	@Field(() => SortDirection, { nullable: true, defaultValue: SortDirection.DESC })
+	sortDirection: SortDirection = SortDirection.DESC;
+
+	@Field(() => SortableTransactionFields, { nullable: true, defaultValue: SortableTransactionFields.CREATED_AT })
+	sortBy: SortableTransactionFields = SortableTransactionFields.CREATED_AT;
+}

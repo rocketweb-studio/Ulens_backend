@@ -220,7 +220,7 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 			totalCount,
 			pageSize,
 			pageNumber,
-			items: this._mapFolowersToView(followers),
+			items: this._mapFollowersToView(followers),
 		};
 	}
 
@@ -255,17 +255,17 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 		return this._mapFollowingsToView(followings);
 	}
 
-	private _mapFolowersToView(followers: any[]): FollowersOutputDto[] {
+	private _mapFollowersToView(followers: any[]): FollowersOutputDto[] {
 		return followers.map((follower) => ({
-			id: follower.followerId,
-			userName: follower.profile?.userName || null,
+			id: follower.follower.id,
+			userName: follower.follower.profile?.userName || null,
 			createdAt: follower.createdAt.toISOString(),
-			firstName: follower.profile?.firstName || null,
-			lastName: follower.profile?.lastName || null,
-			city: follower.profile?.city || null,
-			country: follower.profile?.country || null,
-			dateOfBirth: follower.profile?.dateOfBirth || null,
-			aboutMe: follower.profile?.aboutMe || null,
+			firstName: follower.follower.profile?.firstName || null,
+			lastName: follower.follower.profile?.lastName || null,
+			city: follower.follower.profile?.city || null,
+			country: follower.follower.profile?.country || null,
+			dateOfBirth: follower.follower.profile?.dateOfBirth || null,
+			aboutMe: follower.follower.profile?.aboutMe || null,
 		}));
 	}
 

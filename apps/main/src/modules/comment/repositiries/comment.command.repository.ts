@@ -26,9 +26,8 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 				postDescription: post.description,
 			}),
 		]);
-		console.log("comment", comment);
 
-		return comment[0]?.id || "";
+		return (comment[0] as { id: string }).id;
 	}
 
 	async deleteDeletedComments(): Promise<void> {

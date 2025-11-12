@@ -46,13 +46,13 @@ export class UserModelForAdmin {
 	@Field(() => String)
 	id: string;
 
-	@Field(() => String)
-	firstName: string;
+	@Field(() => String, { nullable: true })
+	firstName: string | null;
 
-	@Field(() => String)
-	lastName: string;
+	@Field(() => String, { nullable: true })
+	lastName: string | null;
 
-	@Field(() => String)
+	@Field(() => String, { nullable: true })
 	avatar: string | null;
 
 	@Field(() => String)

@@ -38,6 +38,14 @@ export class NotificationQueryRepository implements INotificationQueryRepository
 		return notification ? this._mapNotificationToDto(notification) : null;
 	}
 
+	async getInvalidNotificationsByIds(notificationIds: number[]): Promise<number[]> {
+		const notifications = await this.prisma.notification.findMany({
+			where: { id: { in: notificationIds }, deletedAt: null },
+		});
+		const notificationsIds = notifications.map((notification) => notification.id);
+		return notificationIds.filter((id) => !notificationsIds.includes(id));
+	}
+
 	private _mapNotificationToDto(notification: Notification): NotificationDto {
 		return {
 			id: notification.id,

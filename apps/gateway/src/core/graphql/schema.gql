@@ -231,10 +231,10 @@ type UserModel {
 }
 
 type UserModelForAdmin {
-  avatar: String!
-  firstName: String!
+  avatar: String
+  firstName: String
   id: String!
-  lastName: String!
+  lastName: String
   userName: String!
 }
 

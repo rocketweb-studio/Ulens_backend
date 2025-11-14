@@ -46,6 +46,7 @@ export enum MainRouterPaths {
 	IMAGES = ":postId/images",
 	LATEST_POSTS = "latest",
 	FOLLOWINGS = "followings",
+	LIKE = "like",
 }
 
 export enum RouteParams {

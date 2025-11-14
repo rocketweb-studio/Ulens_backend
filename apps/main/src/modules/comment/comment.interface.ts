@@ -4,7 +4,7 @@ import { PostDbOutputDto } from "@libs/contracts/index";
 
 export abstract class ICommentQueryRepository {
 	abstract getCommentById(id: string): Promise<CreateCommentDbOutputDto | null>;
-	abstract getPostComments(userId: string | null, postId: string): Promise<CreateCommentDbOutputDto[]>;
+	abstract getPostComments(userId: string | null, postId: string): Promise<CreateCommentDbOutputDto & { likeCount: number; isLiked: boolean }[]>;
 	abstract getPostsCommentsCount(postIds: string[]): Promise<{ postId: string; commentsCount: number }[]>;
 }
 

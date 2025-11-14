@@ -14,4 +14,7 @@ export enum MainMessages {
 	CREATE_POST_COMMENT = "create_post_comment",
 	GET_POST_COMMENTS = "get_post_comments",
 	GET_POSTS_COMMENTS_COUNT = "get_posts_comments_count",
+	LIKE_POST_OR_COMMENT = "like_post_or_comment",
+	GET_LIKES_BY_ITEM_ID = "get_likes_by_item_id",
+	GET_LIKES_BY_ITEM_IDS = "get_likes_by_item_ids",
 }

@@ -6,8 +6,9 @@ import { PrismaPostCommandRepository } from "@main/modules/post/repositories/pos
 import { PrismaPostQueryRepository } from "@main/modules/post/repositories/post.query.repository";
 import { EventStoreModule } from "@main/modules/event-store/event-store.module";
 import { CommentModule } from "@main/modules/comment/comment.module";
+import { LikeModule } from "@main/modules/like/like.module";
 @Module({
-	imports: [EventStoreModule, CommentModule],
+	imports: [EventStoreModule, CommentModule, LikeModule],
 	providers: [
 		{ provide: IPostCommandRepository, useClass: PrismaPostCommandRepository },
 		{ provide: IPostQueryRepository, useClass: PrismaPostQueryRepository },

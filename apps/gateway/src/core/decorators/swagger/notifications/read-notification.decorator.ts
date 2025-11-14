@@ -5,6 +5,7 @@ export const ReadNotificationSwagger = () => {
 	const decorators = [
 		ApiOperation({ summary: "Read notifications" }),
 		ApiBearerAuth(),
+		// ApiBadRequestResponse({ description: "Bad request", type: ValidationErrorDto }),
 		ApiNoContentResponse({ description: "Notifications were successfully read" }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];

@@ -20,4 +20,8 @@ export class CommentOutputDto {
 	createdAt: Date;
 	@ApiProperty({ type: CommentatorOutputDto })
 	commentator: CommentatorOutputDto;
+	@ApiProperty({ example: 10 })
+	likeCount: number;
+	@ApiProperty({ example: true })
+	isLiked: boolean;
 }

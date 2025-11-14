@@ -1,18 +1,17 @@
 import { Module } from "@nestjs/common";
-import { PostController } from "@main/modules/post/post.controller";
-import { PostService } from "@main/modules/post/post.service";
-import { IPostCommandRepository, IPostQueryRepository } from "@main/modules/post/post.interface";
-import { PrismaPostCommandRepository } from "@main/modules/post/repositories/post.command.repository";
-import { PrismaPostQueryRepository } from "@main/modules/post/repositories/post.query.repository";
-import { EventStoreModule } from "@main/modules/event-store/event-store.module";
+import { ILikeCommandRepository, ILikeQueryRepository } from "@main/modules/like/like.interface";
+import { LikeService } from "@main/modules/like/like.service";
+import { PrismaLikeCommandRepository } from "@main/modules/like/repositories/like.command.repository";
+import { LikeController } from "@main/modules/like/like.controller";
+import { PrismaLikeQueryRepository } from "@main/modules/like/repositories/like.query.repository";
 @Module({
-	imports: [EventStoreModule],
+	imports: [],
 	providers: [
-		{ provide: IPostCommandRepository, useClass: PrismaPostCommandRepository },
-		{ provide: IPostQueryRepository, useClass: PrismaPostQueryRepository },
-		PostService,
+		{ provide: ILikeCommandRepository, useClass: PrismaLikeCommandRepository },
+		{ provide: ILikeQueryRepository, useClass: PrismaLikeQueryRepository },
+		LikeService,
 	],
-	controllers: [PostController],
-	exports: [PostService],
+	controllers: [LikeController],
+	exports: [LikeService],
 })
-export class PostModule {}
+export class LikeModule {}

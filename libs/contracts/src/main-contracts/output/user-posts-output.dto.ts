@@ -1,3 +1,4 @@
+import { AvatarImagesOutputDto } from "@libs/contracts/files-contracts/output/avatar-images.output.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
 class SmallImageOutputDto {
@@ -134,8 +135,8 @@ export class PostOutputDto {
 	@ApiProperty({ example: true })
 	isLiked: boolean;
 
-	@ApiProperty({ example: true })
-	avatarWhoLikes: boolean;
+	@ApiProperty()
+	avatarWhoLikes: { userId: string; avatars: AvatarImagesOutputDto }[];
 
 	@ApiProperty({ example: 10 })
 	commentsCount: number | null;

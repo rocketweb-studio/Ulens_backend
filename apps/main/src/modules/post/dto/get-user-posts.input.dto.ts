@@ -4,4 +4,5 @@ export class GetUserPostsInputDto {
 	endCursorPostId?: string;
 	sortBy?: "createdAt" | "description";
 	sortDirection?: "asc" | "desc";
+	authorizedCurrentUserId?: string | null;
 }

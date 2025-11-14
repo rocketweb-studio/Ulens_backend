@@ -12,6 +12,8 @@ import {
 	CreatePostOutputDto,
 	GetFollowingsPostsQueryDto,
 	GetUserPostsQueryDto,
+	LikePostOrCommentInputDto,
+	LikePostOrCommentOutputDto,
 	PayloadFromRequestDto,
 	PostIdParamDto,
 	UserIdParamDto,
@@ -29,17 +31,13 @@ import { JwtAccessCheckGuard } from "@gateway/core/guards/jwt-access-check.guard
 import { GetFollowingsPostsSwagger } from "@gateway/core/decorators/swagger/main/get-followings-posts.decorator";
 import { CreatePostCommentSwagger } from "@gateway/core/decorators/swagger/main/create-post-comment.decorator";
 import { GetPostCommentsSwagger } from "@gateway/core/decorators/swagger/main/get-post-comments.decorator";
-import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
-import { FilesClientService } from "@gateway/microservices/files/files-client.service";
+import { LikePostOrCommentSwagger } from "@gateway/core/decorators/swagger/main/like-post-or-comment.decorator";
+
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
 @Controller(MainRouterPaths.POSTS)
 export class PostsClientController {
-	constructor(
-		private readonly postsClientService: PostsClientService,
-		private readonly profileClientService: ProfileAuthClientService,
-		private readonly filesClientService: FilesClientService,
-	) {}
+	constructor(private readonly postsClientService: PostsClientService) {}
 
 	@UploadPostImagesSwagger()
 	@Post(MainRouterPaths.IMAGES)
@@ -76,26 +74,13 @@ export class PostsClientController {
 		await this.postsClientService.updatePost({ userId: user.userId, postId, description: dto.description });
 	}
 
-	@GetUserPostsSwagger()
-	@Get(`user/${RouteParams.USER_ID}`)
-	@HttpCode(HttpStatus.OK)
-	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
-		return await this.postsClientService.getUserPosts(userId, query);
-	}
-
-	@GetLatestPostsSwagger()
-	@Get(MainRouterPaths.LATEST_POSTS)
-	@HttpCode(HttpStatus.OK)
-	async getLatestPosts(): Promise<PostOutputDto[]> {
-		return await this.postsClientService.getLatestPosts();
-	}
-
-	@GetFollowingsPostsSwagger()
+	@LikePostOrCommentSwagger()
+	@Post(`${MainRouterPaths.LIKE}`)
+	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(JwtAccessAuthGuard)
-	@Get(MainRouterPaths.FOLLOWINGS)
-	@HttpCode(HttpStatus.OK)
-	async getFollowingsPost(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Query() query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
-		return await this.postsClientService.getFollowingsPosts(user.userId, query);
+	async likePostOrComment(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Body() dto: LikePostOrCommentInputDto): Promise<LikePostOrCommentOutputDto> {
+		const result = await this.postsClientService.likePostOrComment(user.userId, dto);
+		return result;
 	}
 
 	@CreatePostCommentSwagger()
@@ -109,6 +94,34 @@ export class PostsClientController {
 	): Promise<CommentOutputDto> {
 		const result = await this.postsClientService.createPostComment(user.userId, dto, postId);
 		return result;
+	}
+
+	@GetUserPostsSwagger()
+	@Get(`user/${RouteParams.USER_ID}`)
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(JwtAccessCheckGuard)
+	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto, @Req() req: Request): Promise<UserPostsOutputDto> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getUserPosts(userId, query, authorizedCurrentUserId);
+	}
+
+	@GetLatestPostsSwagger()
+	@Get(MainRouterPaths.LATEST_POSTS)
+	@HttpCode(HttpStatus.OK)
+	@UseGuards(JwtAccessCheckGuard)
+	async getLatestPosts(@Req() req: Request): Promise<PostOutputDto[]> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getLatestPosts(authorizedCurrentUserId);
+	}
+
+	@GetFollowingsPostsSwagger()
+	@UseGuards(JwtAccessAuthGuard)
+	@Get(MainRouterPaths.FOLLOWINGS)
+	@HttpCode(HttpStatus.OK)
+	async getFollowingsPost(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Query() query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
+		return await this.postsClientService.getFollowingsPosts(user.userId, query);
 	}
 
 	//todo infinity scroll for correct view

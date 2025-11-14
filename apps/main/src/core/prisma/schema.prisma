@@ -81,3 +81,21 @@ enum OutboxStatus {
   PUBLISHED
   FAILED
 }
+
+model Like {
+  id String @id @default(uuid())
+  userId String
+  parentType LikedItemType
+  parentId String
+  createdAt DateTime @default(now())
+
+	@@unique([userId, parentType, parentId], name: "unique_user_like")
+  @@index([parentType, parentId])
+  @@index([userId])
+  @@map("likes")
+}
+
+enum LikedItemType {
+  POST
+  COMMENT
+}

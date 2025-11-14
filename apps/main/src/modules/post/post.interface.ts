@@ -10,12 +10,12 @@ import { UserPostsPageDto } from "@libs/contracts/index";
 
 export abstract class IPostQueryRepository {
 	abstract getUserPosts(dto: GetUserPostsInputDto): Promise<UserPostsPageDto>;
-	abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
+	abstract getPostById(id: string, authorizedCurrentUserId?: string | null): Promise<PostDbOutputDto | null>;
 	abstract getUserPostsCount(userId: string): Promise<number>;
-	abstract getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]>;
+	abstract getLatestPosts(pageSize: number, authorizedCurrentUserId?: string | null): Promise<PostDbOutputDto[]>;
 	abstract getAllPostsForAdmin(dto: { endCursorPostId: string; pageSize: number; search: string }): Promise<UserPostsPageDto>;
 	abstract getAllPostsForAdminByUserIds(dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto>;
-	abstract getFollowingsPosts(followingsIds: string[], query: GetFollowingsPostsQueryDto): Promise<UserPostsPageDto>;
+	abstract getFollowingsPosts(followingsIds: string[], query: GetFollowingsPostsQueryDto, authorizedCurrentUserId: string): Promise<UserPostsPageDto>;
 }
 
 export abstract class IPostCommandRepository {

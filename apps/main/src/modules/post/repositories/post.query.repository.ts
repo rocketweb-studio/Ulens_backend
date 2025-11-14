@@ -2,7 +2,7 @@ import { Injectable } from "@nestjs/common";
 import { IPostQueryRepository } from "@main/modules/post/post.interface";
 import { PrismaService } from "@main/core/prisma/prisma.service";
 import { GetUserPostsInputDto } from "@main/modules/post/dto/get-user-posts.input.dto";
-import { GetFollowingsPostsQueryDto, PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
+import { GetFollowingsPostsQueryDto, LikedItemType, PostDbOutputDto, UserPostsPageDto } from "@libs/contracts/index";
 import { PostQueryHelper } from "@main/utils/post.query.repo.helper";
 import { Post } from "@main/core/prisma/generated";
 
@@ -28,7 +28,14 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// 1.Первая страница, если курсор не передан
 		if (!dto.endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(
+				rows.map(async (row) => ({
+					...row,
+					likeCount: await this.getLikesCount(row.id),
+					isLiked: dto.authorizedCurrentUserId ? await this.isLiked(dto.authorizedCurrentUserId, row.id) : false,
+				})),
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 
 		// 2. Находим курсор (запись, на которой остановились)
@@ -36,12 +43,26 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		// Если курсор невалиден (нет такой записи / чужой пост / уже удалён) — возвращаем как первую страницу
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(baseWhere, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(
+				rows.map(async (row) => ({
+					...row,
+					likeCount: await this.getLikesCount(row.id),
+					isLiked: dto.authorizedCurrentUserId ? await this.isLiked(dto.authorizedCurrentUserId, row.id) : false,
+				})),
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 
 		// 3. Получаем "следующую страницу" после курсора
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor(baseWhere, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows);
+		const rowsWithLikesCount = await Promise.all(
+			rows.map(async (row) => ({
+				...row,
+				likeCount: await this.getLikesCount(row.id),
+				isLiked: dto.authorizedCurrentUserId ? await this.isLiked(dto.authorizedCurrentUserId, row.id) : false,
+			})),
+		);
+		return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 	}
 
 	//todo 2 повторяющихся метода для получения постов для админа
@@ -50,17 +71,20 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 
 		if (!endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 		const cursor = await this.helpers.resolveCursor({ deletedAt: null }, endCursorPostId);
 
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null }, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows);
+		const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+		return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 	}
 
 	async getAllPostsForAdminByUserIds(dto: { endCursorPostId: string; pageSize: number; userIds: string[] }): Promise<UserPostsPageDto> {
@@ -68,41 +92,55 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 
 		if (!endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: userIds } }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 		const cursor = await this.helpers.resolveCursor({ deletedAt: null, userId: { in: userIds } }, endCursorPostId);
 
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: userIds } }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null, userId: { in: userIds } }, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows);
+		const rowsWithLikesCount = await Promise.all(rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: false })));
+		return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 	}
 
-	async getFollowingsPosts(followingsIds: string[], query: GetFollowingsPostsQueryDto): Promise<UserPostsPageDto> {
+	async getFollowingsPosts(followingsIds: string[], query: GetFollowingsPostsQueryDto, authorizedCurrentUserId: string): Promise<UserPostsPageDto> {
 		const { endCursorPostId, pageSize } = query;
 		if (!endCursorPostId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: followingsIds } }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(
+				rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: await this.isLiked(authorizedCurrentUserId, row.id) })),
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 		const cursor = await this.helpers.resolveCursor({ deletedAt: null, userId: { in: followingsIds } }, endCursorPostId);
 
 		if (!cursor) {
 			const [totalCount, rows] = await this.helpers.getFirstPage({ deletedAt: null, userId: { in: followingsIds } }, pageSize);
-			return this.helpers.buildPage(totalCount, pageSize, rows);
+			const rowsWithLikesCount = await Promise.all(
+				rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: await this.isLiked(authorizedCurrentUserId, row.id) })),
+			);
+			return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 		}
 
 		const [totalCount, rows] = await this.helpers.getPageAfterCursor({ deletedAt: null, userId: { in: followingsIds } }, cursor, pageSize);
-		return this.helpers.buildPage(totalCount, pageSize, rows);
+		const rowsWithLikesCount = await Promise.all(
+			rows.map(async (row) => ({ ...row, likeCount: await this.getLikesCount(row.id), isLiked: await this.isLiked(authorizedCurrentUserId, row.id) })),
+		);
+		return this.helpers.buildPage(totalCount, pageSize, rowsWithLikesCount);
 	}
 
-	async getPostById(id: string): Promise<PostDbOutputDto | null> {
+	async getPostById(id: string, authorizedCurrentUserId?: string | null): Promise<PostDbOutputDto | null> {
 		const post = await this.prisma.post.findUnique({
 			where: { id },
 		});
-		return post ? this._mapToView(post) : null;
+		const likeCount = await this.getLikesCount(id);
+		const isLiked = authorizedCurrentUserId ? await this.isLiked(authorizedCurrentUserId, id) : false;
+		return post ? this._mapToView(post, likeCount, isLiked) : null;
 	}
 
 	async getUserPostsCount(userId: string): Promise<number> {
@@ -112,22 +150,44 @@ export class PrismaPostQueryRepository implements IPostQueryRepository {
 		return count;
 	}
 
-	async getLatestPosts(pageSize: number): Promise<PostDbOutputDto[]> {
+	async getLatestPosts(pageSize: number, authorizedCurrentUserId?: string | null): Promise<PostDbOutputDto[]> {
 		const posts = await this.prisma.post.findMany({
 			where: { deletedAt: null },
 			orderBy: { createdAt: "desc" },
 			take: pageSize,
 		});
-		return posts.map((post) => this._mapToView(post));
+		const rowsWithLikesCount = await Promise.all(
+			posts.map(async (post) => ({
+				...post,
+				likeCount: await this.getLikesCount(post.id),
+				isLiked: authorizedCurrentUserId ? await this.isLiked(authorizedCurrentUserId, post.id) : false,
+			})),
+		);
+		return rowsWithLikesCount.map((row) => this._mapToView(row, row.likeCount, row.isLiked));
 	}
 
-	private _mapToView(post: Post): PostDbOutputDto {
+	private _mapToView(post: Post, likeCount: number, isLiked: boolean): PostDbOutputDto {
 		return {
 			id: post.id,
 			userId: post.userId,
 			description: post.description,
 			createdAt: post.createdAt,
 			updatedAt: post.updatedAt,
+			likeCount: likeCount,
+			isLiked: isLiked,
 		};
+	}
+
+	private async getLikesCount(id: string): Promise<number> {
+		return this.prisma.like.count({
+			where: { parentType: LikedItemType.POST, parentId: id },
+		});
+	}
+
+	private async isLiked(userId: string, id: string): Promise<boolean> {
+		const like = await this.prisma.like.findFirst({
+			where: { userId, parentType: LikedItemType.POST, parentId: id },
+		});
+		return !!like;
 	}
 }

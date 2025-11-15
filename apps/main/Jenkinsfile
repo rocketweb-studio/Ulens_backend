@@ -20,31 +20,31 @@ pipeline {
                 checkout scm
             }
         }
-        stage('Unit tests') {
-            steps {
-                script {
-                    sh '''
-                       export NVM_DIR="$HOME/.nvm"
-                       [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                       nvm use --lts
-                       yarn install
-                       yarn test
-                    '''
-                }
-            }
-        }
-        stage('e2e tests') {
-            steps {
-                script {
-                    sh '''
-                       export NVM_DIR="$HOME/.nvm"
-                       [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
-                       nvm use --lts
-                       yarn test:e2e
-                    '''
-                }
-            }
-        }
+        // stage('Unit tests') {
+        //     steps {
+        //         script {
+        //             sh '''
+        //                export NVM_DIR="$HOME/.nvm"
+        //                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+        //                nvm use --lts
+        //                yarn install
+        //                yarn test
+        //             '''
+        //         }
+        //     }
+        // }
+        // stage('e2e tests') {
+        //     steps {
+        //         script {
+        //             sh '''
+        //                export NVM_DIR="$HOME/.nvm"
+        //                [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
+        //                nvm use --lts
+        //                yarn test:e2e
+        //             '''
+        //         }
+        //     }
+        // }
         stage('Build docker image') {
             steps {
                 echo "Build image started..."

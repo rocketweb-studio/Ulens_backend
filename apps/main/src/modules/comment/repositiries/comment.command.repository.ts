@@ -12,7 +12,7 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 		private readonly outboxCommandRepository: IOutboxCommandRepository,
 	) {}
 
-	async createComment(dto: CreatePostCommentInputDto, post: PostDbOutputDto): Promise<string> {
+	async createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string> {
 		const comment = await this.prisma.$transaction(async (tx) => [
 			await tx.comment.create({
 				data: { userId: dto.userId, postId: dto.postId, content: dto.content },

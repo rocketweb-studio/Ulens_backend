@@ -8,7 +8,7 @@ import { PostDbOutputDto } from "@libs/contracts/index";
 export class CommentService {
 	constructor(private readonly commentCommandRepository: ICommentCommandRepository) {}
 
-	async createComment(dto: CreatePostCommentInputDto, post: PostDbOutputDto): Promise<string> {
+	async createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string> {
 		const result = await this.commentCommandRepository.createComment(dto, post);
 		return result;
 	}

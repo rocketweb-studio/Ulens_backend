@@ -20,7 +20,7 @@ export abstract class IPostQueryRepository {
 
 export abstract class IPostCommandRepository {
 	abstract createPost(dto: CreatePostWithUserIdDto): Promise<CreatePostOutputDto>;
-	abstract getPostById(id: string): Promise<PostDbOutputDto | null>;
+	abstract getPostById(id: string): Promise<Omit<PostDbOutputDto, "likeCount" | "isLiked"> | null>;
 	abstract deletePost(id: string): Promise<boolean>;
 	abstract updatePost(dto: UpdatePostDto): Promise<boolean>;
 	abstract deleteDeletedPosts(): Promise<void>;

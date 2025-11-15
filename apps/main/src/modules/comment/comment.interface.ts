@@ -9,7 +9,7 @@ export abstract class ICommentQueryRepository {
 }
 
 export abstract class ICommentCommandRepository {
-	abstract createComment(dto: CreatePostCommentInputDto, post: PostDbOutputDto): Promise<string>;
+	abstract createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string>;
 	abstract deleteDeletedComments(): Promise<void>;
 	abstract softDeleteUserComments(userId: string): Promise<boolean>;
 }

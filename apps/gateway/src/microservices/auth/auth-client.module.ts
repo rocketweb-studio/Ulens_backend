@@ -78,6 +78,6 @@ import { UsersClientService } from "./users/users-client.service";
 		UsersGqlClientService,
 		UsersClientService,
 	],
-	exports: [ProfileAuthClientService, AuthClientService],
+	exports: [ProfileAuthClientService, AuthClientService, UsersClientService],
 })
 export class AuthClientModule {}

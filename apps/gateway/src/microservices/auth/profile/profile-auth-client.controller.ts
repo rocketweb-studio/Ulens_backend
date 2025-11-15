@@ -18,6 +18,7 @@ import { DeleteProfileAvatarSwagger } from "@gateway/core/decorators/swagger/pro
 export class ProfileAuthClientController {
 	constructor(private readonly profileAuthClientService: ProfileAuthClientService) {}
 
+	//todo добавить гвард на проверку авторизованный ли пользователь запрашивает профиль
 	@GetProfileSwagger()
 	@Get(":profileId")
 	@HttpCode(HttpStatus.OK)

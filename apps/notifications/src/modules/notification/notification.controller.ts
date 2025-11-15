@@ -18,16 +18,13 @@ export class NotificationController {
 		return this.notificationQueryRepository.getNotifications(dto.userId);
 	}
 
-	@MessagePattern({ cmd: NotificationMessages.READ_NOTIFICATION })
-	async readNotification(@Payload() dto: { userId: string; notificationId: string }): Promise<boolean> {
-		const notification = await this.notificationQueryRepository.getNotificationById(dto.notificationId);
-		if (!notification) {
-			throw new NotFoundRpcException("Notification not found");
+	@MessagePattern({ cmd: NotificationMessages.READ_NOTIFICATIONS })
+	async readNotifications(@Payload() dto: { userId: string; notificationIds: number[] }): Promise<boolean> {
+		const invalidNotificationIds = await this.notificationQueryRepository.getInvalidNotificationsByIds(dto.notificationIds);
+		if (invalidNotificationIds.length > 0) {
+			throw new NotFoundRpcException(`Invalid notification ids - ${invalidNotificationIds.join(", ")}`);
 		}
-		if (notification.readAt) {
-			return true;
-		}
-		const result = await this.notificationService.readNotification(dto.userId, dto.notificationId);
+		const result = await this.notificationService.readNotifications(dto.userId, dto.notificationIds);
 		return result;
 	}
 }

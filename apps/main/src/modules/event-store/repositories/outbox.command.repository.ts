@@ -2,27 +2,30 @@ import { PrismaService } from "@main/core/prisma/prisma.service";
 import { Injectable } from "@nestjs/common";
 import { IOutboxCommandRepository } from "@main/modules/event-store/outbox.interface";
 import { OutboxStatus } from "@main/core/prisma/generated";
+import { randomUUID } from "node:crypto";
+import { OutboxAggregateType, RabbitEvents, RabbitExchanges } from "@libs/rabbit/rabbit.constants";
+import { CreateOutboxCommentEventDto } from "../dto/create-outbox-comment.dto";
 
 @Injectable()
 export class OutboxCommandRepository implements IOutboxCommandRepository {
 	constructor(private readonly prisma: PrismaService) {}
 
-	// async createOutboxPostEvent(dto: CreatePostDbOutputDto): Promise<string> {
-	// 	const messageId = randomUUID();
-	// 	const createdOutboxPostAddedEvent = await this.prisma.outboxEvent.create({
-	// 		data: {
-	// 			aggregateType: OutboxAggregateType.POST_ADDED,
-	// 			eventType: RabbitEvents.POST_ADDED, // ивент тайп по которому будем консьюмить сообщение
-	// 			attempts: 0,
-	// 			topic: RabbitExchanges.APP_EVENTS, //топик в который полетят сообщения; опционально: имя exchange/route для паблишера
-	// 			payload: {
-	// 				messageId,
-	// 				...dto
-	// 			},
-	// 		},
-	// 	});
-	// 	return createdOutboxPostAddedEvent.id;
-	// }
+	async createOutboxCommentEvent(tx: any, dto: CreateOutboxCommentEventDto): Promise<string> {
+		const messageId = randomUUID();
+		const createdOutboxCommentEvent = await tx.outboxEvent.create({
+			data: {
+				aggregateType: OutboxAggregateType.COMMENT_ADDED,
+				eventType: RabbitEvents.COMMENT_EVENT, // ивент тайп по которому будем консьюмить сообщение
+				attempts: 0,
+				topic: RabbitExchanges.APP_EVENTS, //топик в который полетят сообщения; опционально: имя exchange/route для паблишера
+				payload: {
+					messageId,
+					...dto,
+				},
+			},
+		});
+		return createdOutboxCommentEvent.id;
+	}
 
 	async findPendingOutboxEvents(chanckSize: number): Promise<any[]> {
 		const now = new Date();

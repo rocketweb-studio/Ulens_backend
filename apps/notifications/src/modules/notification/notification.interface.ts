@@ -4,6 +4,7 @@ import { CreateNotificationInputDto } from "@notifications/modules/notification/
 export abstract class INotificationCommandRepository {
 	abstract createNotification(dto: CreateNotificationInputDto): Promise<any>;
 	abstract readNotification(userId: string, notificationId: string): Promise<boolean>;
+	abstract readNotifications(userId: string, notificationIds: number[]): Promise<boolean>;
 	abstract markNotificationAsSent(notificationId: number, sentAt: Date): Promise<void>;
 	abstract deleteDeletedNotifications(): Promise<void>;
 	abstract softDeleteUserNotifications(userId: string): Promise<void>;
@@ -12,4 +13,5 @@ export abstract class INotificationCommandRepository {
 export abstract class INotificationQueryRepository {
 	abstract getNotifications(userId: string): Promise<NotificationsOutputDto>;
 	abstract getNotificationById(notificationId: string): Promise<NotificationDto | null>;
+	abstract getInvalidNotificationsByIds(notificationIds: number[]): Promise<number[]>;
 }

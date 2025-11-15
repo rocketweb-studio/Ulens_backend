@@ -16,7 +16,7 @@ export class PrismaPostCommandRepository implements IPostCommandRepository {
 		return postId;
 	}
 
-	async getPostById(id: string): Promise<PostDbOutputDto | null> {
+	async getPostById(id: string): Promise<Omit<PostDbOutputDto, "likeCount" | "isLiked"> | null> {
 		const row = await this.prisma.post.findFirst({
 			where: { id, deletedAt: null },
 			select: { id: true, userId: true, description: true, createdAt: true, updatedAt: true },

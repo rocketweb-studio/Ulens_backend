@@ -22,6 +22,14 @@ export class NotificationCommandRepository implements INotificationCommandReposi
 		return !!updatedNotification;
 	}
 
+	async readNotifications(userId: string, notificationIds: number[]): Promise<boolean> {
+		const updatedNotifications = await this.prisma.notification.updateMany({
+			where: { id: { in: notificationIds }, userId },
+			data: { readAt: new Date() },
+		});
+		return !!updatedNotifications;
+	}
+
 	async markNotificationAsSent(notificationId: number, sentAt: Date): Promise<void> {
 		await this.prisma.notification.update({
 			where: { id: notificationId },

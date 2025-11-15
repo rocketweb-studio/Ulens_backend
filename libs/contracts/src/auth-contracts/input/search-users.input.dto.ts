@@ -20,9 +20,8 @@ export class SearchUsersInputDto {
 		default: "10",
 		required: false,
 	})
-	@IsString()
 	@IsOptional()
-	pageSize: string = "10";
+	pageSize: number = 10;
 
 	@ApiProperty({
 		type: "string",

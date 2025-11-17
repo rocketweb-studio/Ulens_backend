@@ -60,3 +60,7 @@ export * from "./main-contracts/input/create-comment.input.dto";
 export * from "./main-contracts/output/comment.output.dto";
 export * from "./main-contracts/input/like-post-comment.input.dto";
 export * from "./main-contracts/output/like-post-comment.output.dto";
+export * from "./messenger-contracts/input/create-room.input.dto";
+export * from "./messenger-contracts/input/create-message.input.dto";
+export * from "./messenger-contracts/output/room.output.dto";
+export * from "./messenger-contracts/output/message.output.dto";

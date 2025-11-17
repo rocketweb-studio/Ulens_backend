@@ -30,6 +30,9 @@
     "build:notifications": "nest build notifications",
     "start:notifications": "cross-env NODE_ENV=production node dist/apps/notifications/main",
     "start:dev:notifications": "cross-env NODE_ENV=development nest start notifications --watch",
+		"build:messenger": "nest build messenger",
+    "start:messenger": "cross-env NODE_ENV=production node dist/apps/messenger/main",
+    "start:dev:messenger": "cross-env NODE_ENV=development nest start messenger --watch",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
@@ -68,7 +71,13 @@
     "prisma:generate:notifications": "dotenv -e .env.development.local -- npx prisma generate --schema=./apps/notifications/src/core/prisma/schema.prisma",
     "prisma:migrateDev:notifications": "dotenv -e .env.development.local -- npx prisma migrate dev  --schema=apps/notifications/src/core/prisma/schema.prisma",
     "prisma:migrateReset:notifications": "dotenv -e .env.development.local -- npx prisma migrate reset  --schema=apps/notifications/src/core/prisma/schema.prisma",
-    "prisma:migrateDeploy:notifications": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/notifications/src/core/prisma/schema.prisma"
+    "prisma:migrateDeploy:notifications": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/notifications/src/core/prisma/schema.prisma",
+	"prisma:studio:messenger": "dotenv -e .env.development.local -- npx prisma studio --schema=./apps/messenger/src/core/prisma/schema.prisma",
+    "prisma:push:messenger": "dotenv -e .env.development.local -- npx prisma db push --schema=./apps/messenger/src/core/prisma/schema.prisma",
+    "prisma:generate:messenger": "dotenv -e .env.development.local -- npx prisma generate --schema=./apps/messenger/src/core/prisma/schema.prisma",
+    "prisma:migrateDev:messenger": "dotenv -e .env.development.local -- npx prisma migrate dev  --schema=apps/messenger/src/core/prisma/schema.prisma",
+    "prisma:migrateReset:messenger": "dotenv -e .env.development.local -- npx prisma migrate reset  --schema=apps/messenger/src/core/prisma/schema.prisma",
+    "prisma:migrateDeploy:messenger": "dotenv -e .env.development.local -- npx prisma migrate deploy --schema=apps/messenger/src/core/prisma/schema.prisma"
   },
   "dependencies": {
     "@apollo/server": "^5.0.0",

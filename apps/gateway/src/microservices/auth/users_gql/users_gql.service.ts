@@ -49,7 +49,6 @@ export class UsersGqlClientService {
 
 	async deleteUser(input: DeleteUserInput): Promise<boolean> {
 		const isDeleted = await firstValueFrom(this.client.send({ cmd: AuthMessages.ADMIN_DELETE_USER }, { userId: input.userId }));
-		// todo создать outbox события для удалений данных юзера в микросервисах - deletedAt: new Date()
 		return isDeleted;
 	}
 

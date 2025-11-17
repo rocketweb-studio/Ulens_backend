@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { WebsocketGateway } from "@gateway/websocket/websocket.gateway";
 import { JwtModule } from "@nestjs/jwt";
 import { WebsocketEnvConfig } from "./websocket.config";
+import { MessengerClientModule } from "@gateway/microservices/messenger/messenger-client.module";
 
 @Module({
 	imports: [
@@ -12,6 +13,7 @@ import { WebsocketEnvConfig } from "./websocket.config";
 			inject: [WebsocketEnvConfig],
 			extraProviders: [WebsocketEnvConfig],
 		}),
+		MessengerClientModule,
 	],
 	providers: [WebsocketGateway, WebsocketEnvConfig],
 	exports: [WebsocketGateway],

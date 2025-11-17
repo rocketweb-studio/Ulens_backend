@@ -64,8 +64,31 @@ export class MessengerClientService {
 		}));
 	}
 
-	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<{ id: number }> {
-		const messageId = await firstValueFrom(this.client.send({ cmd: MessengerMessages.CREATE_ROOM_MESSAGE }, { roomId, userId, payload: dto }));
-		return { id: messageId };
+	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<MessageOutputDto> {
+		const message: MessageDBOutputDto = await firstValueFrom(
+			this.client.send({ cmd: MessengerMessages.CREATE_ROOM_MESSAGE }, { roomId, userId, payload: dto }),
+		);
+
+		const author = await this.profileClientService.getProfile(message.authorId);
+		const avatar = await this.filesClientService.getAvatarsByUserIds([author.id]);
+
+		return {
+			id: message.id,
+			content: message.content,
+			mediaUrl: message.mediaUrl,
+			createdAt: message.createdAt,
+			author: {
+				id: message.authorId,
+				userName: author.userName,
+				firstName: author.firstName,
+				lastName: author.lastName,
+				avatar: avatar.find((avatar) => avatar.userId === author.id)?.avatars.small?.url || null,
+			},
+		};
+	}
+
+	async getRoomUsersById(roomId: number): Promise<{ userId1: string; userId2: string }> {
+		const roomUsers = await firstValueFrom(this.client.send({ cmd: MessengerMessages.GET_ROOM_USERS_BY_ID }, { roomId }));
+		return roomUsers;
 	}
 }

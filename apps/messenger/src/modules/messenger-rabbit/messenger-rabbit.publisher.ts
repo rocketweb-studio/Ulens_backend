@@ -3,7 +3,6 @@ import { EventBus } from "@libs/rabbit/rabbit.event-bus";
 import { Cron, CronExpression } from "@nestjs/schedule";
 import { RabbitExchanges, RMQ_EVENT_BUS } from "@libs/rabbit/rabbit.constants";
 import { OutboxService } from "@messenger/modules/event-store/outbox.service";
-import { MessengerService } from "@messenger/modules/messenger/messenger.service";
 import { RabbitEvents } from "@libs/rabbit/rabbit.constants";
 
 @Injectable()
@@ -13,7 +12,6 @@ export class MessengerRabbitPublisher {
 	constructor(
 		@Inject(RMQ_EVENT_BUS) private readonly bus: EventBus,
 		private readonly outboxService: OutboxService,
-		private readonly messengerService: MessengerService,
 	) {}
 
 	// каждую 5 секунд проверяем новые события и публикуем их в RabbitMQ

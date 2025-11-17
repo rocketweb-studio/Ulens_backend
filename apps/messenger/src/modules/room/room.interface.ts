@@ -10,4 +10,6 @@ export abstract class IRoomCommandRepository {
 export abstract class IRoomQueryRepository {
 	abstract getRoomsByUserId(userId: string): Promise<RoomDBOutputDto[]>;
 	abstract getRoomMessagesByRoomId(roomId: number): Promise<MessageDBOutputDto[]>;
+	abstract getRoomMessageById(messageId: number): Promise<MessageDBOutputDto | null>;
+	abstract getRoomUsersById(roomId: number): Promise<{ userId1: string; userId2: string }>;
 }

@@ -52,12 +52,67 @@ When connecting, clients must include an **accessToken** as a query parameter to
   - **Data**: Error message string
   - **Purpose**: Handle connection/auth errors
 
+### Chat WebSocket Events
+
+#### Client to Server Events
+- **\`SUBSCRIBE_CHAT\`**: Subscribe to a specific chat room
+  - **Authentication**: Required (JWT token in auth object)
+  - **Payload**: \`{ roomId: number }\`
+  - **Purpose**: Joins the client to a specific chat room to receive messages
+  - **Example**:
+    \`\`\`typescript
+    socket.emit('SUBSCRIBE_CHAT', { roomId: 123 });
+    \`\`\`
+
+- **\`SEND_MESSAGE\`**: Send a message to a room
+  - **Authentication**: Required (JWT token in auth object)
+  - **Payload**: \`{ roomId: number; content: string }\`
+  - **Purpose**: Sends a message to a specific chat room
+  - **Example**:
+    \`\`\`typescript
+    socket.emit('SEND_MESSAGE', { roomId: 123, content: 'Hello, world!' });
+    \`\`\`
+
+- **\`SUBSCRIBE_ALL_ROOM_MESSAGES\`**: Subscribe to all room messages for a user
+  - **Authentication**: Required (JWT token in auth object)
+  - **Payload**: \`{ userId: string }\`
+  - **Purpose**: Joins the client to receive messages from all rooms where the user is a participant
+  - **Example**:
+    \`\`\`typescript
+    socket.emit('SUBSCRIBE_ALL_ROOM_MESSAGES', { userId: 'user-id-here' });
+    \`\`\`
+
+#### Server to Client Events
+- **\`NEW_MESSAGE\`**: New message received in a subscribed chat room
+  - **Data**: \`MessageOutputDto\` object containing:
+    - \`id\`: number - Message ID
+    - \`content\`: string - Message content
+    - \`mediaUrl\`: string | null - Optional media URL
+    - \`createdAt\`: Date - Message creation timestamp
+    - \`author\`: Object - Message author information (id, userName, firstName, lastName, avatar)
+  - **Purpose**: Real-time message delivery to clients subscribed to the specific room
+  - **Room**: Emitted to \`chat:{roomId}\` room
+
+- **\`NEW_GLOBAL_MESSAGE\`**: New message received in any room (for subscribed users)
+  - **Data**: \`MessageOutputDto\` object with additional \`roomId\` field:
+    - \`id\`: number - Message ID
+    - \`content\`: string - Message content
+    - \`mediaUrl\`: string | null - Optional media URL
+    - \`createdAt\`: Date - Message creation timestamp
+    - \`author\`: Object - Message author information
+    - \`roomId\`: number - The room ID where the message was sent
+  - **Purpose**: Real-time message delivery to clients subscribed to all room messages
+  - **Room**: Emitted to \`room:{userId}:all-room-messages\` room
+
 ### Error Handling
 - **Missing Token**: Connection will be rejected with error message
 - **Invalid Token**: Connection will be rejected and socket disconnected
 - **Network Issues**: Socket.IO will automatically attempt to reconnect
 
 ### Room System
-Each authenticated user is automatically joined to a private room: \`user:{userId}:notifications\`
-This ensures notifications are only sent to the intended recipient.
+- **Notifications**: Each authenticated user can join their private notification room: \`user:{userId}:notifications\`
+- **Chat Rooms**: Clients can subscribe to specific chat rooms: \`chat:{roomId}\`
+- **All Room Messages**: Clients can subscribe to receive messages from all their rooms: \`room:{userId}:all-room-messages\`
+
+This ensures messages and notifications are only sent to the intended recipients.
 `;

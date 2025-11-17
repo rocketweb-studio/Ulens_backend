@@ -41,6 +41,7 @@ export class UsersClientService {
 	}
 
 	async follow(dto: { currentUserId: string; userId: string }): Promise<FollowingOutputDto> {
+		if (dto.currentUserId === dto.userId) throw new BadRequestRpcException("You cannot follow yourself");
 		const isSuccess = await firstValueFrom(this.client.send({ cmd: AuthMessages.MANAGE_FOLLOWING }, { ...dto, followType: FollowType.FOLLOW }));
 		if (!isSuccess) throw new BadRequestRpcException("Failed to follow user");
 		return {
@@ -49,6 +50,7 @@ export class UsersClientService {
 	}
 
 	async unfollow(dto: { currentUserId: string; userId: string }): Promise<FollowingOutputDto> {
+		if (dto.currentUserId === dto.userId) throw new BadRequestRpcException("You cannot unfollow yourself");
 		const isSuccess = await firstValueFrom(this.client.send({ cmd: AuthMessages.MANAGE_FOLLOWING }, { ...dto, followType: FollowType.UNFOLLOW }));
 		if (!isSuccess) throw new BadRequestRpcException("Failed to unfollow user");
 		return {

@@ -3,6 +3,7 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@messenger/core/prisma/prisma.service";
 import { MessageDBOutputDto, RoomDBOutputDto } from "@libs/contracts/index";
 import { Message, Room } from "@messenger/core/prisma/generated";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class RoomQueryRepository implements IRoomQueryRepository {
@@ -31,6 +32,23 @@ export class RoomQueryRepository implements IRoomQueryRepository {
 			orderBy: { createdAt: "desc" },
 		});
 		return messages.map((message) => this._mapMessageToOutput(message));
+	}
+
+	async getRoomMessageById(messageId: number): Promise<MessageDBOutputDto | null> {
+		const message = await this.prisma.message.findUnique({
+			where: { id: messageId },
+		});
+		return message ? this._mapMessageToOutput(message) : null;
+	}
+
+	async getRoomUsersById(roomId: number): Promise<{ userId1: string; userId2: string }> {
+		const room = await this.prisma.room.findUnique({
+			where: { id: roomId },
+		});
+		if (!room) {
+			throw new NotFoundRpcException("Room not found");
+		}
+		return { userId1: room.userId1, userId2: room.userId2 };
 	}
 
 	private _mapToOutput(room: Room & { messages: Message[] }, userId: string): RoomDBOutputDto {

@@ -65,4 +65,11 @@ export enum ApiTagsNames {
 	SESSIONS = "Sessions",
 	NOTIFICATIONS = "Notifications",
 	COMMENTS = "Comments",
+	MESSENGER = "Messenger",
+}
+
+export enum MessengerRouterPaths {
+	MESSENGER = "messenger",
+	ROOMS = "rooms",
+	MESSAGES = "rooms/:roomId/messages",
 }

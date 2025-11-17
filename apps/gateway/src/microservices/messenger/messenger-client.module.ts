@@ -6,7 +6,8 @@ import { JwtModule } from "@nestjs/jwt";
 import { MessengerClientService } from "@gateway/microservices/messenger/messenger-client.service";
 import { MessengerClientController } from "@gateway/microservices/messenger/messenger-client.controller";
 import { MessengerClientEnvConfig } from "@gateway/microservices/messenger/messenger-client.config";
-
+import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
+import { AuthClientModule } from "@gateway/microservices/auth/auth-client.module";
 @Module({
 	imports: [
 		ClientsModule.registerAsync([
@@ -30,6 +31,8 @@ import { MessengerClientEnvConfig } from "@gateway/microservices/messenger/messe
 			inject: [AuthClientEnvConfig],
 			extraProviders: [AuthClientEnvConfig],
 		}),
+		AuthClientModule,
+		FilesClientModule,
 	],
 	controllers: [MessengerClientController],
 	providers: [MessengerClientService, MessengerClientEnvConfig],

@@ -66,11 +66,25 @@ When connecting, clients must include an **accessToken** as a query parameter to
 
 - **\`SEND_MESSAGE\`**: Send a message to a room
   - **Authentication**: Required (JWT token in auth object)
-  - **Payload**: \`{ roomId: number; content: string }\`
-  - **Purpose**: Sends a message to a specific chat room
+  - **Payload**: \`{ roomId: number; content: string; media?: MessageImgOutputDto[] | null }\`
+    - \`roomId\`: number - The room ID where the message will be sent
+    - \`content\`: string - Message text content
+    - \`media\`: MessageImgOutputDto[] | null (optional) - Array of message images. Images must be uploaded first using the REST API endpoint \`POST /api/v1/messenger/rooms/:roomId/images\`
+  - **Purpose**: Sends a message to a specific chat room with optional images
   - **Example**:
     \`\`\`typescript
+    // Send text message only
     socket.emit('SEND_MESSAGE', { roomId: 123, content: 'Hello, world!' });
+
+    // Send message with images
+    socket.emit('SEND_MESSAGE', {
+      roomId: 123,
+      content: 'Check out these images!',
+      media: [
+        { id: 'img-id-1', messageId: null, url: 'bucket/image1.webp', width: 192, height: 192, fileSize: 100000, size: 'small' },
+        { id: 'img-id-2', messageId: null, url: 'bucket/image2.webp', width: 192, height: 192, fileSize: 100000, size: 'small' }
+      ]
+    });
     \`\`\`
 
 - **\`SUBSCRIBE_ALL_ROOM_MESSAGES\`**: Subscribe to all room messages for a user
@@ -87,7 +101,7 @@ When connecting, clients must include an **accessToken** as a query parameter to
   - **Data**: \`MessageOutputDto\` object containing:
     - \`id\`: number - Message ID
     - \`content\`: string - Message content
-    - \`mediaUrl\`: string | null - Optional media URL
+    - \`media\`: MessageImgOutputDto[] | null - Array of message images (each containing: id, messageId, url, width, height, fileSize, size)
     - \`createdAt\`: Date - Message creation timestamp
     - \`author\`: Object - Message author information (id, userName, firstName, lastName, avatar)
   - **Purpose**: Real-time message delivery to clients subscribed to the specific room
@@ -97,7 +111,7 @@ When connecting, clients must include an **accessToken** as a query parameter to
   - **Data**: \`MessageOutputDto\` object with additional \`roomId\` field:
     - \`id\`: number - Message ID
     - \`content\`: string - Message content
-    - \`mediaUrl\`: string | null - Optional media URL
+    - \`media\`: MessageImgOutputDto[] | null - Array of message images (each containing: id, messageId, url, width, height, fileSize, size)
     - \`createdAt\`: Date - Message creation timestamp
     - \`author\`: Object - Message author information
     - \`roomId\`: number - The room ID where the message was sent
@@ -115,4 +129,51 @@ When connecting, clients must include an **accessToken** as a query parameter to
 - **All Room Messages**: Clients can subscribe to receive messages from all their rooms: \`room:{userId}:all-room-messages\`
 
 This ensures messages and notifications are only sent to the intended recipients.
+
+## REST API Endpoints
+
+### Messenger Endpoints
+
+#### Upload Message Images
+- **Endpoint**: \`POST /api/v1/messenger/rooms/:roomId/images\`
+- **Authentication**: Required (JWT token in Authorization header)
+- **Content-Type**: \`multipart/form-data\`
+- **Path Parameters**:
+  - \`roomId\`: number - The room ID where images will be associated
+- **Request Body**:
+  - \`images\`: File[] - Array of image files (JPEG, PNG) with max size 20MB per file
+- **Response**: \`UploadImageOutputDto\` containing:
+  - \`files\`: MessageImgOutputDto[] - Array of uploaded image objects, each containing:
+    - \`id\`: string - Image ID (use this in the \`SEND_MESSAGE\` WebSocket event)
+    - \`messageId\`: number | null - Initially null, will be set when message is sent
+    - \`url\`: string - Image URL
+    - \`width\`: number - Image width in pixels
+    - \`height\`: number - Image height in pixels
+    - \`fileSize\`: number - File size in bytes
+    - \`size\`: string - Image size variant (\`small\`, \`medium\`, \`large\`)
+- **Example**:
+  \`\`\`typescript
+  // Upload images first
+  const formData = new FormData();
+  formData.append('images', file1);
+  formData.append('images', file2);
+
+  const response = await fetch('https://ulens.org/api/v1/messenger/rooms/123/images', {
+    method: 'POST',
+    headers: {
+      'Authorization': 'Bearer your_access_token_here'
+    },
+    body: formData
+  });
+
+  const { files } = await response.json();
+
+  // Then send message with uploaded images via WebSocket
+  socket.emit('SEND_MESSAGE', {
+    roomId: 123,
+    content: 'Check out these images!',
+    media: files
+  });
+  \`\`\`
+- **Note**: Images must be uploaded via this REST endpoint before they can be included in a \`SEND_MESSAGE\` WebSocket event. The returned image IDs should be used in the \`media\` field of the \`SEND_MESSAGE\` payload.
 `;

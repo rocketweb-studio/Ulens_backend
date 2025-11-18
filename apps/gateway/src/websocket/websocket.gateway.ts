@@ -95,7 +95,6 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 		@MessageBody() payload: { roomId: number; content: string; media?: MessageImgOutputDto[] | null },
 	) {
 		console.log(`[WS] User ${client.userId} sent message to room ${payload.roomId}: ${payload.content}`);
-		console.log(payload.media);
 		// @ts-expect-error
 		const message = await this.messengerClientService.createRoomMessage(payload.roomId, client.userId, { content: payload.content });
 

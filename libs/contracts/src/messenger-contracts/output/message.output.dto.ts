@@ -1,4 +1,5 @@
-import { MessageImgOutputDto } from "@libs/contracts/files-contracts/output/message-img.output.dto";
+import { MessageImgDto } from "@libs/contracts/files-contracts/output/message-img.output.dto";
+import { MessageAudioOutputDto } from "@libs/contracts/files-contracts/output/messsage-audio.output.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class RoomUserOutputDto {
@@ -43,12 +44,6 @@ export class MessageOutputDto {
 	content: string;
 
 	@ApiProperty({
-		description: "Message media",
-		type: [MessageImgOutputDto],
-	})
-	media: MessageImgOutputDto[] | null;
-
-	@ApiProperty({
 		description: "Message created at",
 		example: "2021-01-01T00:00:00.000Z",
 	})
@@ -59,6 +54,25 @@ export class MessageOutputDto {
 		type: RoomUserOutputDto,
 	})
 	author: RoomUserOutputDto;
+}
+export enum MessageMediaType {
+	IMAGE = "IMAGE",
+	AUDIO = "AUDIO",
+}
+export class MessageMediaImageOutputDto {
+	@ApiProperty({
+		description: "Message image",
+		type: [MessageImgDto],
+	})
+	media: MessageImgDto[] | null;
+}
+
+export class MessageMediaAudioOutputDto {
+	@ApiProperty({
+		description: "Message audio",
+		type: MessageAudioOutputDto,
+	})
+	media: MessageAudioOutputDto | null;
 }
 
 export class MessageDBOutputDto {

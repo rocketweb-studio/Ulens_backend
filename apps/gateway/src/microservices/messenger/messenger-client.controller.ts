@@ -3,7 +3,7 @@ import { MessengerClientService } from "./messenger-client.service";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { MessengerRouterPaths } from "@libs/constants/index";
-import { CreateRoomInputDto, MessageOutputDto, PayloadFromRequestDto, RoomOutputDto, UploadImageOutputDto } from "@libs/contracts/index";
+import { CreateRoomInputDto, MessageAudioOutputDto, MessageImgOutputDto, MessageOutputDto, PayloadFromRequestDto, RoomOutputDto } from "@libs/contracts/index";
 import { ApiTags } from "@nestjs/swagger";
 import { ApiTagsNames } from "@libs/constants/index";
 import { GetRoomsSwagger } from "@gateway/core/decorators/swagger/messenger/get-rooms.decorator";
@@ -12,6 +12,7 @@ import { GetRoomMessagesSwagger } from "@gateway/core/decorators/swagger/messeng
 import { UploadMessageImagesSwagger } from "@gateway/core/decorators/swagger/messenger/upload-message-images.decorator";
 import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-file.interceptor";
 import { Request } from "express";
+import { UploadMessageAudioSwagger } from "@gateway/core/decorators/swagger/messenger/upload-message-audio.decorator";
 
 @ApiTags(ApiTagsNames.MESSENGER)
 @Controller(MessengerRouterPaths.MESSENGER)
@@ -51,8 +52,18 @@ export class MessengerClientController {
 	@HttpCode(HttpStatus.CREATED)
 	@UseGuards(JwtAccessAuthGuard)
 	@UseInterceptors(StreamingFileInterceptor)
-	async uploadMessageImages(@Param("roomId") roomId: number, @Req() req: Request): Promise<UploadImageOutputDto> {
+	async uploadMessageImages(@Param("roomId") roomId: number, @Req() req: Request): Promise<MessageImgOutputDto> {
 		const result = await this.messengerClientService.uploadMessageImages(roomId, req);
+		return result;
+	}
+
+	@UploadMessageAudioSwagger()
+	@Post(MessengerRouterPaths.AUDIO)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(JwtAccessAuthGuard)
+	@UseInterceptors(StreamingFileInterceptor)
+	async uploadMessageAudio(@Param("roomId") roomId: number, @Req() req: Request): Promise<MessageAudioOutputDto> {
+		const result = await this.messengerClientService.uploadMessageAudio(roomId, req);
 		return result;
 	}
 

@@ -46,4 +46,13 @@ export class FileUploadConfigs {
 			{ type: FilesSizes.MEDIUM, width: "1024" },
 		],
 	};
+
+	static readonly MESSAGE_AUDIO: FileUploadOptionsDto = {
+		fieldName: "audio",
+		folder: "messages",
+		maxFiles: 1,
+		allowedTypes: ["audio/mp3", "audio/mpeg"],
+		maxSize: 20 * 1024 * 1024, // 20MB
+		fileSizes: [],
+	};
 }

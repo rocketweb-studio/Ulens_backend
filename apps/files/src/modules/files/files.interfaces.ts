@@ -1,5 +1,5 @@
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
-import { AvatarImagesOutputDto, MessageImgOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto, MessageAudioOutputDto, MessageImgDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 import { FileVersionInputDto } from "./dto/file-version.input.dto";
 
 /**
@@ -13,8 +13,8 @@ export abstract class IFilesQueryRepository {
 	abstract getAvatarsByUserId(userId: string): Promise<AvatarImagesOutputDto>;
 	abstract getImagesByPostIds(postIds: string[]): Promise<PostImagesOutputForMapDto[]>;
 	abstract getAvatarsByUserIds(userIds: string[]): Promise<{ userId: string; avatars: AvatarImagesOutputDto }[]>;
-	abstract getFilesByIds(fileIds: string[]): Promise<MessageImgOutputDto[]>;
-	abstract getMediasByMessageIds(messageIds: number[]): Promise<MessageImgOutputDto[]>;
+	abstract getFilesByIds(fileIds: string[]): Promise<MessageImgDto[]>;
+	abstract getMediaByMessageIds(messageIds: number[]): Promise<(MessageImgDto | MessageAudioOutputDto)[]>;
 }
 
 export abstract class IFilesCommandRepository {
@@ -25,4 +25,6 @@ export abstract class IFilesCommandRepository {
 	abstract softDeleteUserFiles(userId: string): Promise<void>;
 	abstract saveMessageImages(data: { roomId: number; versions: FileVersionInputDto[] }): Promise<string[]>;
 	abstract updateMessageImages(messageId: number, imageIds: string[]): Promise<boolean>;
+	abstract saveMessageAudio(data: { roomId: number; url: string }): Promise<MessageAudioOutputDto>;
+	abstract updateMessageAudio(messageId: number, audioId: string): Promise<boolean>;
 }

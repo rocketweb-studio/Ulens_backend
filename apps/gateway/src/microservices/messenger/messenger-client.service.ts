@@ -3,7 +3,15 @@ import { ClientProxy } from "@nestjs/microservices";
 import { Microservice } from "@libs/constants/microservices";
 import { firstValueFrom } from "rxjs";
 import { MessengerMessages } from "@libs/constants/index";
-import { CreateMessageInputDto, MessageDBOutputDto, MessageOutputDto, RoomDBOutputDto, RoomOutputDto } from "@libs/contracts/index";
+import {
+	CreateMessageInputDto,
+	MessageAudioOutputDto,
+	MessageDBOutputDto,
+	MessageImgOutputDto,
+	MessageOutputDto,
+	RoomDBOutputDto,
+	RoomOutputDto,
+} from "@libs/contracts/index";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 import { Request } from "express";
@@ -23,7 +31,6 @@ export class MessengerClientService {
 		const roomUsers = await this.profileClientService.getProfiles(roomUsersIds);
 		const avatars = await this.filesClientService.getAvatarsByUserIds(roomUsersIds);
 		const lastMessageMedia = await this.filesClientService.getMediasByMessageIds(rooms.map((room) => room.lastMessage.id));
-
 		return rooms.map((room) => ({
 			id: room.id,
 			lastMessage: {
@@ -71,7 +78,7 @@ export class MessengerClientService {
 		}));
 	}
 
-	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<Omit<MessageOutputDto, "media">> {
+	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<MessageOutputDto> {
 		const message: MessageDBOutputDto = await firstValueFrom(
 			this.client.send({ cmd: MessengerMessages.CREATE_ROOM_MESSAGE }, { roomId, userId, payload: dto }),
 		);
@@ -98,24 +105,22 @@ export class MessengerClientService {
 		return roomUsers;
 	}
 
-	async uploadMessageImages(roomId: number, req: Request): Promise<any> {
+	async uploadMessageImages(roomId: number, req: Request): Promise<MessageImgOutputDto> {
 		const isRoomExists = await this.getRoomById(roomId);
 		if (!isRoomExists) {
 			throw new NotFoundRpcException("Room not found");
 		}
 		const result = await this.filesClientService.uploadMessageImages(roomId, req);
 		return result;
-		// const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.POST_IMAGES);
+	}
 
-		// if (!uploadResult.success) {
-		// 	throw new BadRequestRpcException(uploadResult.errors?.join(", ") || "Images upload failed");
-		// }
-
-		// // Сохраняем информацию о всех изображениях в БД // todo ===========start=========== сделать это в микросервисе
-		// const dbResults = await Promise.all(uploadResult.files.map((file) => this.filesClientService.savePostImagesToDB(postId, file)));
-		// // todo ===========end===========
-		// // const post = await this.getPost(postId);
-		// return dbResults[dbResults.length - 1];
+	async uploadMessageAudio(roomId: number, req: Request): Promise<MessageAudioOutputDto> {
+		const isRoomExists = await this.getRoomById(roomId);
+		if (!isRoomExists) {
+			throw new NotFoundRpcException("Room not found");
+		}
+		const result = await this.filesClientService.uploadMessageAudio(roomId, req);
+		return result;
 	}
 
 	private async getRoomById(roomId: number): Promise<boolean> {

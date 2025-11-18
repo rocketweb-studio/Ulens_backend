@@ -4,6 +4,7 @@ import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { PrismaService } from "@files/core/prisma/prisma.service";
 import { Avatar, Size } from "@files/core/prisma/generated/client";
 import { FileVersionInputDto } from "../dto/file-version.input.dto";
+import { MessageAudioOutputDto, MessageAudioType, MessageMediaType } from "@libs/contracts/index";
 
 @Injectable()
 export class PrismaFilesCommandRepository implements IFilesCommandRepository {
@@ -58,7 +59,7 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 	}
 
 	async saveMessageImages(data: { roomId: number; versions: FileVersionInputDto[] }): Promise<string[]> {
-		const result = await this.prisma.messageImage.createManyAndReturn({
+		const result = await this.prisma.messageAttachment.createManyAndReturn({
 			data: data.versions.map((version: FileVersionInputDto) => ({
 				roomId: data.roomId,
 				url: version.url,
@@ -66,15 +67,40 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 				height: version.height,
 				fileSize: version.fileSize,
 				size: version.size as Size,
+				type: MessageMediaType.IMAGE,
 			})),
 		});
 		return result.map((image) => image.id);
 	}
 
+	async saveMessageAudio(data: { roomId: number; url: string }): Promise<MessageAudioOutputDto> {
+		const result = await this.prisma.messageAttachment.create({
+			data: {
+				roomId: data.roomId,
+				url: data.url,
+				type: MessageMediaType.AUDIO,
+			},
+		});
+		return {
+			id: result.id,
+			messageId: result.messageId,
+			url: result.url,
+			type: MessageAudioType.AUDIO,
+		};
+	}
+
 	async updateMessageImages(messageId: number, imageIds: string[]): Promise<boolean> {
-		const result = await this.prisma.messageImage.updateMany({
+		const result = await this.prisma.messageAttachment.updateMany({
 			where: { id: { in: imageIds } },
-			data: { messageId },
+			data: { messageId, type: MessageMediaType.IMAGE },
+		});
+		return result.count > 0;
+	}
+
+	async updateMessageAudio(messageId: number, audioId: string): Promise<boolean> {
+		const result = await this.prisma.messageAttachment.updateMany({
+			where: { id: audioId },
+			data: { messageId, type: MessageMediaType.AUDIO },
 		});
 		return result.count > 0;
 	}

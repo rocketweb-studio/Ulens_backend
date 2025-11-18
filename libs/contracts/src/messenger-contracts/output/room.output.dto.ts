@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { MessageDBOutputDto, RoomUserOutputDto } from "./message.output.dto";
-import { MessageImgOutputDto } from "@libs/contracts/files-contracts/output/message-img.output.dto";
+import { MessageImgDto } from "@libs/contracts/files-contracts/output/message-img.output.dto";
 
 export class LastMessageOutputDto extends MessageDBOutputDto {
 	@ApiProperty({
 		description: "Last message media",
-		type: [MessageImgOutputDto],
+		type: [MessageImgDto],
 	})
-	media: MessageImgOutputDto[] | null;
+	media: MessageImgDto[] | null;
 }
 
 export class RoomOutputDto {

@@ -7,7 +7,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { FilesService } from "@files/modules/files/files.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
-import { AvatarImagesOutputDto, MessageImgOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto, MessageAudioOutputDto, MessageImgDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
 import { FileVersionInputDto } from "./dto/file-version.input.dto";
 
 @Controller()
@@ -76,10 +76,16 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 	}
 
 	@MessagePattern({ cmd: FilesMessages.MESSAGE_IMAGES_UPLOAD })
-	async saveMessageImages(@Payload() data: { roomId: number; versions: FileVersionInputDto[] }): Promise<MessageImgOutputDto[]> {
+	async saveMessageImages(@Payload() data: { roomId: number; versions: FileVersionInputDto[] }): Promise<MessageImgDto[]> {
 		const fileIds = await this.filesService.saveMessageImages(data);
 		const files = await this.filesQueryRepository.getFilesByIds(fileIds);
 		return files;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.MESSAGE_AUDIO_UPLOAD })
+	async saveMessageAudio(@Payload() data: { roomId: number; url: string }): Promise<MessageAudioOutputDto> {
+		const file = await this.filesService.saveMessageAudio(data);
+		return file;
 	}
 
 	@MessagePattern({ cmd: FilesMessages.UPDATE_MESSAGE_IMAGES })
@@ -88,9 +94,15 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 		return isUpdated;
 	}
 
-	@MessagePattern({ cmd: FilesMessages.GET_MESSAGE_IMAGES_BY_MESSAGE_IDS })
-	async getMediasByMessageIds(messageIds: number[]): Promise<MessageImgOutputDto[]> {
-		const media = await this.filesQueryRepository.getMediasByMessageIds(messageIds);
+	@MessagePattern({ cmd: FilesMessages.UPDATE_MESSAGE_AUDIO })
+	async updateMessageAudio(@Payload() data: { messageId: number; audioId: string }): Promise<boolean> {
+		const isUpdated = await this.filesService.updateMessageAudio(data.messageId, data.audioId);
+		return isUpdated;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.GET_MESSAGE_MEDIA_BY_MESSAGE_IDS })
+	async getMediasByMessageIds(messageIds: number[]): Promise<(MessageImgDto | MessageAudioOutputDto)[]> {
+		const media = await this.filesQueryRepository.getMediaByMessageIds(messageIds);
 		return media;
 	}
 }

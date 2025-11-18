@@ -41,20 +41,53 @@ model Post {
   @@map("posts")  
 }
 
-model MessageImage {
+
+model MessageAttachment {
   id String @id @default(uuid())
-	messageId Int?
+  messageId Int?
   roomId Int
   url String
-  width Int
-  height Int
-  fileSize Int
-  size Size
+	width Int?
+  height Int?
+  fileSize Int?
+  size Size?
+  type MessageMediaType
   createdAt DateTime @default(now())
-	deletedAt DateTime?
+  deletedAt DateTime?
 
-  @@map("message_images")  
+  @@map("message_attachments")
 }
+
+enum MessageMediaType {
+  IMAGE
+  AUDIO
+}
+
+// model MessageImage {
+//   id String @id @default(uuid())
+// 	messageId Int?
+//   roomId Int
+//   url String
+//   width Int
+//   height Int
+//   fileSize Int
+//   size Size
+//   createdAt DateTime @default(now())
+// 	deletedAt DateTime?
+
+//   @@map("message_images")  
+// }
+
+// model MessageAudio {
+//   id String @id @default(uuid())
+//   roomId Int
+// 	messageId Int?
+//   url String
+//   createdAt DateTime @default(now())
+//   deletedAt DateTime?
+
+//   @@map("message_audios")
+// }
 
 enum Size {
   small

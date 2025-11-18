@@ -16,7 +16,7 @@ import { WsAuthGuard } from "@gateway/core/guards/ws-auth.guard";
 import { UseGuards } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { MessengerClientService } from "@gateway/microservices/messenger/messenger-client.service";
-import { MessageImgOutputDto, MessageOutputDto } from "@libs/contracts/index";
+import { MessageAudioOutputDto, MessageImgDto, MessageMediaAudioOutputDto, MessageMediaImageOutputDto, MessageOutputDto } from "@libs/contracts/index";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 
 @WebSocketGateway({ namespace: "/ws", cors: true })
@@ -92,23 +92,31 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 	@SubscribeMessage(WebsocketEvents.SEND_MESSAGE)
 	async handleMessageFromRoom(
 		@ConnectedSocket() client: Socket,
-		@MessageBody() payload: { roomId: number; content: string; media?: MessageImgOutputDto[] | null },
+		@MessageBody() payload: { roomId: number; content: string; media?: MessageImgDto[] | MessageAudioOutputDto | null },
 	) {
 		console.log(`[WS] User ${client.userId} sent message to room ${payload.roomId}: ${payload.content}`);
 		// @ts-expect-error
-		const message = await this.messengerClientService.createRoomMessage(payload.roomId, client.userId, { content: payload.content });
-
-		if (payload.media) {
-			await this.filesClientService.updateMessageImages(
-				message.id,
-				payload.media.map((image) => image.id),
-			);
+		const message: MessageOutputDto = await this.messengerClientService.createRoomMessage(payload.roomId, client.userId, { content: payload.content });
+		if (!payload.media) {
+			await this.sendMessageToRoom(payload.roomId, { ...message, media: null });
+			return;
 		}
 
-		await this.sendMessageToRoom(payload.roomId, { ...message, media: payload.media || null });
+		if (payload.media) {
+			if (Array.isArray(payload.media)) {
+				await this.filesClientService.updateMessageImages(
+					message.id,
+					payload.media.map((image) => image.id),
+				);
+				await this.sendMessageToRoom(payload.roomId, { ...message, media: [{ media: payload.media }] });
+			} else {
+				await this.filesClientService.updateMessageAudio(message.id, payload.media.id);
+				await this.sendMessageToRoom(payload.roomId, { ...message, media: { media: payload.media } });
+			}
+		}
 	}
 
-	async sendMessageToRoom(roomId: number, message: MessageOutputDto) {
+	async sendMessageToRoom(roomId: number, message: (MessageOutputDto & { media: MessageMediaImageOutputDto[] | MessageMediaAudioOutputDto | null }) | null) {
 		this.server.to(getChatByRoomId(roomId)).emit(WebsocketEvents.NEW_MESSAGE, message);
 		const roomUsers = await this.messengerClientService.getRoomUsersById(roomId);
 

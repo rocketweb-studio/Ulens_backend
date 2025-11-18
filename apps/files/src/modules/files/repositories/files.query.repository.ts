@@ -2,8 +2,17 @@ import { Injectable } from "@nestjs/common";
 import { PrismaService } from "@files/core/prisma/prisma.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
 import { Avatar, Post } from "@files/core/prisma/generated/client";
-import { AvatarImagesOutputDto, MessageImgOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
+import {
+	AvatarImagesOutputDto,
+	MessageAudioOutputDto,
+	MessageAudioType,
+	MessageImgDto,
+	MessageImgType,
+	PostImagesOutputDto,
+	PostImagesOutputForMapDto,
+} from "@libs/contracts/index";
 import { FilesSizes } from "@libs/constants/files.constants";
+import { MessageMediaType } from "@libs/contracts/messenger-contracts/output/message.output.dto";
 
 @Injectable()
 export class PrismaFilesQueryRepository implements IFilesQueryRepository {
@@ -69,34 +78,52 @@ export class PrismaFilesQueryRepository implements IFilesQueryRepository {
 		return postImages;
 	}
 
-	async getFilesByIds(fileIds: string[]): Promise<MessageImgOutputDto[]> {
-		const files = await this.prisma.messageImage.findMany({
+	async getFilesByIds(fileIds: string[]): Promise<MessageImgDto[]> {
+		const files = await this.prisma.messageAttachment.findMany({
 			where: { id: { in: fileIds } },
 		});
-		return files.map((file) => ({
-			id: file.id,
-			messageId: file.messageId,
-			url: file.url,
-			width: file.width,
-			height: file.height,
-			fileSize: file.fileSize,
-			size: file.size as FilesSizes,
-		}));
+		if (files.length > 0) {
+			return files.map((file) => ({
+				id: file.id,
+				messageId: file.messageId,
+				url: file.url,
+				width: file.width || 0,
+				height: file.height || 0,
+				fileSize: file.fileSize || 0,
+				size: file.size as FilesSizes,
+				type: file.type as MessageImgType,
+			}));
+		}
+		return [];
 	}
 
-	async getMediasByMessageIds(messageIds: number[]): Promise<MessageImgOutputDto[]> {
-		const media = await this.prisma.messageImage.findMany({
+	async getMediaByMessageIds(messageIds: number[]): Promise<(MessageImgDto | MessageAudioOutputDto)[]> {
+		const medias = await this.prisma.messageAttachment.findMany({
 			where: { messageId: { in: messageIds } },
 		});
-		return media.map((media) => ({
-			id: media.id,
-			messageId: media.messageId,
-			url: media.url,
-			width: media.width,
-			height: media.height,
-			fileSize: media.fileSize,
-			size: media.size as FilesSizes,
-		}));
+
+		if (medias.length === 0) {
+			return [];
+		}
+		return medias.map((media) =>
+			media.type === MessageMediaType.IMAGE
+				? {
+						id: media.id,
+						messageId: media.messageId,
+						url: media.url,
+						width: media.width || 0,
+						height: media.height || 0,
+						fileSize: media.fileSize || 0,
+						size: media.size as FilesSizes,
+						type: MessageImgType.IMAGE,
+					}
+				: {
+						id: media.id,
+						messageId: media.messageId,
+						url: media.url,
+						type: MessageAudioType.AUDIO,
+					},
+		);
 	}
 
 	private _mapAvatarsToViewDto(avatars: Avatar[]): AvatarImagesOutputDto {

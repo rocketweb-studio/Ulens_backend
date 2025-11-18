@@ -1,6 +1,6 @@
 import { Injectable } from "@nestjs/common";
 import * as net from "net";
-import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
+import { UploadImageOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { FilesClientEnvConfig } from "@gateway/microservices/files/files-client.config";
 import * as busboy from "busboy";
 import { Request } from "express";
@@ -10,7 +10,7 @@ import { ImageSizesDto } from "@libs/contracts/index";
 // Интерфейс для результата загрузки
 interface StreamUploadResult {
 	success: boolean;
-	files: UploadFileOutputDto[];
+	files: UploadImageOutputDto[];
 	errors?: string[];
 }
 
@@ -23,7 +23,7 @@ export class StreamClientService {
 
 	async streamFilesToService(req: Request, config: FileUploadOptionsDto): Promise<StreamUploadResult> {
 		return new Promise((resolve, reject) => {
-			const results: UploadFileOutputDto[] = [];
+			const results: UploadImageOutputDto[] = [];
 			const errors: string[] = [];
 			const bb = busboy({ headers: req.headers, limits: { fileSize: config.maxSize } });
 
@@ -127,7 +127,7 @@ export class StreamClientService {
 		folder: string,
 		mimeType: string,
 		fileSizes: ImageSizesDto[],
-	): Promise<UploadFileOutputDto> {
+	): Promise<UploadImageOutputDto> {
 		return new Promise((resolve, reject) => {
 			const socket = net.connect(this.filesClientConfig.filesClientStreamingPort, this.filesClientConfig.filesClientStreamingHost);
 

@@ -1,11 +1,18 @@
 import { Injectable } from "@nestjs/common";
-import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { firstValueFrom } from "rxjs";
 import { Microservice } from "@libs/constants/microservices";
 import { Inject } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { FilesMessages } from "@libs/constants/files-messages";
-import { AvatarImagesOutputDto, MessageImgOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto, UploadImageOutputDto } from "@libs/contracts/index";
+import {
+	AvatarImagesOutputDto,
+	MessageAudioOutputDto,
+	MessageImgDto,
+	MessageImgOutputDto,
+	PostImagesOutputDto,
+	PostImagesOutputForMapDto,
+	UploadImageOutputDto,
+} from "@libs/contracts/index";
 import { StreamClientService } from "./stream-client.service";
 import { FileUploadConfigs } from "./upload-config/file-upload-configs";
 import { Request } from "express";
@@ -20,12 +27,12 @@ export class FilesClientService {
 		private readonly streamClientService: StreamClientService,
 	) {}
 
-	async saveAvatarToDB(userId: string, uploadResult: UploadFileOutputDto): Promise<any> {
+	async saveAvatarToDB(userId: string, uploadResult: UploadImageOutputDto): Promise<any> {
 		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.AVATAR_UPLOAD }, { userId, versions: uploadResult.versions }));
 		return fileResult;
 	}
 
-	async savePostImagesToDB(postId: string, uploadResult: UploadFileOutputDto): Promise<PostImagesOutputDto> {
+	async savePostImagesToDB(postId: string, uploadResult: UploadImageOutputDto): Promise<PostImagesOutputDto> {
 		const fileResult = await firstValueFrom(this.client.send({ cmd: FilesMessages.POST_IMAGES_UPLOAD }, { postId, versions: uploadResult.versions }));
 		return fileResult;
 	}
@@ -45,8 +52,8 @@ export class FilesClientService {
 		return images;
 	}
 
-	async getMediasByMessageIds(messageIds: number[]): Promise<MessageImgOutputDto[]> {
-		const media = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_MESSAGE_IMAGES_BY_MESSAGE_IDS }, messageIds));
+	async getMediasByMessageIds(messageIds: number[]): Promise<MessageImgDto[]> {
+		const media = await firstValueFrom(this.client.send({ cmd: FilesMessages.GET_MESSAGE_MEDIA_BY_MESSAGE_IDS }, messageIds));
 		return media;
 	}
 
@@ -60,16 +67,32 @@ export class FilesClientService {
 		return;
 	}
 
-	async uploadMessageImages(roomId: number, req: Request): Promise<UploadImageOutputDto> {
+	async updateMessageAudio(messageId: number, audioId: string): Promise<void> {
+		await firstValueFrom(this.client.send({ cmd: FilesMessages.UPDATE_MESSAGE_AUDIO }, { messageId, audioId }));
+		return;
+	}
+
+	async uploadMessageImages(roomId: number, req: Request): Promise<MessageImgOutputDto> {
 		const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.MESSAGE_IMAGES);
 		const dbResults = await Promise.all(uploadResult.files.map((file) => this.saveMessageImagesToDB(roomId, file)));
 		return { files: dbResults.flat() };
 	}
 
-	async saveMessageImagesToDB(roomId: number, uploadResult: UploadFileOutputDto): Promise<MessageImgOutputDto[]> {
-		const files: MessageImgOutputDto[] = await firstValueFrom(
+	async uploadMessageAudio(roomId: number, req: Request): Promise<MessageAudioOutputDto> {
+		const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.MESSAGE_AUDIO);
+		const dbResult = await this.saveMessageAudioToDB(roomId, uploadResult.files[0].versions[0].url);
+		return dbResult;
+	}
+
+	async saveMessageImagesToDB(roomId: number, uploadResult: UploadImageOutputDto): Promise<MessageImgDto[]> {
+		const files: MessageImgDto[] = await firstValueFrom(
 			this.client.send({ cmd: FilesMessages.MESSAGE_IMAGES_UPLOAD }, { roomId, versions: uploadResult.versions }),
 		);
 		return files;
+	}
+
+	async saveMessageAudioToDB(roomId: number, url: string): Promise<MessageAudioOutputDto> {
+		const file: MessageAudioOutputDto = await firstValueFrom(this.client.send({ cmd: FilesMessages.MESSAGE_AUDIO_UPLOAD }, { roomId, url }));
+		return file;
 	}
 }

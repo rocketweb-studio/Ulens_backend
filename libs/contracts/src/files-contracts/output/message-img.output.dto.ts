@@ -1,7 +1,11 @@
 import { FilesSizes } from "@libs/contracts/auth-contracts/output/image.ouptut.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
-export class MessageImgOutputDto {
+export enum MessageImgType {
+	IMAGE = "IMAGE",
+	AUDIO = "AUDIO",
+}
+export class MessageImgDto {
 	@ApiProperty({
 		description: "Image ID",
 		example: "123e4567-e89b-12d3-a456-426614174000",
@@ -39,4 +43,19 @@ export class MessageImgOutputDto {
 		enumName: "FilesSizes",
 	})
 	size: FilesSizes;
+	@ApiProperty({
+		description: "Message media type",
+		example: MessageImgType.IMAGE,
+		enum: MessageImgType,
+		enumName: "MessageImgType",
+	})
+	type: MessageImgType;
+}
+
+export class MessageImgOutputDto {
+	@ApiProperty({
+		description: "Message images",
+		type: [MessageImgDto],
+	})
+	readonly files: MessageImgDto[];
 }

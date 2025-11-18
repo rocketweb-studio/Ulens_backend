@@ -5,6 +5,7 @@ import { NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeptio
 import { StorageAdapter } from "@files/core/storage/storage.adapter";
 import { AvatarImagesOutputDto } from "@libs/contracts/index";
 import { Cron, CronExpression } from "@nestjs/schedule";
+import { FileVersionInputDto } from "./dto/file-version.input.dto";
 @Injectable()
 export class FilesService {
 	constructor(
@@ -29,6 +30,22 @@ export class FilesService {
 			throw new UnexpectedErrorRpcException("Something went wrong while saving post images");
 		}
 		return isSaved;
+	}
+
+	async saveMessageImages(data: { roomId: number; versions: FileVersionInputDto[] }): Promise<string[]> {
+		const fileIds = await this.filesCommandRepository.saveMessageImages(data);
+		if (fileIds.length === 0) {
+			throw new UnexpectedErrorRpcException("Something went wrong while saving message images");
+		}
+		return fileIds;
+	}
+
+	async updateMessageImages(messageId: number, imageIds: string[]): Promise<boolean> {
+		const isUpdated = await this.filesCommandRepository.updateMessageImages(messageId, imageIds);
+		if (!isUpdated) {
+			throw new UnexpectedErrorRpcException("Something went wrong while updating message images");
+		}
+		return isUpdated;
 	}
 
 	async deleteAvatarsByUserId(userId: string, avatars: AvatarImagesOutputDto): Promise<boolean> {

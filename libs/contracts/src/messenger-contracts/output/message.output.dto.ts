@@ -1,3 +1,4 @@
+import { MessageImgOutputDto } from "@libs/contracts/files-contracts/output/message-img.output.dto";
 import { ApiProperty } from "@nestjs/swagger";
 
 export class RoomUserOutputDto {
@@ -42,10 +43,10 @@ export class MessageOutputDto {
 	content: string;
 
 	@ApiProperty({
-		description: "Message media URL",
-		example: "https://example.com/media.jpg",
+		description: "Message media",
+		type: [MessageImgOutputDto],
 	})
-	mediaUrl: string | null;
+	media: MessageImgOutputDto[] | null;
 
 	@ApiProperty({
 		description: "Message created at",
@@ -65,8 +66,6 @@ export class MessageDBOutputDto {
 	id: number;
 	@ApiProperty({ description: "Message content", example: "Hello, how are you?" })
 	content: string;
-	@ApiProperty({ description: "Message media URL", example: "https://example.com/media.jpg" })
-	mediaUrl: string | null;
 	@ApiProperty({ description: "Message created at", example: "2021-01-01T00:00:00.000Z" })
 	createdAt: Date;
 	@ApiProperty({ description: "Message author ID", example: "123e4567-e89b-12d3-a456-426614174000" })

@@ -64,3 +64,5 @@ export * from "./messenger-contracts/input/create-room.input.dto";
 export * from "./messenger-contracts/input/create-message.input.dto";
 export * from "./messenger-contracts/output/room.output.dto";
 export * from "./messenger-contracts/output/message.output.dto";
+export * from "./messenger-contracts/output/upload-image.output.dto";
+export * from "./files-contracts/output/message-img.output.dto";

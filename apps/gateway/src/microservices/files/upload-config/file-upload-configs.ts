@@ -34,4 +34,16 @@ export class FileUploadConfigs {
 			{ type: FilesSizes.MEDIUM, width: "1024" },
 		],
 	};
+
+	static readonly MESSAGE_IMAGES: FileUploadOptionsDto = {
+		fieldName: "images",
+		folder: "messages",
+		maxFiles: 10,
+		allowedTypes: ["image/jpeg", "image/png"],
+		maxSize: 20 * 1024 * 1024, // 20MB
+		fileSizes: [
+			{ type: FilesSizes.SMALL, width: "360" },
+			{ type: FilesSizes.MEDIUM, width: "1024" },
+		],
+	};
 }

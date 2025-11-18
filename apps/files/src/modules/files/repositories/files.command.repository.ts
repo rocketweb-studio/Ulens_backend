@@ -2,7 +2,8 @@ import { Injectable } from "@nestjs/common";
 import { IFilesCommandRepository } from "@files/modules/files/files.interfaces";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { PrismaService } from "@files/core/prisma/prisma.service";
-import { Avatar } from "@files/core/prisma/generated/client";
+import { Avatar, Size } from "@files/core/prisma/generated/client";
+import { FileVersionInputDto } from "../dto/file-version.input.dto";
 
 @Injectable()
 export class PrismaFilesCommandRepository implements IFilesCommandRepository {
@@ -54,6 +55,28 @@ export class PrismaFilesCommandRepository implements IFilesCommandRepository {
 			return true;
 		}
 		return false;
+	}
+
+	async saveMessageImages(data: { roomId: number; versions: FileVersionInputDto[] }): Promise<string[]> {
+		const result = await this.prisma.messageImage.createManyAndReturn({
+			data: data.versions.map((version: FileVersionInputDto) => ({
+				roomId: data.roomId,
+				url: version.url,
+				width: version.width,
+				height: version.height,
+				fileSize: version.fileSize,
+				size: version.size as Size,
+			})),
+		});
+		return result.map((image) => image.id);
+	}
+
+	async updateMessageImages(messageId: number, imageIds: string[]): Promise<boolean> {
+		const result = await this.prisma.messageImage.updateMany({
+			where: { id: { in: imageIds } },
+			data: { messageId },
+		});
+		return result.count > 0;
 	}
 
 	async deleteAvatarsByUserId(userId: string): Promise<boolean> {

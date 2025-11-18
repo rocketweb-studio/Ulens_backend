@@ -72,4 +72,5 @@ export enum MessengerRouterPaths {
 	MESSENGER = "messenger",
 	ROOMS = "rooms",
 	MESSAGES = "rooms/:roomId/messages",
+	IMAGES = "rooms/:roomId/images",
 }

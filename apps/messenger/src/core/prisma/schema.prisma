@@ -33,7 +33,6 @@ model Message {
   roomId Int
   userId String
   content String
-	mediaUrl String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   deletedAt DateTime?

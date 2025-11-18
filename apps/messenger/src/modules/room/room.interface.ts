@@ -12,4 +12,5 @@ export abstract class IRoomQueryRepository {
 	abstract getRoomMessagesByRoomId(roomId: number): Promise<MessageDBOutputDto[]>;
 	abstract getRoomMessageById(messageId: number): Promise<MessageDBOutputDto | null>;
 	abstract getRoomUsersById(roomId: number): Promise<{ userId1: string; userId2: string }>;
+	abstract getRoomById(roomId: number): Promise<boolean>;
 }

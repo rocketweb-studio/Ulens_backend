@@ -46,4 +46,10 @@ export class RoomController {
 		const roomUsers = await this.roomQueryRepository.getRoomUsersById(dto.roomId);
 		return roomUsers;
 	}
+
+	@MessagePattern({ cmd: MessengerMessages.GET_ROOM_BY_ID })
+	async getRoomById(@Payload() dto: { roomId: number }): Promise<boolean> {
+		const room = await this.roomQueryRepository.getRoomById(dto.roomId);
+		return room;
+	}
 }

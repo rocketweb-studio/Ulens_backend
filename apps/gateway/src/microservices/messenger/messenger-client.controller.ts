@@ -1,14 +1,17 @@
-import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, HttpCode, HttpStatus, Param, Post, Req, UseGuards, UseInterceptors } from "@nestjs/common";
 import { MessengerClientService } from "./messenger-client.service";
 import { JwtAccessAuthGuard } from "@gateway/core/guards/jwt-access-auth.guard";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { MessengerRouterPaths } from "@libs/constants/index";
-import { CreateRoomInputDto, MessageOutputDto, PayloadFromRequestDto, RoomOutputDto } from "@libs/contracts/index";
+import { CreateRoomInputDto, MessageOutputDto, PayloadFromRequestDto, RoomOutputDto, UploadImageOutputDto } from "@libs/contracts/index";
 import { ApiTags } from "@nestjs/swagger";
 import { ApiTagsNames } from "@libs/constants/index";
 import { GetRoomsSwagger } from "@gateway/core/decorators/swagger/messenger/get-rooms.decorator";
 import { CreateRoomSwagger } from "@gateway/core/decorators/swagger/messenger/create-room.decorator";
 import { GetRoomMessagesSwagger } from "@gateway/core/decorators/swagger/messenger/get-room-messages.decorator";
+import { UploadMessageImagesSwagger } from "@gateway/core/decorators/swagger/messenger/upload-message-images.decorator";
+import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-file.interceptor";
+import { Request } from "express";
 
 @ApiTags(ApiTagsNames.MESSENGER)
 @Controller(MessengerRouterPaths.MESSENGER)
@@ -30,7 +33,7 @@ export class MessengerClientController {
 	async createRoom(
 		@ExtractUserFromRequest() user: PayloadFromRequestDto,
 		@Body() dto: CreateRoomInputDto,
-	): Promise<Omit<RoomOutputDto, "lastMessage" | "roomUser">> {
+	): Promise<Omit<RoomOutputDto, "lastMessage" | "roomUser" | "media">> {
 		const room = await this.messengerClientService.createRoom(user.userId, dto.targetUserId);
 		return room;
 	}
@@ -43,14 +46,15 @@ export class MessengerClientController {
 		return rooms;
 	}
 
-	//todo временное решение, дальше будет через вебсокет
-	// @Post("rooms/:roomId/messages")
-	// @HttpCode(HttpStatus.OK)
-	// async createRoomMessage(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Param("roomId") roomId: number, @Body() dto: CreateMessageInputDto): Promise<MessageOutputDto> {
-	// 	const messageId = await this.messengerClientService.createRoomMessage(roomId, user.userId, dto);
-	// 	//@ts-expect-error
-	// 	return messageId;
-	// }
+	@UploadMessageImagesSwagger()
+	@Post(MessengerRouterPaths.IMAGES)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(JwtAccessAuthGuard)
+	@UseInterceptors(StreamingFileInterceptor)
+	async uploadMessageImages(@Param("roomId") roomId: number, @Req() req: Request): Promise<UploadImageOutputDto> {
+		const result = await this.messengerClientService.uploadMessageImages(roomId, req);
+		return result;
+	}
 
 	//todo удалять чаты по ТЗ пока не требуется
 }

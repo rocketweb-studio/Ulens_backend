@@ -16,13 +16,15 @@ import { WsAuthGuard } from "@gateway/core/guards/ws-auth.guard";
 import { UseGuards } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { MessengerClientService } from "@gateway/microservices/messenger/messenger-client.service";
-import { MessageOutputDto } from "@libs/contracts/index";
+import { MessageImgOutputDto, MessageOutputDto } from "@libs/contracts/index";
+import { FilesClientService } from "@gateway/microservices/files/files-client.service";
 
 @WebSocketGateway({ namespace: "/ws", cors: true })
 export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnGatewayDisconnect {
 	constructor(
 		private readonly jwtService: JwtService,
 		private readonly messengerClientService: MessengerClientService,
+		private readonly filesClientService: FilesClientService,
 	) {}
 
 	@WebSocketServer() server: Server;
@@ -88,12 +90,23 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 
 	@UseGuards(WsAuthGuard)
 	@SubscribeMessage(WebsocketEvents.SEND_MESSAGE)
-	async handleMessageFromRoom(@ConnectedSocket() client: Socket, @MessageBody() payload: { roomId: number; content: string }) {
+	async handleMessageFromRoom(
+		@ConnectedSocket() client: Socket,
+		@MessageBody() payload: { roomId: number; content: string; media?: MessageImgOutputDto[] | null },
+	) {
 		console.log(`[WS] User ${client.userId} sent message to room ${payload.roomId}: ${payload.content}`);
-
+		console.log(payload.media);
 		// @ts-expect-error
 		const message = await this.messengerClientService.createRoomMessage(payload.roomId, client.userId, { content: payload.content });
-		await this.sendMessageToRoom(payload.roomId, message);
+
+		if (payload.media) {
+			await this.filesClientService.updateMessageImages(
+				message.id,
+				payload.media.map((image) => image.id),
+			);
+		}
+
+		await this.sendMessageToRoom(payload.roomId, { ...message, media: payload.media || null });
 	}
 
 	async sendMessageToRoom(roomId: number, message: MessageOutputDto) {

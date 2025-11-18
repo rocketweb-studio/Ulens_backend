@@ -7,7 +7,8 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AvatarInputDto } from "@files/modules/files/dto/avatar.input.dto";
 import { FilesService } from "@files/modules/files/files.service";
 import { IFilesQueryRepository } from "@files/modules/files/files.interfaces";
-import { AvatarImagesOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
+import { AvatarImagesOutputDto, MessageImgOutputDto, PostImagesOutputDto, PostImagesOutputForMapDto } from "@libs/contracts/index";
+import { FileVersionInputDto } from "./dto/file-version.input.dto";
 
 @Controller()
 // Контроллер для файлового сервиса
@@ -72,5 +73,24 @@ export class FilesController implements OnModuleInit, OnModuleDestroy {
 	async deleteAvatarsByUserId(userId: string): Promise<boolean> {
 		const avatars = await this.filesQueryRepository.getAvatarsByUserId(userId);
 		return this.filesService.deleteAvatarsByUserId(userId, avatars);
+	}
+
+	@MessagePattern({ cmd: FilesMessages.MESSAGE_IMAGES_UPLOAD })
+	async saveMessageImages(@Payload() data: { roomId: number; versions: FileVersionInputDto[] }): Promise<MessageImgOutputDto[]> {
+		const fileIds = await this.filesService.saveMessageImages(data);
+		const files = await this.filesQueryRepository.getFilesByIds(fileIds);
+		return files;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.UPDATE_MESSAGE_IMAGES })
+	async updateMessageImages(@Payload() data: { messageId: number; imageIds: string[] }): Promise<boolean> {
+		const isUpdated = await this.filesService.updateMessageImages(data.messageId, data.imageIds);
+		return isUpdated;
+	}
+
+	@MessagePattern({ cmd: FilesMessages.GET_MESSAGE_IMAGES_BY_MESSAGE_IDS })
+	async getMediasByMessageIds(messageIds: number[]): Promise<MessageImgOutputDto[]> {
+		const media = await this.filesQueryRepository.getMediasByMessageIds(messageIds);
+		return media;
 	}
 }

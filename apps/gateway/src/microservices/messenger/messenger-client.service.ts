@@ -6,6 +6,8 @@ import { MessengerMessages } from "@libs/constants/index";
 import { CreateMessageInputDto, MessageDBOutputDto, MessageOutputDto, RoomDBOutputDto, RoomOutputDto } from "@libs/contracts/index";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { FilesClientService } from "@gateway/microservices/files/files-client.service";
+import { Request } from "express";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class MessengerClientService {
@@ -20,10 +22,14 @@ export class MessengerClientService {
 		const roomUsersIds = rooms.map((room) => room.roomUserId);
 		const roomUsers = await this.profileClientService.getProfiles(roomUsersIds);
 		const avatars = await this.filesClientService.getAvatarsByUserIds(roomUsersIds);
+		const lastMessageMedia = await this.filesClientService.getMediasByMessageIds(rooms.map((room) => room.lastMessage.id));
 
 		return rooms.map((room) => ({
 			id: room.id,
-			lastMessage: room.lastMessage,
+			lastMessage: {
+				...room.lastMessage,
+				media: lastMessageMedia.filter((media) => media.messageId === room.lastMessage.id) || null,
+			},
 			roomUser: {
 				id: room.roomUserId,
 				userName: roomUsers.find((user) => user.id === room.roomUserId)?.userName || "",
@@ -34,7 +40,7 @@ export class MessengerClientService {
 		}));
 	}
 
-	async createRoom(userId: string, targetUserId: string): Promise<Omit<RoomOutputDto, "lastMessage" | "roomUser">> {
+	async createRoom(userId: string, targetUserId: string): Promise<Omit<RoomOutputDto, "lastMessage" | "roomUser" | "media">> {
 		const roomId = await firstValueFrom(this.client.send({ cmd: MessengerMessages.CREATE_ROOM }, { currentUserId: userId, targetUserId }));
 		return { id: roomId };
 	}
@@ -48,12 +54,13 @@ export class MessengerClientService {
 		}
 		const users = await this.profileClientService.getProfiles(usersIds);
 		const avatars = await this.filesClientService.getAvatarsByUserIds(usersIds);
+		const media = await this.filesClientService.getMediasByMessageIds(messages.map((message) => message.id));
 
 		return messages.map((message) => ({
 			id: message.id,
 			content: message.content,
-			mediaUrl: message.mediaUrl,
 			createdAt: message.createdAt,
+			media: media.filter((media) => media.messageId === message.id) || null,
 			author: {
 				id: users.find((user) => user.id === message.authorId)?.id || "",
 				userName: users.find((user) => user.id === message.authorId)?.userName || "",
@@ -64,7 +71,7 @@ export class MessengerClientService {
 		}));
 	}
 
-	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<MessageOutputDto> {
+	async createRoomMessage(roomId: number, userId: string, dto: CreateMessageInputDto): Promise<Omit<MessageOutputDto, "media">> {
 		const message: MessageDBOutputDto = await firstValueFrom(
 			this.client.send({ cmd: MessengerMessages.CREATE_ROOM_MESSAGE }, { roomId, userId, payload: dto }),
 		);
@@ -75,7 +82,6 @@ export class MessengerClientService {
 		return {
 			id: message.id,
 			content: message.content,
-			mediaUrl: message.mediaUrl,
 			createdAt: message.createdAt,
 			author: {
 				id: message.authorId,
@@ -90,5 +96,30 @@ export class MessengerClientService {
 	async getRoomUsersById(roomId: number): Promise<{ userId1: string; userId2: string }> {
 		const roomUsers = await firstValueFrom(this.client.send({ cmd: MessengerMessages.GET_ROOM_USERS_BY_ID }, { roomId }));
 		return roomUsers;
+	}
+
+	async uploadMessageImages(roomId: number, req: Request): Promise<any> {
+		const isRoomExists = await this.getRoomById(roomId);
+		if (!isRoomExists) {
+			throw new NotFoundRpcException("Room not found");
+		}
+		const result = await this.filesClientService.uploadMessageImages(roomId, req);
+		return result;
+		// const uploadResult = await this.streamClientService.streamFilesToService(req, FileUploadConfigs.POST_IMAGES);
+
+		// if (!uploadResult.success) {
+		// 	throw new BadRequestRpcException(uploadResult.errors?.join(", ") || "Images upload failed");
+		// }
+
+		// // Сохраняем информацию о всех изображениях в БД // todo ===========start=========== сделать это в микросервисе
+		// const dbResults = await Promise.all(uploadResult.files.map((file) => this.filesClientService.savePostImagesToDB(postId, file)));
+		// // todo ===========end===========
+		// // const post = await this.getPost(postId);
+		// return dbResults[dbResults.length - 1];
+	}
+
+	private async getRoomById(roomId: number): Promise<boolean> {
+		const isRoomExists: boolean = await firstValueFrom(this.client.send({ cmd: MessengerMessages.GET_ROOM_BY_ID }, { roomId }));
+		return isRoomExists;
 	}
 }

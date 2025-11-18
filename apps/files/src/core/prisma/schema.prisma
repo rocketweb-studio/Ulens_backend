@@ -41,6 +41,21 @@ model Post {
   @@map("posts")  
 }
 
+model MessageImage {
+  id String @id @default(uuid())
+	messageId Int?
+  roomId Int
+  url String
+  width Int
+  height Int
+  fileSize Int
+  size Size
+  createdAt DateTime @default(now())
+	deletedAt DateTime?
+
+  @@map("message_images")  
+}
+
 enum Size {
   small
   medium

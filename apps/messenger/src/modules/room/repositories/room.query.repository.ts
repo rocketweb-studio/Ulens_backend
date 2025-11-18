@@ -51,6 +51,13 @@ export class RoomQueryRepository implements IRoomQueryRepository {
 		return { userId1: room.userId1, userId2: room.userId2 };
 	}
 
+	async getRoomById(roomId: number): Promise<boolean> {
+		const room = await this.prisma.room.findUnique({
+			where: { id: roomId },
+		});
+		return !!room;
+	}
+
 	private _mapToOutput(room: Room & { messages: Message[] }, userId: string): RoomDBOutputDto {
 		return {
 			id: room.id,
@@ -63,7 +70,6 @@ export class RoomQueryRepository implements IRoomQueryRepository {
 		return {
 			id: message.id,
 			content: message.content,
-			mediaUrl: message.mediaUrl,
 			createdAt: message.createdAt,
 			authorId: message.userId,
 		};

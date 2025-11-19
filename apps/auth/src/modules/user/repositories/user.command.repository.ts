@@ -335,7 +335,7 @@ export class PrismaUserCommandRepository implements IUserCommandRepository {
 		await this.prisma.$transaction(async (tx) => [
 			await tx.follow.deleteMany({ where: { followerId: currentUserId, followingId: userId } }),
 			await this.outboxCommandRepository.createOutboxFollowEvent(tx, {
-				followingId: currentUserId,
+				followingId: userId,
 				followingUserName: followingProfile.userName,
 				followType: FollowType.UNFOLLOW,
 			}),

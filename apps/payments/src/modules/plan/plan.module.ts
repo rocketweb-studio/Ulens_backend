@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { PlanController } from "@payments/modules/plan/plan.controller";
 import { PlanService } from "@payments/modules/plan/plan.service";
-import { PrismaPlanCommandRepository } from "@payments/modules/plan/repositories/plan.command.repository";
+import { PrismaPlanCommandRepository } from "@payments/modules/plan/infrastructure/plan.command.repository";
 import { IPlanCommandRepository, IPlanQueryRepository } from "@payments/modules/plan/plan.interface";
-import { PrismaPlanQueryRepository } from "@payments/modules/plan/repositories/plan.query.repository";
+import { PrismaPlanQueryRepository } from "@payments/modules/plan/infrastructure/plan.query.repository";
 
 @Module({
 	imports: [],

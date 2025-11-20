@@ -2,8 +2,8 @@ import { Module } from "@nestjs/common";
 import { EventStoreModule } from "@main/modules/event-store/event-store.module";
 import { CommentService } from "./comment.service";
 import { ICommentCommandRepository, ICommentQueryRepository } from "./comment.interface";
-import { PrismaCommentCommandRepository } from "./repositiries/comment.command.repository";
-import { PrismaCommentQueryRepository } from "./repositiries/comment.query.repository";
+import { PrismaCommentCommandRepository } from "./infrastructure/comment.command.repository";
+import { PrismaCommentQueryRepository } from "./infrastructure/comment.query.repository";
 
 @Module({
 	imports: [EventStoreModule],

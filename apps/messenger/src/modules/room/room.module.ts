@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { RoomController } from "@messenger/modules/room/room.controller";
 import { RoomService } from "@messenger/modules/room/room.service";
-import { RoomCommandRepository } from "@messenger/modules/room/repositories/room.command.repository";
+import { RoomCommandRepository } from "@messenger/modules/room/infrastructure/room.command.repository";
 import { IRoomCommandRepository, IRoomQueryRepository } from "@messenger/modules/room/room.interface";
-import { RoomQueryRepository } from "@messenger/modules/room/repositories/room.query.repository";
+import { RoomQueryRepository } from "@messenger/modules/room/infrastructure/room.query.repository";
 
 @Module({
 	controllers: [RoomController],

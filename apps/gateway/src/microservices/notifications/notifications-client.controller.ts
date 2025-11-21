@@ -28,7 +28,7 @@ export class NotificationsClientController {
 	@Put("read")
 	@HttpCode(HttpStatus.NO_CONTENT)
 	async readNotification(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Body() dto: ReadNotificationInputDto): Promise<void> {
-		await this.notificationsClientService.readNotification(user.userId, dto.notificationId);
+		await this.notificationsClientService.readNotification(user.userId, dto.notificationIds);
 		return;
 	}
 }

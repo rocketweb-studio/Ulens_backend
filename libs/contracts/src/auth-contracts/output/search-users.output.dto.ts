@@ -21,6 +21,11 @@ export class ProfileSearchOutputDto {
 	createdAt: Date;
 }
 
+export class ProfileSearchOutputWithAvatarDto extends ProfileSearchOutputDto {
+	@ApiProperty({ description: "Avatar", example: "folder/image.jpg" })
+	avatar: string | null;
+}
+
 export class PageProfileInfoDto {
 	@ApiProperty({ description: "End cursor user id", example: "123e4567-e89b-12d3-a456-426614174000", required: false })
 	endCursorUserId?: string;
@@ -35,6 +40,17 @@ export class SearchUsersOutputDto {
 	pageSize: number;
 	@ApiProperty({ description: "Items", type: [ProfileSearchOutputDto] })
 	items: ProfileSearchOutputDto[];
+	@ApiProperty({ description: "Page info", type: PageProfileInfoDto })
+	pageInfo: PageProfileInfoDto;
+}
+
+export class SearchUsersOutputWithAvatarDto {
+	@ApiProperty({ description: "Total count", example: 100 })
+	totalCount: number;
+	@ApiProperty({ description: "Page size", example: 10 })
+	pageSize: number;
+	@ApiProperty({ description: "Items", type: [ProfileSearchOutputWithAvatarDto] })
+	items: ProfileSearchOutputWithAvatarDto[];
 	@ApiProperty({ description: "Page info", type: PageProfileInfoDto })
 	pageInfo: PageProfileInfoDto;
 }

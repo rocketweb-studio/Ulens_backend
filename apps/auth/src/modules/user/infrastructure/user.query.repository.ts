@@ -169,10 +169,10 @@ export class PrismaUserQueryRepository implements IUserQueryRepository {
 
 	async getUsersBySearch(dto: SearchUsersInputDto): Promise<SearchUsersOutputDto> {
 		const { endCursorUserId, pageSize, search } = dto;
-
-		if (!search) {
-			return this.helpers.buildPage(0, pageSize, []);
-		}
+		//* требуется по тз
+		// if (!search) {
+		// 	return this.helpers.buildPage(0, pageSize, []);
+		// }
 		if (!endCursorUserId) {
 			const [totalCount, rows] = await this.helpers.getFirstPage(
 				{ userName: { contains: search, mode: "insensitive" as Prisma.QueryMode }, deletedAt: null },

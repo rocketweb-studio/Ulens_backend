@@ -21,9 +21,9 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 		const { pageNumber = 1, pageSize = 10, sortBy = "createdAt", sortDirection = "desc" } = query;
 
 		const [totalCount, transactions] = await Promise.all([
-			this.prisma.transaction.count({ where: { userId } }),
+			this.prisma.transaction.count({ where: { userId, outboxFlowStatus: OUTBOX_STATUS.PROCESSED } }),
 			this.prisma.transaction.findMany({
-				where: { userId },
+				where: { userId, outboxFlowStatus: OUTBOX_STATUS.PROCESSED },
 				include: {
 					plan: true,
 				},
@@ -44,9 +44,9 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 	async getTransactionsByUserIds(userIds: string[], query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto> {
 		const { pageNumber, pageSize, sortBy, sortDirection } = query;
 		const [totalCount, transactions] = await Promise.all([
-			this.prisma.transaction.count({ where: { userId: { in: userIds } } }),
+			this.prisma.transaction.count({ where: { userId: { in: userIds }, outboxFlowStatus: OUTBOX_STATUS.PROCESSED } }),
 			this.prisma.transaction.findMany({
-				where: { userId: { in: userIds } },
+				where: { userId: { in: userIds }, outboxFlowStatus: OUTBOX_STATUS.PROCESSED },
 				include: { plan: true },
 				skip: (pageNumber - 1) * pageSize,
 				take: pageSize,
@@ -66,8 +66,9 @@ export class TransactionQueryRepository implements ITransactionQueryRepository {
 		const { pageNumber, pageSize, sortBy, sortDirection } = query;
 
 		const [totalCount, transactions] = await Promise.all([
-			this.prisma.transaction.count({ where: {} }),
+			this.prisma.transaction.count({ where: { outboxFlowStatus: OUTBOX_STATUS.PROCESSED } }),
 			this.prisma.transaction.findMany({
+				where: { outboxFlowStatus: OUTBOX_STATUS.PROCESSED },
 				include: { plan: true },
 				skip: (pageNumber - 1) * pageSize,
 				take: pageSize,

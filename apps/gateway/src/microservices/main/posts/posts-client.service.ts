@@ -76,8 +76,13 @@ export class PostsClientService {
 
 	async createPostComment(userId: string, dto: CreateCommentInputDto, postId: string): Promise<CommentOutputDto> {
 		const profile = await this.profileClientService.getProfile(userId);
+		const post = await this.getPost(postId);
+		if (!post) throw new NotFoundRpcException("Post not found");
 		const comment = await firstValueFrom(
-			this.mainClient.send({ cmd: MainMessages.CREATE_POST_COMMENT }, { userId, content: dto.content, postId, userName: profile.userName }),
+			this.mainClient.send(
+				{ cmd: MainMessages.CREATE_POST_COMMENT },
+				{ userId, content: dto.content, postId, userName: profile.userName, targerUser: { id: post.ownerId, userName: post.userName } },
+			),
 		);
 		const avatar = await this.filesClientService.getAvatarsByUserId(comment.userId);
 

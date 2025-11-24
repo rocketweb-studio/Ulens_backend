@@ -19,7 +19,7 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 				select: { id: true },
 			}),
 			await this.outboxCommandRepository.createOutboxCommentEvent(tx, {
-				userId: post.userId,
+				userId: dto.targerUser.id,
 				commentatorId: dto.userId,
 				commentatorUserName: dto.userName,
 				postId: post.id,

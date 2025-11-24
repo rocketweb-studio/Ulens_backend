@@ -3,4 +3,5 @@ export class CreatePostCommentInputDto {
 	content: string;
 	postId: string;
 	userName: string;
+	targerUser: { id: string; userName: string };
 }

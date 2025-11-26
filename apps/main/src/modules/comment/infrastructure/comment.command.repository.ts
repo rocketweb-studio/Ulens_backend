@@ -13,21 +13,27 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 	) {}
 
 	async createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string> {
-		const comment = await this.prisma.$transaction(async (tx) => [
-			await tx.comment.create({
+		const comment = await this.prisma.$transaction(async (tx) => {
+			const createdComment = await tx.comment.create({
 				data: { userId: dto.userId, postId: dto.postId, content: dto.content },
 				select: { id: true },
-			}),
-			await this.outboxCommandRepository.createOutboxCommentEvent(tx, {
-				userId: dto.targerUser.id,
-				commentatorId: dto.userId,
-				commentatorUserName: dto.userName,
-				postId: post.id,
-				postDescription: post.description,
-			}),
-		]);
+			});
 
-		return (comment[0] as { id: string }).id;
+			// Only create outbox event if user is not the post owner
+			if (dto.userId !== post.userId) {
+				await this.outboxCommandRepository.createOutboxCommentEvent(tx, {
+					userId: dto.targerUser.id,
+					commentatorId: dto.userId,
+					commentatorUserName: dto.userName,
+					postId: post.id,
+					postDescription: post.description,
+				});
+			}
+
+			return createdComment;
+		});
+
+		return comment.id;
 	}
 
 	async deleteDeletedComments(): Promise<void> {

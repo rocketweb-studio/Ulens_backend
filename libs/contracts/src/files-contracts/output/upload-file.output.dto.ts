@@ -1,4 +1,4 @@
-export class UploadFileOutputDto {
+export class UploadImageOutputDto {
 	readonly success: boolean;
 	readonly versions: {
 		url: string;
@@ -6,5 +6,12 @@ export class UploadFileOutputDto {
 		height: number;
 		fileSize: number;
 		size: string;
+	}[];
+}
+
+export class UploadAudioOutputDto {
+	readonly success: boolean;
+	readonly versions: {
+		url: string;
 	}[];
 }

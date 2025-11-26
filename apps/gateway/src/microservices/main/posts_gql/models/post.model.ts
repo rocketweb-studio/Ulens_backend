@@ -56,6 +56,8 @@ export class PostModel {
 	isLiked: boolean;
 	@Field(() => Boolean)
 	avatarWhoLikes: boolean;
+	@Field(() => Boolean)
+	isOwnerBlocked: boolean;
 }
 
 @ObjectType()

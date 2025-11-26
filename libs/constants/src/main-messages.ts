@@ -10,4 +10,11 @@ export enum MainMessages {
 	GET_LATEST_POSTS = "get_latest_posts",
 	GET_ALL_POSTS_FOR_ADMIN = "get_all_posts_for_admin",
 	GET_ALL_POSTS_FOR_ADMIN_BY_USER_IDS = "get_all_posts_for_admin_by_user_ids",
+	GET_FOLLOWINGS_POSTS = "get_followings_posts",
+	CREATE_POST_COMMENT = "create_post_comment",
+	GET_POST_COMMENTS = "get_post_comments",
+	GET_POSTS_COMMENTS_COUNT = "get_posts_comments_count",
+	LIKE_POST_OR_COMMENT = "like_post_or_comment",
+	GET_LIKES_BY_ITEM_ID = "get_likes_by_item_id",
+	GET_LIKES_BY_ITEM_IDS = "get_likes_by_item_ids",
 }

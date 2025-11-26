@@ -1,0 +1,53 @@
+import { Injectable } from "@nestjs/common";
+import { PrismaService } from "@main/core/prisma/prisma.service";
+import { ICommentCommandRepository } from "../comment.interface";
+import { CreatePostCommentInputDto } from "@main/modules/post/dto/create-post-comment.input.dto";
+import { IOutboxCommandRepository } from "@main/modules/event-store/outbox.interface";
+import { PostDbOutputDto } from "@libs/contracts/index";
+
+@Injectable()
+export class PrismaCommentCommandRepository implements ICommentCommandRepository {
+	constructor(
+		private readonly prisma: PrismaService,
+		private readonly outboxCommandRepository: IOutboxCommandRepository,
+	) {}
+
+	async createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string> {
+		const comment = await this.prisma.$transaction(async (tx) => {
+			const createdComment = await tx.comment.create({
+				data: { userId: dto.userId, postId: dto.postId, content: dto.content },
+				select: { id: true },
+			});
+
+			// Only create outbox event if user is not the post owner
+			if (dto.userId !== post.userId) {
+				await this.outboxCommandRepository.createOutboxCommentEvent(tx, {
+					userId: dto.targerUser.id,
+					commentatorId: dto.userId,
+					commentatorUserName: dto.userName,
+					postId: post.id,
+					postDescription: post.description,
+				});
+			}
+
+			return createdComment;
+		});
+
+		return comment.id;
+	}
+
+	async deleteDeletedComments(): Promise<void> {
+		const { count } = await this.prisma.comment.deleteMany({
+			where: { deletedAt: { not: null } },
+		});
+		console.log(`Deleted deleted comments: [${count}]`);
+	}
+
+	async softDeleteUserComments(userId: string): Promise<boolean> {
+		const { count } = await this.prisma.comment.updateMany({
+			where: { userId, deletedAt: null },
+			data: { deletedAt: new Date() },
+		});
+		return count === 1;
+	}
+}

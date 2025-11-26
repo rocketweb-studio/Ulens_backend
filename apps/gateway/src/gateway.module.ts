@@ -7,7 +7,8 @@ import { NotificationsClientModule } from "@gateway/microservices/notifications/
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
 import { PaymentsClientModule } from "@gateway/microservices/payments/payments-client.module";
 import { WebsocketModule } from "@gateway/websocket/websocket.module";
-import { GatewayRabbitModule } from "./gateway-rabbit/gateway-rabbit.module";
+import { GatewayRabbitModule } from "@gateway/gateway-rabbit/gateway-rabbit.module";
+import { MessengerClientModule } from "@gateway/microservices/messenger/messenger-client.module";
 
 @Module({
 	imports: [
@@ -19,6 +20,7 @@ import { GatewayRabbitModule } from "./gateway-rabbit/gateway-rabbit.module";
 		PaymentsClientModule,
 		WebsocketModule,
 		GatewayRabbitModule,
+		MessengerClientModule,
 	],
 	controllers: [],
 	providers: [],

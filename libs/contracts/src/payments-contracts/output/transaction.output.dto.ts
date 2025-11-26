@@ -41,7 +41,7 @@ export class TransactionOutputDto {
 	})
 	provider: PaymentProvidersEnum;
 	@ApiProperty({ description: "Expires at of the transaction", example: "2021-01-01T00:00:00.000Z" })
-	expiresAt: Date;
+	expiresAt: Date | null;
 
 	@ApiProperty({ description: "Interval of the transaction", example: "month" })
 	interval: PaymentIntervalEnum;

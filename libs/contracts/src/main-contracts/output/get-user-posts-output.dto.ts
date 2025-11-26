@@ -7,6 +7,8 @@ export class UserPostsPageDto {
 		description: string;
 		createdAt: Date; // ISO
 		updatedAt: Date; // ISO
+		likeCount: number;
+		isLiked: boolean;
 	}[];
 	pageInfo: {
 		endCursorPostId?: string;

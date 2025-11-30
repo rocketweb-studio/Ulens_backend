@@ -62,7 +62,7 @@ export class RoomQueryRepository implements IRoomQueryRepository {
 		return {
 			id: room.id,
 			roomUserId: [room.userId1, room.userId2].find((id) => id !== userId) as string,
-			lastMessage: this._mapMessageToOutput(room.messages[0]),
+			lastMessage: room.messages[0] ? this._mapMessageToOutput(room.messages[0]) : null,
 		};
 	}
 

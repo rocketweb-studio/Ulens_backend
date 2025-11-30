@@ -26,12 +26,13 @@ export class RoomOutputDto {
 	@ApiProperty({
 		description: "Room last message",
 		type: LastMessageOutputDto,
+		nullable: true,
 	})
-	lastMessage: LastMessageOutputDto;
+	lastMessage: LastMessageOutputDto | null;
 }
 
 export class RoomDBOutputDto {
 	id: number;
 	roomUserId: string;
-	lastMessage: MessageDBOutputDto;
+	lastMessage: MessageDBOutputDto | null;
 }

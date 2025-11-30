@@ -30,13 +30,17 @@ export class MessengerClientService {
 		const roomUsersIds = rooms.map((room) => room.roomUserId);
 		const roomUsers = await this.profileClientService.getProfiles(roomUsersIds);
 		const avatars = await this.filesClientService.getAvatarsByUserIds(roomUsersIds);
-		const lastMessageMedia = await this.filesClientService.getMediasByMessageIds(rooms.map((room) => room.lastMessage.id));
+		const roomsWithMessages = rooms.filter((room) => room.lastMessage !== null);
+		const lastMessageMedia =
+			roomsWithMessages.length > 0 ? await this.filesClientService.getMediasByMessageIds(roomsWithMessages.map((room) => room.lastMessage?.id ?? 0)) : [];
 		return rooms.map((room) => ({
 			id: room.id,
-			lastMessage: {
-				...room.lastMessage,
-				media: lastMessageMedia.filter((media) => media.messageId === room.lastMessage.id) || null,
-			},
+			lastMessage: room.lastMessage
+				? {
+						...room.lastMessage,
+						media: lastMessageMedia.filter((media) => media.messageId === (room.lastMessage?.id ?? 0)) || null,
+					}
+				: null,
 			roomUser: {
 				id: room.roomUserId,
 				userName: roomUsers.find((user) => user.id === room.roomUserId)?.userName || "",

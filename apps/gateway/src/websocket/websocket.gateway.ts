@@ -71,7 +71,7 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 		}
 	}
 
-	sendNotificationToUser(userId: string, dto: NotificationDto) {
+	sendNotificationToUser(userId: string, dto: NotificationDto & { metadata: any | null }) {
 		console.log("[GATEWAY][WS] send notification to room ", getRoomByUserId(userId));
 		try {
 			this.server.to(getRoomByUserId(userId)).emit(WebsocketEvents.NEW_NOTIFICATION, dto);

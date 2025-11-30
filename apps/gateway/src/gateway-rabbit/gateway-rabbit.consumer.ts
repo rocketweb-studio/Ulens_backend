@@ -40,6 +40,7 @@ export class GatewayRabbitConsumer implements OnApplicationBootstrap {
 						notificationId: number;
 						sentAt: Date;
 						readAt: Date | null;
+						metadata: any | null;
 					};
 					console.log(`[GATEWAY][RMQ] consumed event - ${RabbitMainQueues.GATEWAY_NOTIFICATION_SUBSCRIPTION_Q}`);
 					console.log("evt", evt);
@@ -50,6 +51,7 @@ export class GatewayRabbitConsumer implements OnApplicationBootstrap {
 						message: evt.message,
 						sentAt: evt.sentAt,
 						readAt: evt.readAt,
+						metadata: evt.metadata,
 					});
 
 					this.ch.ack(msg);

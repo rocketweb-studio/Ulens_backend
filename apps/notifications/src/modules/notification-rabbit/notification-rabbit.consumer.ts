@@ -88,6 +88,7 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 					sentAt: newNotification.sentAt,
 					readAt: newNotification.readAt,
 					scheduledAt: new Date(Date.now() + 30_000),
+					metadata: null,
 				});
 
 				await this.outboxService.createOutboxNotificationToPaymentsEvent({
@@ -125,6 +126,7 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 				sentAt: newNotification.sentAt,
 				readAt: newNotification.readAt,
 				scheduledAt: new Date(),
+				metadata: null,
 			});
 		});
 
@@ -161,6 +163,9 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 				sentAt: newNotification.sentAt,
 				readAt: newNotification.readAt,
 				scheduledAt: new Date(),
+				metadata: {
+					followingId: evt.followingId,
+				},
 			});
 		});
 
@@ -187,6 +192,9 @@ export class NotificationRabbitConsumer implements OnModuleInit {
 				sentAt: newNotification.sentAt,
 				readAt: newNotification.readAt,
 				scheduledAt: new Date(),
+				metadata: {
+					postId: evt.postId,
+				},
 			});
 		});
 	}

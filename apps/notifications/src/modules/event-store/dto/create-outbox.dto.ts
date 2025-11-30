@@ -8,6 +8,7 @@ export class CreateOutboxToGatewayDto {
 	notificationId: number;
 	sentAt: Date;
 	readAt: Date | null;
+	metadata: any | null;
 }
 
 export class CreateOutboxToPaymentsDto {

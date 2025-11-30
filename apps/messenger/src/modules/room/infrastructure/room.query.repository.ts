@@ -22,7 +22,7 @@ export class RoomQueryRepository implements IRoomQueryRepository {
 				},
 			},
 		});
-
+		console.log("rooms", rooms);
 		return rooms.map((room) => this._mapToOutput(room, userId));
 	}
 

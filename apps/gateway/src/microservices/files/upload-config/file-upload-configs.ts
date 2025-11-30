@@ -34,4 +34,25 @@ export class FileUploadConfigs {
 			{ type: FilesSizes.MEDIUM, width: "1024" },
 		],
 	};
+
+	static readonly MESSAGE_IMAGES: FileUploadOptionsDto = {
+		fieldName: "images",
+		folder: "messages",
+		maxFiles: 10,
+		allowedTypes: ["image/jpeg", "image/png"],
+		maxSize: 20 * 1024 * 1024, // 20MB
+		fileSizes: [
+			{ type: FilesSizes.SMALL, width: "360" },
+			{ type: FilesSizes.MEDIUM, width: "1024" },
+		],
+	};
+
+	static readonly MESSAGE_AUDIO: FileUploadOptionsDto = {
+		fieldName: "audio",
+		folder: "messages",
+		maxFiles: 1,
+		allowedTypes: ["audio/mp3", "audio/mpeg"],
+		maxSize: 20 * 1024 * 1024, // 20MB
+		fileSizes: [],
+	};
 }

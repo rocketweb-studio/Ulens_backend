@@ -1,6 +1,6 @@
 import { CreateOutBoxPremiumActivatedEventDto } from "@auth/modules/event-store/dto/create-outbox-premium-event.dto";
 import { CreateOutboxUserDeletedDto } from "@auth/modules/event-store/dto/create-outbox-user-deleted.dto";
-
+import { CreateOutboxFollowEventDto } from "@auth/modules/event-store/dto/create-outbox-follow.dto";
 export abstract class IOutboxCommandRepository {
 	abstract createOutboxPremiumActivatedEvent(dto: CreateOutBoxPremiumActivatedEventDto): Promise<string>;
 	abstract createOutboxUserDeletedEvent(tx: any, dto: CreateOutboxUserDeletedDto): Promise<string>;
@@ -8,4 +8,5 @@ export abstract class IOutboxCommandRepository {
 	abstract updateOutboxPendingEvent(id: string): Promise<any>;
 	abstract updateOutboxPublishedEvent(id: string): Promise<any>;
 	abstract updateOutboxFailedEvent(id: string, next: Date): Promise<any>;
+	abstract createOutboxFollowEvent(tx: any, dto: CreateOutboxFollowEventDto): Promise<string>;
 }

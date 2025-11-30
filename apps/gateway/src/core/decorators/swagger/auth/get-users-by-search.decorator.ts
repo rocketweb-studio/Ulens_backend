@@ -1,4 +1,4 @@
-import { SearchUsersOutputDto } from "@libs/contracts/index";
+import { SearchUsersOutputWithAvatarDto } from "@libs/contracts/index";
 import { applyDecorators } from "@nestjs/common";
 import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } from "@nestjs/swagger";
 
@@ -11,7 +11,7 @@ import { ApiBearerAuth, ApiOkResponse, ApiOperation, ApiUnauthorizedResponse } f
 export const GetUsersBySearchSwagger = () => {
 	const decorators = [
 		ApiOperation({ summary: "Get users by search" }),
-		ApiOkResponse({ description: "Successfully received users by search", type: SearchUsersOutputDto }),
+		ApiOkResponse({ description: "Successfully received users by search", type: SearchUsersOutputWithAvatarDto }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 		ApiBearerAuth(),
 	];

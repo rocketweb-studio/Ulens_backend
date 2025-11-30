@@ -64,7 +64,7 @@ export class PostQueryHelper {
 	 * - items      — маппим даты в ISO
 	 * - pageInfo   — курсор последнего элемента текущей страницы + флаг "есть ещё"
 	 */
-	buildPage(totalCount: number, pageSize: number, rows: Row[]): UserPostsPageDto {
+	buildPage(totalCount: number, pageSize: number, rows: (Row & { likeCount: number; isLiked: boolean })[]): UserPostsPageDto {
 		const endCursor = rows.length ? rows[rows.length - 1].id : undefined;
 		return {
 			totalCount,
@@ -75,6 +75,8 @@ export class PostQueryHelper {
 				description: r.description,
 				createdAt: r.createdAt,
 				updatedAt: r.updatedAt,
+				likeCount: r.likeCount,
+				isLiked: r.isLiked,
 			})),
 			pageInfo: {
 				endCursorPostId: endCursor,

@@ -25,8 +25,19 @@ export class TransactionController {
 		return this.transactionService.makePayment(dto.user, dto.payment, plan);
 	}
 
+	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_ID })
+	async getTransactionsByUserId(@Payload() dto: { userId: string; query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
+		const transactions = await this.transactionQueryRepository.getTransactionsByUserId(dto.userId, dto.query);
+		return transactions;
+	}
+
+	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS_BY_USER_IDS })
+	async getTransactionsByUserIds(@Payload() dto: { userIds: string[]; query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
+		return this.transactionQueryRepository.getTransactionsByUserIds(dto.userIds, dto.query);
+	}
+
 	@MessagePattern({ cmd: PaymentsMessages.GET_TRANSACTIONS })
-	async getTransactions(@Payload() dto: { userId: string; query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
-		return this.transactionQueryRepository.getTransactions(dto.userId, dto.query);
+	async getTransactions(@Payload() dto: { query: PaginationWithSortQueryDto }): Promise<TransactionWithPageInfoOutputDto> {
+		return this.transactionQueryRepository.getTransactions(dto.query);
 	}
 }

@@ -1,7 +1,7 @@
 import { Module } from "@nestjs/common";
 import { ClientsModule, Transport } from "@nestjs/microservices";
 import { AuthClientEnvConfig } from "@gateway/microservices/auth/auth-client.config";
-import { AuthClientController } from "@gateway/microservices/auth/controllers/auth-client.controller";
+import { AuthClientController } from "@gateway/microservices/auth/api/auth-client.controller";
 import { AuthClientService } from "@gateway/microservices/auth/auth-client.service";
 import { Microservice } from "@libs/constants/microservices";
 import { NotificationsClientModule } from "@gateway/microservices/notifications/notifications-client.module";
@@ -10,7 +10,7 @@ import { ThrottlerModule } from "@nestjs/throttler";
 import { GoogleStrategy } from "@gateway/core/guards/google/google.strategy";
 import { CoreEnvConfig } from "@gateway/core/core.config";
 import { GithubStrategy } from "@gateway/core/guards/github/github.strategy";
-import { AuthClientOAuthController } from "@gateway/microservices/auth/controllers/oauth.auth-client.controller";
+import { AuthClientOAuthController } from "@gateway/microservices/auth/api/oauth.auth-client.controller";
 import { ProfileAuthClientController } from "@gateway/microservices/auth/profile/profile-auth-client.controller";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { FilesClientModule } from "@gateway/microservices/files/files-client.module";
@@ -78,6 +78,6 @@ import { UsersClientService } from "./users/users-client.service";
 		UsersGqlClientService,
 		UsersClientService,
 	],
-	exports: [ProfileAuthClientService, AuthClientService],
+	exports: [ProfileAuthClientService, AuthClientService, UsersClientService],
 })
 export class AuthClientModule {}

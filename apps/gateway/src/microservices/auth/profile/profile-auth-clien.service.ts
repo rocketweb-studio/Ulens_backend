@@ -7,7 +7,7 @@ import { StreamClientService } from "@gateway/microservices/files/stream-client.
 import { AuthMessages, Microservice } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import { firstValueFrom } from "rxjs";
-import { ProfileInputDto, ProfileOutputDto, ProfileOutputWithAvatarDto } from "@libs/contracts/index";
+import { ProfileInputDto, ProfileOutputDto, ProfileOutputWithAvatarDto, ProfileOutputForMapDto } from "@libs/contracts/index";
 import { MainMessages } from "@libs/constants/index";
 
 @Injectable()
@@ -19,8 +19,8 @@ export class ProfileAuthClientService {
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 	) {}
 
-	async getProfile(userId: string): Promise<ProfileOutputWithAvatarDto> {
-		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId }));
+	async getProfile(userId: string, authorizedCurrentUserId: string | null = null): Promise<ProfileOutputWithAvatarDto> {
+		const profile = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILE }, { userId, authorizedCurrentUserId }));
 		const avatars = await this.filesClientService.getAvatarsByUserId(userId);
 		const postsCount = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS_COUNT }, { userId }));
 
@@ -28,18 +28,16 @@ export class ProfileAuthClientService {
 			...profile,
 			avatars,
 			publicationsCount: postsCount,
-			followers: 0,
-			following: 0,
 		};
 	}
 
-	async getProfiles(userIds: string[]): Promise<ProfileOutputDto[]> {
-		const profiles: ProfileOutputWithAvatarDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES }, { userIds }));
+	async getProfiles(userIds: string[]): Promise<ProfileOutputForMapDto[]> {
+		const profiles: ProfileOutputForMapDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES }, { userIds }));
 		return profiles;
 	}
 
-	async getProfilesByUserName(userName: string): Promise<ProfileOutputDto[]> {
-		const profiles: ProfileOutputWithAvatarDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME }, { userName }));
+	async getProfilesByUserName(userName: string): Promise<ProfileOutputForMapDto[]> {
+		const profiles: ProfileOutputForMapDto[] = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME }, { userName }));
 		return profiles;
 	}
 

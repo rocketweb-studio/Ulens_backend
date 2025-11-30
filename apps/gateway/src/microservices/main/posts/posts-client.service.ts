@@ -8,20 +8,26 @@ import { firstValueFrom } from "rxjs";
 import { GraphqlPubSubMessages, MainMessages, Microservice, PUB_SUB_GQL } from "@libs/constants/index";
 import { ClientProxy } from "@nestjs/microservices";
 import {
+	AvatarImagesOutputDto,
+	CommentOutputDto,
+	CreateCommentInputDto,
 	CreatePostOutputDto,
+	GetFollowingsPostsQueryDto,
 	GetUserPostsQueryDto,
+	LikedItemType,
+	LikePostOrCommentInputDto,
+	LikePostOrCommentOutputDto,
 	PostDbOutputDto,
 	PostImagesOutputForMapDto,
 	ProfileOutputWithAvatarDto,
 	UpdatePostDto,
 } from "@libs/contracts/index";
 import { UserPostsPageDto } from "@libs/contracts/index";
-import { toPostIdArray } from "@gateway/utils/mappers/to-postId-array";
-// import { mapToUserPostsOutput } from "@gateway/utils/mappers/to-user-posts-output.dto";
 import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contracts/output/user-posts-output.dto";
 import { ProfileAuthClientService } from "@gateway/microservices/auth/profile/profile-auth-clien.service";
 import { GetAdminPostsInput, GetAdminPostsInputWithUserIds } from "../posts_gql/inputs/get-admin-posts.input";
 import { RedisPubSub } from "graphql-redis-subscriptions";
+import { UsersClientService } from "@gateway/microservices/auth/users/users-client.service";
 
 @Injectable()
 export class PostsClientService {
@@ -30,6 +36,7 @@ export class PostsClientService {
 		private readonly filesClientService: FilesClientService,
 		@Inject(Microservice.MAIN) private readonly mainClient: ClientProxy,
 		private readonly profileClientService: ProfileAuthClientService,
+		private readonly usersClientService: UsersClientService,
 		@Inject(PUB_SUB_GQL) private readonly pubSub: RedisPubSub,
 	) {}
 
@@ -67,30 +74,38 @@ export class PostsClientService {
 		return result;
 	}
 
-	async getUserPosts(userId: string, query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
-		const posts: UserPostsPageDto = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query }));
-		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(userId);
-		const postIds = toPostIdArray(posts);
-
-		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+	async createPostComment(userId: string, dto: CreateCommentInputDto, postId: string): Promise<CommentOutputDto> {
+		const profile = await this.profileClientService.getProfile(userId);
+		const post = await this.getPost(postId);
+		if (!post) throw new NotFoundRpcException("Post not found");
+		const comment = await firstValueFrom(
+			this.mainClient.send(
+				{ cmd: MainMessages.CREATE_POST_COMMENT },
+				{ userId, content: dto.content, postId, userName: profile.userName, targerUser: { id: post.ownerId, userName: post.userName } },
+			),
+		);
+		const avatar = await this.filesClientService.getAvatarsByUserId(comment.userId);
 
 		return {
-			totalCount: posts.totalCount,
-			pageSize: posts.pageSize,
-			items: posts.items.map((post) =>
-				this.buildPostOutput(
-					post,
-					profile,
-					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
-				),
-			),
-			pageInfo: {
-				endCursorPostId: posts.pageInfo.endCursorPostId,
-				hasNextPage: posts.pageInfo.hasNextPage,
+			id: comment.id,
+			postId: comment.postId,
+			content: comment.content,
+			createdAt: comment.createdAt,
+			likeCount: 0,
+			isLiked: false,
+			commentator: {
+				id: profile.id,
+				username: profile.userName,
+				avatar: avatar?.small?.url || null,
 			},
 		};
+	}
 
-		// return mapToUserPostsOutput(posts, profile, postsImages);
+	async likePostOrComment(userId: string, dto: LikePostOrCommentInputDto): Promise<LikePostOrCommentOutputDto> {
+		await firstValueFrom(this.mainClient.send({ cmd: MainMessages.LIKE_POST_OR_COMMENT }, { userId, ...dto }));
+		return {
+			success: true,
+		};
 	}
 
 	async getAllPostsForAdmin(input: GetAdminPostsInput): Promise<UserPostsPageDto> {
@@ -103,19 +118,89 @@ export class PostsClientService {
 		return posts;
 	}
 
-	async getPost(postId: string): Promise<PostOutputDto> {
-		const post = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST }, { postId }));
-		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(post.userId);
+	//todo infinity scroll for correct view
+	async getPostComments(authorizedCurrentUserId: string | null, postId: string): Promise<CommentOutputDto[]> {
+		const comments = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST_COMMENTS }, { userId: authorizedCurrentUserId, postId }));
+		const userIds = comments.map((comment) => comment.userId);
+		const profiles = await this.profileClientService.getProfiles(userIds);
+		const avatars = await this.filesClientService.getAvatarsByUserIds(userIds);
+		return comments.map((comment) => ({
+			id: comment.id,
+			postId: comment.postId,
+			content: comment.content,
+			createdAt: comment.createdAt,
+			likeCount: comment.likeCount,
+			isLiked: comment.isLiked,
+			commentator: {
+				id: profiles.find((profile) => profile.id === comment.userId)?.id || "",
+				username: profiles.find((profile) => profile.id === comment.userId)?.userName || "",
+				avatar: avatars.find((avatar) => avatar.userId === comment.userId)?.avatars.small?.url || null,
+			},
+		}));
+	}
+	//!
+	async getUserPosts(userId: string, query: GetUserPostsQueryDto, authorizedCurrentUserId: string | null = null): Promise<UserPostsOutputDto> {
+		const posts: UserPostsPageDto = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_USER_POSTS }, { userId, ...query, authorizedCurrentUserId }),
+		);
+		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(userId);
+		const postIds = posts.items.map((post) => post.id);
+		const usersWhoLikedIds: { postId: string; users: string[] }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_LIKES_BY_ITEM_IDS }, { likedItemType: LikedItemType.POST, likedItemIds: postIds }),
+		);
+		const userAvatarsWhoLiked: { userId: string; avatars: AvatarImagesOutputDto }[] = await this.filesClientService.getAvatarsByUserIds(
+			usersWhoLikedIds.flatMap((user) => user.users),
+		);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+
+		return {
+			totalCount: posts.totalCount,
+			pageSize: posts.pageSize,
+			items: posts.items.map((post) =>
+				this.buildPostOutput(
+					post,
+					profile,
+					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+					null,
+					userAvatarsWhoLiked.filter((user) => usersWhoLikedIds.find((liked) => liked.postId === post.id)?.users.includes(user.userId)),
+				),
+			),
+			pageInfo: {
+				endCursorPostId: posts.pageInfo.endCursorPostId,
+				hasNextPage: posts.pageInfo.hasNextPage,
+			},
+		};
+
+		// return mapToUserPostsOutput(posts, profile, postsImages);
+	}
+	//!
+	async getPost(postId: string, authorizedCurrentUserId: string | null = null): Promise<PostOutputDto> {
+		const post = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST }, { postId, authorizedCurrentUserId }));
+		const usersWhoLikedIds: { userId: string }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_LIKES_BY_ITEM_ID }, { likedItemType: LikedItemType.POST, likedItemId: postId }),
+		);
+		const userAvatarsWhoLiked: { userId: string; avatars: AvatarImagesOutputDto }[] = await this.filesClientService.getAvatarsByUserIds(
+			usersWhoLikedIds.map((user) => user.userId),
+		);
+		const profile: ProfileOutputWithAvatarDto = await this.profileClientService.getProfile(post.userId, authorizedCurrentUserId);
 		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages([postId]);
 
-		return this.buildPostOutput(post, profile, postsImages);
+		return this.buildPostOutput(post, profile, postsImages, null, userAvatarsWhoLiked);
 	}
-
-	async getLatestPosts(): Promise<PostOutputDto[]> {
-		const posts: PostDbOutputDto[] = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_LATEST_POSTS }, { pageSize: 5 }));
+	//!
+	async getLatestPosts(authorizedCurrentUserId: string | null = null): Promise<PostOutputDto[]> {
+		const posts: PostDbOutputDto[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_LATEST_POSTS }, { pageSize: 5, authorizedCurrentUserId }),
+		);
 
 		const profiles = await Promise.all(posts.map((post) => this.profileClientService.getProfile(post.userId)));
 		const postIds = posts.map((post) => post.id);
+		const usersWhoLikedIds: { postId: string; users: string[] }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_LIKES_BY_ITEM_IDS }, { likedItemType: LikedItemType.POST, likedItemIds: postIds }),
+		);
+		const userAvatarsWhoLiked: { userId: string; avatars: AvatarImagesOutputDto }[] = await this.filesClientService.getAvatarsByUserIds(
+			usersWhoLikedIds.flatMap((user) => user.users),
+		);
 		const postsImages = await this.filesClientService.getPostImages(postIds);
 
 		return posts.map((post) => {
@@ -127,11 +212,61 @@ export class PostsClientService {
 				post,
 				profile,
 				postsImages.filter((img) => img.parentId === post.id),
+				null,
+				userAvatarsWhoLiked.filter((user) => usersWhoLikedIds.find((liked) => liked.postId === post.id)?.users.includes(user.userId)),
 			);
 		});
 	}
+	//!
+	async getFollowingsPosts(userId: string, query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
+		const followings = await this.usersClientService.getAllFollowings(userId);
+		const followingsIds = followings.map((following) => following.id);
 
-	private buildPostOutput(post: PostDbOutputDto, profile: ProfileOutputWithAvatarDto, postImages: PostImagesOutputForMapDto[]): PostOutputDto {
+		const posts: UserPostsPageDto = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_FOLLOWINGS_POSTS }, { followingsIds, query, authorizedCurrentUserId: userId }),
+		);
+		const postIds = posts.items.map((post) => post.id);
+		const usersWhoLikedIds: { postId: string; users: string[] }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_LIKES_BY_ITEM_IDS }, { likedItemType: LikedItemType.POST, likedItemIds: postIds }),
+		);
+		const userAvatarsWhoLiked: { userId: string; avatars: AvatarImagesOutputDto }[] = await this.filesClientService.getAvatarsByUserIds(
+			usersWhoLikedIds.flatMap((user) => user.users),
+		);
+		const postsImages: PostImagesOutputForMapDto[] = await this.filesClientService.getPostImages(postIds);
+		const commentsCount: { postId: string; commentsCount: number }[] = await firstValueFrom(
+			this.mainClient.send({ cmd: MainMessages.GET_POSTS_COMMENTS_COUNT }, { postIds }),
+		);
+
+		return {
+			totalCount: posts.totalCount,
+			pageSize: posts.pageSize,
+			items: posts.items.map((post) => {
+				const profile = followings.find((following) => following.id === post.userId);
+				if (!profile) {
+					throw new NotFoundRpcException(`Profile not found for user ${post.userId}`);
+				}
+				return this.buildPostOutput(
+					post,
+					profile,
+					postsImages.filter((img) => img.parentId === post.id).sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()),
+					commentsCount.find((comment) => comment.postId === post.id)?.commentsCount || 0,
+					userAvatarsWhoLiked.filter((user) => usersWhoLikedIds.find((liked) => liked.postId === post.id)?.users.includes(user.userId)),
+				);
+			}),
+			pageInfo: {
+				endCursorPostId: posts.pageInfo.endCursorPostId,
+				hasNextPage: posts.pageInfo.hasNextPage,
+			},
+		};
+	}
+
+	private buildPostOutput(
+		post: PostDbOutputDto,
+		profile: ProfileOutputWithAvatarDto,
+		postImages: PostImagesOutputForMapDto[],
+		commentsCount: number | null,
+		userAvatarsWhoLiked: { userId: string; avatars: AvatarImagesOutputDto }[],
+	): PostOutputDto {
 		return {
 			id: post.id,
 			userName: profile.userName,
@@ -172,9 +307,14 @@ export class PostsClientService {
 				firstName: profile.firstName,
 				lastName: profile.lastName,
 			},
-			likeCount: 0,
-			isLiked: false,
-			avatarWhoLikes: false,
+			isFollowed: profile.isFollowed,
+			likeCount: post.likeCount,
+			isLiked: post.isLiked,
+			avatarWhoLikes: userAvatarsWhoLiked.map((user) => ({
+				userId: user.userId,
+				avatars: user.avatars,
+			})),
+			commentsCount: commentsCount,
 		};
 	}
 }

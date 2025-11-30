@@ -8,6 +8,9 @@ import { LoginAdminInput } from "@gateway/microservices/auth/users_gql/inputs/lo
 import { LoginAdminModel } from "@gateway/microservices/auth/users_gql/models/login-admin.model";
 import { GqlJwtAuthGuard } from "@gateway/core/guards/gql-jwt-auth.guard";
 import { UseGuards } from "@nestjs/common";
+import { GetFollowInput } from "./inputs/get-follow.input";
+import { FollowersResponse } from "./models/followers.model";
+import { FollowingsResponse } from "./models/followings.model";
 @Resolver("Users")
 export class UsersGqlResolver {
 	constructor(private readonly usersGqlClientService: UsersGqlClientService) {}
@@ -16,6 +19,18 @@ export class UsersGqlResolver {
 	@Query(() => UsersResponse, { name: "getUsers" })
 	async getUsers(@Args("input") input: GetUsersInput) {
 		return this.usersGqlClientService.getUsers(input);
+	}
+
+	@UseGuards(GqlJwtAuthGuard)
+	@Query(() => FollowersResponse, { name: "getUserFollowers" })
+	async getUserFollowers(@Args("input") input: GetFollowInput) {
+		return this.usersGqlClientService.getUserFollowers(input);
+	}
+
+	@UseGuards(GqlJwtAuthGuard)
+	@Query(() => FollowingsResponse, { name: "getUserFollowings" })
+	async getUserFollowings(@Args("input") input: GetFollowInput) {
+		return this.usersGqlClientService.getUserFollowings(input);
 	}
 
 	@UseGuards(GqlJwtAuthGuard)

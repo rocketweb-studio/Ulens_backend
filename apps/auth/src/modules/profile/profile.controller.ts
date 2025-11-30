@@ -3,7 +3,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { AuthMessages } from "@libs/constants/index";
 import { IProfileQueryRepository } from "@auth/modules/profile/profile.interfaces";
 import { ProfileInputDto } from "@libs/contracts/index";
-import { ProfileOutputDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
+import { ProfileOutputDto, ProfileOutputForMapDto } from "@libs/contracts/auth-contracts/output/profile.output.dto";
 import { ProfileService } from "@auth/modules/profile/profile.service";
 
 @Controller()
@@ -14,24 +14,24 @@ export class ProfileController {
 	) {}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILE })
-	async getProfile(@Payload() payload: { userId: string }): Promise<ProfileOutputDto> {
-		return await this.profileQueryRepository.getProfileByUserId(payload.userId);
+	async getProfile(@Payload() payload: { userId: string; authorizedCurrentUserId: string | null }): Promise<ProfileOutputDto> {
+		return await this.profileQueryRepository.getProfileByUserId(payload.userId, payload.authorizedCurrentUserId);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES })
-	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<ProfileOutputDto[]> {
+	async getProfiles(@Payload() payload: { userIds: string[] }): Promise<ProfileOutputForMapDto[]> {
 		return await this.profileQueryRepository.getProfiles(payload.userIds);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.GET_PROFILES_BY_USER_NAME })
-	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<ProfileOutputDto[]> {
+	async getProfilesByUserName(@Payload() payload: { userName: string }): Promise<ProfileOutputForMapDto[]> {
 		return await this.profileQueryRepository.getProfilesByUserName(payload.userName);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.UPDATE_PROFILE })
 	async updateProfile(@Payload() payload: { userId: string; dto: ProfileInputDto }): Promise<ProfileOutputDto> {
 		const profileUserId = await this.profileService.updateProfile(payload.userId, payload.dto);
-		return await this.profileQueryRepository.getProfileByUserId(profileUserId);
+		return await this.profileQueryRepository.getProfileByUserId(profileUserId, null);
 	}
 
 	@MessagePattern({ cmd: AuthMessages.DELETE_PROFILE })

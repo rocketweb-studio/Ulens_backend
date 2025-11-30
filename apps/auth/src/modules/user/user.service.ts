@@ -19,7 +19,7 @@ import { LoginOutputDto } from "@auth/modules/user/dto/login.output.dto";
 import { randomUUID } from "crypto";
 import { SessionService } from "@auth/modules/session/session.service";
 import { add } from "date-fns";
-import { BadRequestRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
+import { BadRequestRpcException, NotFoundRpcException, UnexpectedErrorRpcException } from "@libs/exeption/index";
 import { RegistrationOutputDto } from "@auth/modules/user/dto/registration.output.dto";
 import { UserDbInputDto } from "@auth/modules/user/dto/user-db.input.dto";
 import { ConfirmationCodeInputRepoDto } from "@auth/modules/user/dto/confirm-repo.input.dto";
@@ -34,7 +34,8 @@ import { UserOutputRepoDto } from "@auth/modules/user/dto/user-repo.ouptut.dto";
 import { RefreshDecodedDto } from "@auth/modules/user/dto/refresh-decoded.dto";
 import { RedisService } from "@libs/redis/redis.service";
 import { PremiumInputDto } from "@auth/modules/user/dto/premium.input.dto";
-import { OutboxService } from "@auth/modules/event-store/outbox.service";
+import { FollowInputDto } from "./dto/follow.input.dto";
+import { FollowType } from "@libs/constants/index";
 
 @Injectable()
 export class UserService {
@@ -45,7 +46,6 @@ export class UserService {
 		private readonly sessionService: SessionService,
 		private readonly blacklistService: BlacklistService,
 		private readonly redisService: RedisService,
-		private readonly outboxService: OutboxService,
 	) {}
 
 	async createUser(dto: CreateUserDto): Promise<RegistrationOutputDto> {
@@ -299,7 +299,26 @@ export class UserService {
 	}
 
 	async setBlockStatusForUser(userId: string, isBlocked: boolean, reason: string | null): Promise<boolean> {
-		return this.userCommandRepository.setBlockStatusForUser(userId, isBlocked, reason);
+		return await this.userCommandRepository.setBlockStatusForUser(userId, isBlocked, reason);
+	}
+
+	async manageFollowing(payload: FollowInputDto): Promise<boolean> {
+		//todo add rabbit message for notification? now its handled in the command repository
+		const { currentUserId, userId, followType } = payload;
+		const user = await this.userCommandRepository.findUserById(userId);
+		if (!user) throw new NotFoundRpcException("User not found");
+
+		if (followType === FollowType.FOLLOW) {
+			return await this.userCommandRepository.follow(currentUserId, userId);
+		}
+		if (followType === FollowType.UNFOLLOW) {
+			return await this.userCommandRepository.unfollow(currentUserId, userId);
+		}
+		if (currentUserId === userId) {
+			throw new BadRequestRpcException("You cannot follow or unfollow yourself");
+		}
+
+		throw new BadRequestRpcException("Invalid follow type");
 	}
 
 	@Cron(CronExpression.EVERY_DAY_AT_MIDNIGHT)

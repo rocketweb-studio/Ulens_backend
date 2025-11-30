@@ -3,3 +3,4 @@ CREATE DATABASE main;
 CREATE DATABASE files;
 CREATE DATABASE notifications;
 CREATE DATABASE payments;
+CREATE DATABASE messenger;

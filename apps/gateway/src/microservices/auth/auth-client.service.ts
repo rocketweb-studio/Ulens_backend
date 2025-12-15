@@ -127,6 +127,10 @@ export class AuthClientService implements IAuthClientService {
 			expiresIn: this.authEnvConfig.accessTokenExpirationTime as any,
 			secret: this.authEnvConfig.accessTokenSecret,
 		});
+		const deviceId = payloadForJwt.deviceId;
+		await this.redisService.set(`access_token:${deviceId}`, JSON.stringify({ ...payloadForJwt, accessToken }), "EX", 5 * 60 * 1000);
+		const savedData = await this.redisService.get(`access_token:${deviceId}`);
+		console.log("Saved data in redis: ", savedData);
 
 		return { accessToken, refreshToken };
 	}

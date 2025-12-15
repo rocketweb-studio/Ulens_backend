@@ -28,9 +28,12 @@ export class JwtAccessAuthGuard implements CanActivate {
 
 		try {
 			const payload = this.jwtService.verify(token);
-
-			const accessToken = await this.redisService.get(`access_token:${payload.deviceId}`);
-			if (accessToken !== token) {
+			const savedData = await this.redisService.get(`access_token:${payload.deviceId}`);
+			if (!savedData) {
+				throw new UnauthorizedRpcException("Token not found in redis");
+			}
+			const parsedSavedData = JSON.parse(savedData as string);
+			if (parsedSavedData.accessToken !== token) {
 				throw new UnauthorizedRpcException("Token not found in redis");
 			}
 			request["user"] = payload;

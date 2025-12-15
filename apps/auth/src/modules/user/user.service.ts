@@ -237,7 +237,7 @@ export class UserService {
 		};
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
+			expiresIn: this.userEnvConfig.refreshTokenExpirationTime as any,
 			secret: this.userEnvConfig.refreshTokenSecret,
 		});
 
@@ -280,7 +280,7 @@ export class UserService {
 		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt), "EX", 60 * 60 * 1000);
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
+			expiresIn: this.userEnvConfig.refreshTokenExpirationTime as any,
 			secret: this.userEnvConfig.refreshTokenSecret,
 		});
 

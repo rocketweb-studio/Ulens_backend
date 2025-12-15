@@ -237,7 +237,6 @@ export class UserService {
 		};
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			//@ts-expect-error
 			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
 			secret: this.userEnvConfig.refreshTokenSecret,
 		});
@@ -281,7 +280,6 @@ export class UserService {
 		await this.redisService.set(deviceId, JSON.stringify(payloadForJwt), "EX", 60 * 60 * 1000);
 
 		const refreshToken = await this.jwtService.signAsync(payloadForJwt, {
-			//@ts-expect-error
 			expiresIn: this.userEnvConfig.refreshTokenExpirationTime,
 			secret: this.userEnvConfig.refreshTokenSecret,
 		});

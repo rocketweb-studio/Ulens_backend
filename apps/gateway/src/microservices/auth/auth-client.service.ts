@@ -104,7 +104,7 @@ export class AuthClientService implements IAuthClientService {
 	async login(loginDto: LoginDto, metadata: SessionMetadataDto): Promise<{ accessToken: string; refreshToken: string }> {
 		const { refreshToken, payloadForJwt } = await firstValueFrom(this.client.send({ cmd: AuthMessages.LOGIN }, { loginDto, metadata }));
 		const accessToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.authEnvConfig.accessTokenExpirationTime,
+			expiresIn: this.authEnvConfig.accessTokenExpirationTime as string,
 			secret: this.authEnvConfig.accessTokenSecret,
 		});
 		const deviceId = payloadForJwt.deviceId;
@@ -124,7 +124,7 @@ export class AuthClientService implements IAuthClientService {
 		);
 
 		const accessToken = await this.jwtService.signAsync(payloadForJwt, {
-			expiresIn: this.authEnvConfig.accessTokenExpirationTime,
+			expiresIn: this.authEnvConfig.accessTokenExpirationTime as string,
 			secret: this.authEnvConfig.accessTokenSecret,
 		});
 

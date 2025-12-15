@@ -40,12 +40,17 @@ export class PrismaSessionCommandRepository implements ISessionCommandRepository
 		});
 	}
 
-	async deleteOtherSessions(userId: string, deviceId: string): Promise<boolean> {
-		const result = await this.prisma.session.updateMany({
+	async deleteOtherSessions(userId: string, deviceId: string): Promise<string[]> {
+		const otherSessions = await this.prisma.session.findMany({
+			where: { userId, deletedAt: null, deviceId: { not: deviceId } },
+			select: { deviceId: true },
+		});
+		const otherSessionsDeviceIds = otherSessions.map((session) => session.deviceId);
+		await this.prisma.session.updateMany({
 			where: { userId, deletedAt: null, deviceId: { not: deviceId } },
 			data: { deletedAt: new Date() },
 		});
-		return result.count >= 0;
+		return otherSessionsDeviceIds;
 	}
 
 	async deleteAllSessions(userId: string): Promise<boolean> {

@@ -3,12 +3,16 @@ import { CanActivate, ExecutionContext, Injectable } from "@nestjs/common";
 import { Request } from "express";
 import { JwtService } from "@nestjs/jwt";
 import { UnauthorizedRpcException } from "@libs/exeption/rpc-exeption";
+import { RedisService } from "@libs/redis/redis.service";
 
 @Injectable()
 export class JwtAccessAuthGuard implements CanActivate {
-	constructor(private readonly jwtService: JwtService) {}
+	constructor(
+		private readonly jwtService: JwtService,
+		private readonly redisService: RedisService,
+	) {}
 
-	canActivate(context: ExecutionContext): boolean {
+	async canActivate(context: ExecutionContext): Promise<boolean> {
 		const request = context.switchToHttp().getRequest<Request>();
 		const authHeader = request.headers.authorization;
 
@@ -24,6 +28,11 @@ export class JwtAccessAuthGuard implements CanActivate {
 
 		try {
 			const payload = this.jwtService.verify(token);
+
+			const accessToken = await this.redisService.get(`access_token:${payload.deviceId}`);
+			if (accessToken !== token) {
+				throw new UnauthorizedRpcException("Token not found in redis");
+			}
 			request["user"] = payload;
 			return true;
 		} catch (e) {

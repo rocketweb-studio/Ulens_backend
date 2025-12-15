@@ -21,6 +21,7 @@ import { IAuthClientService } from "@libs/contracts/auth-contracts/auth.contract
 import { MeUserViewDto } from "@libs/contracts/index";
 import * as amqp from "amqplib";
 import { RMQ_CHANNEL } from "@libs/rabbit/index";
+import { RedisService } from "@libs/redis/redis.service";
 @Injectable()
 export class AuthClientService implements IAuthClientService {
 	constructor(
@@ -29,6 +30,7 @@ export class AuthClientService implements IAuthClientService {
 		private readonly authEnvConfig: AuthClientEnvConfig,
 		private readonly jwtService: JwtService,
 		private readonly notificationsClientService: NotificationsClientService,
+		private readonly redisService: RedisService,
 	) {}
 
 	async registration(createUserDto: CreateUserDto): Promise<void> {
@@ -105,6 +107,11 @@ export class AuthClientService implements IAuthClientService {
 			expiresIn: this.authEnvConfig.accessTokenExpirationTime,
 			secret: this.authEnvConfig.accessTokenSecret,
 		});
+		const deviceId = payloadForJwt.deviceId;
+		await this.redisService.set(`access_token:${deviceId}`, JSON.stringify({ ...payloadForJwt, accessToken }), "EX", 5 * 60 * 1000);
+		const savedData = await this.redisService.get(`access_token:${deviceId}`);
+		console.log("Saved data in redis: ", savedData);
+
 		return { accessToken, refreshToken };
 	}
 

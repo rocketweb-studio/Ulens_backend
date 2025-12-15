@@ -17,7 +17,7 @@ export abstract class ISessionCommandRepository {
 	abstract createSession(payload: SessionInputRepoDto): Promise<void>;
 	abstract deleteSession(deviceId: string): Promise<boolean>;
 	abstract updateSession(deviceId: string, payload: any): Promise<void>;
-	abstract deleteOtherSessions(userId: string, deviceId: string): Promise<boolean>;
+	abstract deleteOtherSessions(userId: string, deviceId: string): Promise<string[]>;
 	abstract deleteAllSessions(userId: string): Promise<boolean>;
 	abstract deleteExpiredSessions(): Promise<boolean>;
 }

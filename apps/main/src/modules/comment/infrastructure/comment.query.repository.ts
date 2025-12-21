@@ -11,7 +11,7 @@ export class PrismaCommentQueryRepository implements ICommentQueryRepository {
 	async getCommentById(id: string): Promise<CreateCommentDbOutputDto | null> {
 		const comment = await this.prisma.comment.findUnique({
 			where: { id, deletedAt: null },
-			select: { id: true, userId: true, postId: true, content: true, createdAt: true },
+			select: { id: true, userId: true, postId: true, content: true, createdAt: true, replyToCommentId: true },
 		});
 
 		return comment as CreateCommentDbOutputDto | null;
@@ -21,7 +21,7 @@ export class PrismaCommentQueryRepository implements ICommentQueryRepository {
 		const comments = await this.prisma.comment.findMany({
 			where: { postId, deletedAt: null },
 			orderBy: { createdAt: "desc" },
-			select: { id: true, userId: true, postId: true, content: true, createdAt: true },
+			select: { id: true, userId: true, postId: true, content: true, createdAt: true, replyToCommentId: true },
 		});
 		const commentsWithLikesCount = await Promise.all(
 			comments.map(async (comment) => ({ ...comment, likeCount: await this.getLikesCount(comment.id), isLiked: await this.isLiked(userId, comment.id) })),

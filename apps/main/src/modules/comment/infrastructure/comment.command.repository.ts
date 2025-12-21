@@ -4,6 +4,7 @@ import { ICommentCommandRepository } from "../comment.interface";
 import { CreatePostCommentInputDto } from "@main/modules/post/dto/create-post-comment.input.dto";
 import { IOutboxCommandRepository } from "@main/modules/event-store/outbox.interface";
 import { PostDbOutputDto } from "@libs/contracts/index";
+import { NotFoundRpcException } from "@libs/exeption/rpc-exeption";
 
 @Injectable()
 export class PrismaCommentCommandRepository implements ICommentCommandRepository {
@@ -13,9 +14,15 @@ export class PrismaCommentCommandRepository implements ICommentCommandRepository
 	) {}
 
 	async createComment(dto: CreatePostCommentInputDto, post: Omit<PostDbOutputDto, "likeCount" | "isLiked">): Promise<string> {
+		if (dto.replyToCommentId) {
+			const replyToComment = await this.prisma.comment.findUnique({
+				where: { id: dto.replyToCommentId, deletedAt: null },
+			});
+			if (!replyToComment) throw new NotFoundRpcException("Reply to comment not found");
+		}
 		const comment = await this.prisma.$transaction(async (tx) => {
 			const createdComment = await tx.comment.create({
-				data: { userId: dto.userId, postId: dto.postId, content: dto.content },
+				data: { userId: dto.userId, postId: dto.postId, content: dto.content, replyToCommentId: dto.replyToCommentId },
 				select: { id: true },
 			});
 

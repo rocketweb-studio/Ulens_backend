@@ -24,4 +24,6 @@ export class CommentOutputDto {
 	likeCount: number;
 	@ApiProperty({ example: true })
 	isLiked: boolean;
+	@ApiProperty({ example: "123e4567-e89b-12d3-a456-426614174000" })
+	replyToCommentId: string | null;
 }

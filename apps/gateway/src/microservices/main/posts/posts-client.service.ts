@@ -81,7 +81,14 @@ export class PostsClientService {
 		const comment = await firstValueFrom(
 			this.mainClient.send(
 				{ cmd: MainMessages.CREATE_POST_COMMENT },
-				{ userId, content: dto.content, postId, userName: profile.userName, targerUser: { id: post.ownerId, userName: post.userName } },
+				{
+					userId,
+					content: dto.content,
+					replyToCommentId: dto.replyToCommentId,
+					postId,
+					userName: profile.userName,
+					targerUser: { id: post.ownerId, userName: post.userName },
+				},
 			),
 		);
 		const avatar = await this.filesClientService.getAvatarsByUserId(comment.userId);
@@ -91,6 +98,7 @@ export class PostsClientService {
 			postId: comment.postId,
 			content: comment.content,
 			createdAt: comment.createdAt,
+			replyToCommentId: comment.replyToCommentId,
 			likeCount: 0,
 			isLiked: false,
 			commentator: {
@@ -121,6 +129,7 @@ export class PostsClientService {
 	//todo infinity scroll for correct view
 	async getPostComments(authorizedCurrentUserId: string | null, postId: string): Promise<CommentOutputDto[]> {
 		const comments = await firstValueFrom(this.mainClient.send({ cmd: MainMessages.GET_POST_COMMENTS }, { userId: authorizedCurrentUserId, postId }));
+		console.log(comments);
 		const userIds = comments.map((comment) => comment.userId);
 		const profiles = await this.profileClientService.getProfiles(userIds);
 		const avatars = await this.filesClientService.getAvatarsByUserIds(userIds);
@@ -129,6 +138,7 @@ export class PostsClientService {
 			postId: comment.postId,
 			content: comment.content,
 			createdAt: comment.createdAt,
+			replyToCommentId: comment.replyToCommentId,
 			likeCount: comment.likeCount,
 			isLiked: comment.isLiked,
 			commentator: {

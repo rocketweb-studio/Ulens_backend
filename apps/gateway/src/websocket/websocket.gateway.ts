@@ -108,10 +108,10 @@ export class WebsocketGateway implements OnGatewayInit, OnGatewayConnection, OnG
 					message.id,
 					payload.media.map((image) => image.id),
 				);
-				await this.sendMessageToRoom(payload.roomId, { ...message, media: [{ media: payload.media }] });
+				await this.sendMessageToRoom(payload.roomId, { ...message, media: payload.media as unknown as MessageMediaImageOutputDto[] });
 			} else {
 				await this.filesClientService.updateMessageAudio(message.id, payload.media.id);
-				await this.sendMessageToRoom(payload.roomId, { ...message, media: { media: payload.media } });
+				await this.sendMessageToRoom(payload.roomId, { ...message, media: payload.media as unknown as MessageMediaAudioOutputDto });
 			}
 		}
 	}

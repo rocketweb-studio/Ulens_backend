@@ -1,5 +1,5 @@
 # Check out https://hub.docker.com/_/node to select a new base image
-FROM node:20.11-alpine
+FROM node:20.19.5-alpine
 ARG port
 ARG service
 ENV SERVICE=$service

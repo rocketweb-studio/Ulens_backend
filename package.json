@@ -95,7 +95,7 @@
     "@nestjs/schedule": "^6.0.0",
     "@nestjs/swagger": "^11.2.0",
     "@nestjs/throttler": "^6.4.0",
-    "@prisma/client": "6.16.2",
+    "@prisma/client": "6.19.0",
     "@types/geoip-lite": "^1.4.4",
     "amqplib": "^0.10.4",
     "axios": "^1.12.2",

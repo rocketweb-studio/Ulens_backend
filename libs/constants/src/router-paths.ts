@@ -4,8 +4,6 @@ export enum RouterPrefix {
 
 export enum AuthRouterPaths {
 	AUTH = "auth",
-	USERS = "users",
-	USERS_COUNT = "users-count",
 	SUBSCRIPTIONS = "subscriptions",
 	REGISTRATION = "registration",
 	REGISTRATION_CONFIRMATION = "registration-confirmation",
@@ -24,6 +22,15 @@ export enum AuthRouterPaths {
 	FILES = "files",
 }
 
+export enum UsersRouterPaths {
+	USERS = "users",
+	USERS_COUNT = "users-count",
+	FOLLOW = "follow",
+	UNFOLLOW = "unfollow",
+	FOLLOWERS = "followers",
+	FOLLOWINGS = "followings",
+}
+
 export enum ProfileRouterPaths {
 	PROFILE = "profile",
 	AVATAR = "avatar",
@@ -34,9 +41,12 @@ export enum SessionRouterPaths {
 }
 
 export enum MainRouterPaths {
+	COMMENTS = "comments",
 	POSTS = "posts",
 	IMAGES = ":postId/images",
 	LATEST_POSTS = "latest",
+	FOLLOWINGS = "followings",
+	LIKE = "like",
 }
 
 export enum RouteParams {
@@ -54,4 +64,14 @@ export enum ApiTagsNames {
 	PAYMENTS = "Payments",
 	SESSIONS = "Sessions",
 	NOTIFICATIONS = "Notifications",
+	COMMENTS = "Comments",
+	MESSENGER = "Messenger",
+}
+
+export enum MessengerRouterPaths {
+	MESSENGER = "messenger",
+	ROOMS = "rooms",
+	MESSAGES = "rooms/:roomId/messages",
+	IMAGES = "rooms/:roomId/images",
+	AUDIO = "rooms/:roomId/audio",
 }

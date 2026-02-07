@@ -5,6 +5,7 @@ ARG service
 ENV SERVICE=$service
 ENV PORT=$port
 # Set to a non-root built-in user `node`
+ENV PRISMA_ENGINES_CHECKSUM_IGNORE_MISSING=1
 
 USER node
 

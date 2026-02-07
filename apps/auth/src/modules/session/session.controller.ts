@@ -23,7 +23,7 @@ export class SessionController {
 	}
 
 	@MessagePattern({ cmd: AuthMessages.LOGOUT_OTHER_SESSIONS })
-	async logoutOtherSessions(@Payload() payload: { user: PayloadFromRequestDto }): Promise<boolean> {
+	async logoutOtherSessions(@Payload() payload: { user: PayloadFromRequestDto }): Promise<string[]> {
 		return this.sessionService.deleteOtherSessions(payload.user);
 	}
 }

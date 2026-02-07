@@ -86,7 +86,7 @@ export class PaymentsClientController {
 		@ExtractUserFromRequest() user: PayloadFromRequestDto,
 		@Query() query: PaginationWithSortQueryDto,
 	): Promise<TransactionWithPageInfoOutputDto> {
-		return this.paymentsClientService.getTransactions(user.userId, query);
+		return this.paymentsClientService.getTransactionsByUserId(user.userId, query);
 	}
 
 	@GetCurrentSubscriptionSwagger()

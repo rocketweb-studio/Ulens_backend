@@ -4,9 +4,11 @@ import { CoreEnvConfig } from "@main/core/core.config";
 import { PostModule } from "@main/modules/post/post.module";
 import { PostRabbitModule } from "@main/modules/post-rabbit/post-rabbit.module";
 import { EventStoreModule } from "@main/modules/event-store/event-store.module";
+import { CommentModule } from "@main/modules/comment/comment.module";
+import { LikeModule } from "@main/modules/like/like.module";
 @Module({
 	// 1
-	imports: [CoreModule, PostModule, PostRabbitModule, EventStoreModule], // 2
+	imports: [CoreModule, PostModule, PostRabbitModule, EventStoreModule, CommentModule, LikeModule], // 2
 	controllers: [],
 	providers: [],
 })

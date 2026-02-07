@@ -50,7 +50,7 @@ export class SessionService {
 		}
 		return await this.sessionCommandRepository.deleteSession(deviceId);
 	}
-	async deleteOtherSessions(user: PayloadFromRequestDto): Promise<boolean> {
+	async deleteOtherSessions(user: PayloadFromRequestDto): Promise<string[]> {
 		const { userId, deviceId } = user;
 		return await this.sessionCommandRepository.deleteOtherSessions(userId, deviceId);
 	}

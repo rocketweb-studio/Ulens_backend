@@ -28,8 +28,8 @@ export class NotificationsClientService {
 		return notifications;
 	}
 
-	async readNotification(userId: string, notificationId: number): Promise<void> {
-		await firstValueFrom(this.client.send({ cmd: NotificationMessages.READ_NOTIFICATION }, { userId, notificationId }));
+	async readNotification(userId: string, notificationIds: number[]): Promise<void> {
+		await firstValueFrom(this.client.send({ cmd: NotificationMessages.READ_NOTIFICATIONS }, { userId, notificationIds }));
 		return;
 	}
 }

@@ -9,13 +9,18 @@ import { SetBlockStatusForUserInput } from "@gateway/microservices/auth/users_gq
 import { LoginAdminInput } from "@gateway/microservices/auth/users_gql/inputs/login-admin.input";
 import { JwtService } from "@nestjs/jwt";
 import { CoreEnvConfig } from "@gateway/core/core.config";
-import { BadRequestRpcException } from "@libs/exeption/rpc-exeption";
+import { BadRequestRpcException, NotFoundRpcException } from "@libs/exeption/rpc-exeption";
+import { GetFollowInput } from "./inputs/get-follow.input";
+import { FollowersResponse } from "./models/followers.model";
+import { FollowingsResponse } from "./models/followings.model";
+import { AuthClientService } from "../auth-client.service";
 
 export class UsersGqlClientService {
 	constructor(
 		@Inject(Microservice.AUTH) private readonly client: ClientProxy,
 		private readonly jwtService: JwtService,
 		private readonly coreEnvConfig: CoreEnvConfig,
+		private readonly authClientService: AuthClientService,
 	) {}
 
 	async getUsers(input: GetUsersInput): Promise<UserModel[]> {
@@ -23,9 +28,27 @@ export class UsersGqlClientService {
 		return users;
 	}
 
+	async getUserFollowers(input: GetFollowInput): Promise<FollowersResponse> {
+		const user = await this.authClientService.me(input.userId);
+		if (!user) {
+			throw new NotFoundRpcException("User not found");
+		}
+		const followers = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_FOLLOWERS }, { userId: input.userId, query: input }));
+		console.log(followers);
+		return followers;
+	}
+
+	async getUserFollowings(input: GetFollowInput): Promise<FollowingsResponse> {
+		const user = await this.authClientService.me(input.userId);
+		if (!user) {
+			throw new NotFoundRpcException("User not found");
+		}
+		const followings = await firstValueFrom(this.client.send({ cmd: AuthMessages.GET_FOLLOWINGS }, { userId: input.userId, query: input }));
+		return followings;
+	}
+
 	async deleteUser(input: DeleteUserInput): Promise<boolean> {
 		const isDeleted = await firstValueFrom(this.client.send({ cmd: AuthMessages.ADMIN_DELETE_USER }, { userId: input.userId }));
-		// todo создать outbox события для удалений данных юзера в микросервисах - deletedAt: new Date()
 		return isDeleted;
 	}
 

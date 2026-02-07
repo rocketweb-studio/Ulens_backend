@@ -19,6 +19,10 @@ export class NotificationService {
 		const result = await this.notificationCommandRepository.readNotification(userId, notificationId);
 		return result;
 	}
+	async readNotifications(userId: string, notificationIds: number[]): Promise<boolean> {
+		const result = await this.notificationCommandRepository.readNotifications(userId, notificationIds);
+		return result;
+	}
 
 	async softDeleteUserNotifications(userId: string): Promise<void> {
 		await this.notificationCommandRepository.softDeleteUserNotifications(userId);

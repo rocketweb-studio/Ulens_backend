@@ -30,7 +30,6 @@ COPY --chown=node . .
 RUN npx prisma generate --schema=/home/node/dist/${SERVICE}/apps/${SERVICE}/src/core/prisma/schema.prisma
 
 RUN yarn build:libs
-
 RUN yarn build:${SERVICE}
 
 # Bind to all network interfaces so that it can be mapped to the host OS

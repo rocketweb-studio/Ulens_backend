@@ -8,6 +8,12 @@ export class UserModel {
 	@Field(() => String, { nullable: true })
 	userName: string;
 
+	@Field(() => String, { nullable: true })
+	firstName: string;
+
+	@Field(() => String, { nullable: true })
+	lastName: string;
+
 	@Field(() => String)
 	createdAt: string;
 

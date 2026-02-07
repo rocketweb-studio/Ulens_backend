@@ -27,6 +27,10 @@ export enum AuthMessages {
 	GET_PROFILES = "get_profiles",
 	GET_PROFILES_BY_USER_NAME = "get_profiles_by_user_name",
 	GET_USERS_BY_SEARCH = "get_users_by_search",
+	MANAGE_FOLLOWING = "manage_following",
+	GET_FOLLOWERS = "get_followers",
+	GET_FOLLOWINGS = "get_followings",
+	GET_ALL_FOLLOWINGS = "get_all_followings",
 }
 
 export enum Oauth2Providers {

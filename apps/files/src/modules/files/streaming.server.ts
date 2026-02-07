@@ -2,7 +2,7 @@ import { StorageAdapter } from "@files/core/storage/storage.adapter";
 import * as net from "net";
 import * as sharp from "sharp";
 import { PassThrough } from "stream";
-import { UploadFileOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
+import { UploadAudioOutputDto, UploadImageOutputDto } from "@libs/contracts/files-contracts/output/upload-file.output.dto";
 import { randomUUID } from "crypto";
 import { ImageSizesDto } from "@libs/contracts/index";
 
@@ -73,6 +73,7 @@ export class StreamingServer {
 						folder = header.folder;
 						imageSizes = header.fileSizes;
 						const size: number | undefined = header.size;
+						const mimeType: string | undefined = header.mimeType;
 						headerReceived = true;
 
 						console.log(`Starting stream for upload ${originalname}`);
@@ -80,14 +81,25 @@ export class StreamingServer {
 						// Остаток данных после заголовка (первые байты файла)
 						const remainingData = data.slice(newlineIndex + 1);
 
-						// Передаём дальше на обработку файла
-						if (remainingData.length > 0) {
-							//@ts-expect-error
-							await this.processStream(socket, folder, imageSizes, size, remainingData);
+						if (mimeType === "audio/mp3" || mimeType === "audio/mpeg") {
+							console.log("Processing audio stream");
+							if (remainingData.length > 0) {
+								//@ts-expect-error
+								await this.processAudioStream(socket, folder, mimeType, size, remainingData);
+							} else {
+								//@ts-expect-error
+								await this.processAudioStream(socket, folder, mimeType, size);
+							}
 						} else {
-							//@ts-expect-error
-							await this.processStream(socket, folder, imageSizes, size);
+							if (remainingData.length > 0) {
+								//@ts-expect-error
+								await this.processImageStream(socket, folder, imageSizes, size, remainingData);
+							} else {
+								//@ts-expect-error
+								await this.processImageStream(socket, folder, imageSizes, size);
+							}
 						}
+						// Передаём дальше на обработку файла
 					}
 				}
 			} catch (err) {
@@ -113,8 +125,13 @@ export class StreamingServer {
 		return `${folder}/${uniqueId}_${width}.webp`;
 	}
 
+	private generateAudioFilename(folder: string): string {
+		const uniqueId = randomUUID();
+		return `${folder}/${uniqueId}_audio.mp3`;
+	}
+
 	// Обработка потока файла после получения заголовка
-	private async processStream(socket: net.Socket, folder: string, imageSizes: ImageSizesDto[], expectedSize?: number, firstChunk?: Buffer) {
+	private async processImageStream(socket: net.Socket, folder: string, imageSizes: ImageSizesDto[], expectedSize?: number, firstChunk?: Buffer) {
 		try {
 			// Генерируем имена файлов для разных размеров
 			const fileNames = imageSizes.map((size) => this.generateFilename(folder, size.width));
@@ -216,7 +233,7 @@ export class StreamingServer {
 
 			console.log("[UPLOAD] Uploads finished successfully!");
 			// Формируем успешный ответ клиенту с информацией об обеих версиях
-			const result: UploadFileOutputDto = {
+			const result: UploadImageOutputDto = {
 				success: true,
 				versions: imagesParams.map((fs, index) => ({
 					url: fileNames[index],
@@ -225,6 +242,104 @@ export class StreamingServer {
 					fileSize: imagesParams[index].fileSize,
 					size: fs.size,
 				})),
+			};
+
+			if (!socket.destroyed && socket.writable) {
+				console.log("[SOCKET] Sending success response to client");
+				socket.end(`${JSON.stringify(result)}\n`);
+			}
+		} catch (error) {
+			console.error("[PROCESS] Error processing stream:", error);
+
+			// Отправляем клиенту ошибку
+			if (!socket.destroyed && socket.writable) {
+				console.log("[SOCKET] Sending error response to client");
+				socket.end(`${JSON.stringify({ error: (error as Error).message })}\n`);
+			}
+		}
+	}
+
+	// Обработка потока файла после получения заголовка
+	private async processAudioStream(socket: net.Socket, folder: string, mimeType: string, expectedSize?: number, firstChunk?: Buffer) {
+		try {
+			const filename = this.generateAudioFilename(folder);
+			console.log(`[PROCESS] Start processing audio stream`);
+
+			// PassThrough — прокси-поток для записи байтов файла
+			const passThrough = new PassThrough();
+			let received = 0;
+
+			// Если остались данные после заголовка — пишем их первыми
+			if (firstChunk && firstChunk.length > 0) {
+				console.log(`[STREAM] Writing first chunk (${firstChunk.length} bytes)`);
+				passThrough.write(firstChunk);
+				received += firstChunk.length;
+			}
+
+			// Приём бинарных данных из сокета
+			socket.on("data", (chunk) => {
+				console.log(`[STREAM] Received chunk (${chunk.length} bytes)`);
+				received += chunk.length;
+				console.log(`[STREAM] Total received so far: ${received} bytes`);
+
+				passThrough.write(chunk);
+
+				// Если знаем размер файла и получили все данные → закрываем поток
+				if (expectedSize && received >= expectedSize) {
+					console.log("[STREAM] Expected size reached, ending passThrough");
+					passThrough.end();
+				}
+			});
+
+			// Клиент закрыл соединение → закрываем поток
+			socket.on("end", () => {
+				console.log("[SOCKET] Socket stream ended, closing passThrough");
+				passThrough.end();
+			});
+
+			socket.on("close", () => {
+				console.log("[SOCKET] Socket closed, ending passThrough");
+				passThrough.end();
+			});
+
+			socket.on("error", (err) => {
+				console.error("[SOCKET] Socket error:", err);
+				passThrough.destroy(err);
+			});
+
+			// Создаем отдельные потоки для каждого трансформера
+			const audioStream = new PassThrough();
+
+			// Дублируем данные из основного потока в два отдельных
+			passThrough.on("data", (chunk) => {
+				audioStream.write(chunk);
+				// stream45.write(chunk);
+			});
+
+			passThrough.on("end", () => {
+				audioStream.end();
+				// stream45.end();
+			});
+
+			passThrough.on("error", (err) => {
+				audioStream.destroy(err);
+				// stream45.destroy(err);
+			});
+
+			// Загружаем обе версии параллельно
+			console.log("[UPLOAD] Starting parallel uploads to S3...");
+
+			await this.storageService.uploadFileStream(audioStream, filename, mimeType);
+
+			console.log("[UPLOAD] Uploads finished successfully!");
+			// Формируем успешный ответ клиенту с информацией об обеих версиях
+			const result: UploadAudioOutputDto = {
+				success: true,
+				versions: [
+					{
+						url: filename,
+					},
+				],
 			};
 
 			if (!socket.destroyed && socket.writable) {

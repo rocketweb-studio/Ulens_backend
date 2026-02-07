@@ -5,7 +5,19 @@ import { StreamingFileInterceptor } from "@gateway/core/interceptors/streaming-f
 import { UploadPostImagesSwagger } from "@gateway/core/decorators/swagger/post/upload-post-images.decorator";
 import { ApiTagsNames, MainRouterPaths, RouteParams } from "@libs/constants/index";
 import { Request } from "express";
-import { CreatePostDto, CreatePostOutputDto, GetUserPostsQueryDto, PayloadFromRequestDto, PostIdParamDto, UserIdParamDto } from "@libs/contracts/index";
+import {
+	CommentOutputDto,
+	CreateCommentInputDto,
+	CreatePostDto,
+	CreatePostOutputDto,
+	GetFollowingsPostsQueryDto,
+	GetUserPostsQueryDto,
+	LikePostOrCommentInputDto,
+	LikePostOrCommentOutputDto,
+	PayloadFromRequestDto,
+	PostIdParamDto,
+	UserIdParamDto,
+} from "@libs/contracts/index";
 import { ExtractUserFromRequest } from "@gateway/core/decorators/param/extract-user-from-request";
 import { CreatePostSwagger } from "@gateway/core/decorators/swagger/main/create-post-swagger.decorator";
 import { DeletePostSwagger } from "@gateway/core/decorators/swagger/main/delete-post-swagger.decorator";
@@ -15,6 +27,11 @@ import { PostOutputDto, UserPostsOutputDto } from "@libs/contracts/main-contract
 import { ApiTags } from "@nestjs/swagger";
 import { GetPostSwagger } from "@gateway/core/decorators/swagger/main/get-post.decorator";
 import { GetLatestPostsSwagger } from "@gateway/core/decorators/swagger/main/get-latest-posts.decorator";
+import { JwtAccessCheckGuard } from "@gateway/core/guards/jwt-access-check.guard";
+import { GetFollowingsPostsSwagger } from "@gateway/core/decorators/swagger/main/get-followings-posts.decorator";
+import { CreatePostCommentSwagger } from "@gateway/core/decorators/swagger/main/create-post-comment.decorator";
+import { GetPostCommentsSwagger } from "@gateway/core/decorators/swagger/main/get-post-comments.decorator";
+import { LikePostOrCommentSwagger } from "@gateway/core/decorators/swagger/main/like-post-or-comment.decorator";
 
 // контроллер отвечает за запросы к сервису постов
 @ApiTags(ApiTagsNames.POSTS)
@@ -57,24 +74,75 @@ export class PostsClientController {
 		await this.postsClientService.updatePost({ userId: user.userId, postId, description: dto.description });
 	}
 
+	@LikePostOrCommentSwagger()
+	@Post(`${MainRouterPaths.LIKE}`)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(JwtAccessAuthGuard)
+	async likePostOrComment(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Body() dto: LikePostOrCommentInputDto): Promise<LikePostOrCommentOutputDto> {
+		const result = await this.postsClientService.likePostOrComment(user.userId, dto);
+		return result;
+	}
+
+	@CreatePostCommentSwagger()
+	@Post(`${RouteParams.POST_ID}/${MainRouterPaths.COMMENTS}`)
+	@HttpCode(HttpStatus.CREATED)
+	@UseGuards(JwtAccessAuthGuard)
+	async createPostComment(
+		@ExtractUserFromRequest() user: PayloadFromRequestDto,
+		@Body() dto: CreateCommentInputDto,
+		@Param() { postId }: PostIdParamDto,
+	): Promise<CommentOutputDto> {
+		const result = await this.postsClientService.createPostComment(user.userId, dto, postId);
+		return result;
+	}
+
 	@GetUserPostsSwagger()
 	@Get(`user/${RouteParams.USER_ID}`)
 	@HttpCode(HttpStatus.OK)
-	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto): Promise<UserPostsOutputDto> {
-		return await this.postsClientService.getUserPosts(userId, query);
+	@UseGuards(JwtAccessCheckGuard)
+	async getUserPosts(@Param() { userId }: UserIdParamDto, @Query() query: GetUserPostsQueryDto, @Req() req: Request): Promise<UserPostsOutputDto> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getUserPosts(userId, query, authorizedCurrentUserId);
 	}
 
 	@GetLatestPostsSwagger()
 	@Get(MainRouterPaths.LATEST_POSTS)
 	@HttpCode(HttpStatus.OK)
-	async getLatestPosts(): Promise<PostOutputDto[]> {
-		return await this.postsClientService.getLatestPosts();
+	@UseGuards(JwtAccessCheckGuard)
+	async getLatestPosts(@Req() req: Request): Promise<PostOutputDto[]> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getLatestPosts(authorizedCurrentUserId);
+	}
+
+	@GetFollowingsPostsSwagger()
+	@UseGuards(JwtAccessAuthGuard)
+	@Get(MainRouterPaths.FOLLOWINGS)
+	@HttpCode(HttpStatus.OK)
+	async getFollowingsPost(@ExtractUserFromRequest() user: PayloadFromRequestDto, @Query() query: GetFollowingsPostsQueryDto): Promise<UserPostsOutputDto> {
+		return await this.postsClientService.getFollowingsPosts(user.userId, query);
+	}
+
+	//todo infinity scroll for correct view
+	@GetPostCommentsSwagger()
+	@Get(`${RouteParams.POST_ID}/${MainRouterPaths.COMMENTS}`)
+	@UseGuards(JwtAccessCheckGuard)
+	@HttpCode(HttpStatus.OK)
+	async getPostComments(@Req() req: Request, @Param() { postId }: PostIdParamDto): Promise<CommentOutputDto[]> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		const result = await this.postsClientService.getPostComments(authorizedCurrentUserId, postId);
+		return result;
 	}
 
 	@GetPostSwagger()
+	@UseGuards(JwtAccessCheckGuard)
 	@Get(RouteParams.POST_ID)
 	@HttpCode(HttpStatus.OK)
-	async getPost(@Param() { postId }: PostIdParamDto): Promise<PostOutputDto> {
-		return await this.postsClientService.getPost(postId);
+	async getPost(@Req() req: Request, @Param() { postId }: PostIdParamDto): Promise<PostOutputDto> {
+		// @ts-expect-error
+		const authorizedCurrentUserId = req.user?.userId || null;
+		return await this.postsClientService.getPost(postId, authorizedCurrentUserId);
 	}
 }

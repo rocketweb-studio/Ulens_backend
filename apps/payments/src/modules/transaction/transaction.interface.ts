@@ -9,7 +9,9 @@ import { CreateTransactionDto } from "@payments/modules/transaction/dto/create-t
 import { PremiumActivatedInput } from "@payments/modules/transaction/dto/permium-activated.input.dto";
 
 export abstract class ITransactionQueryRepository {
-	abstract getTransactions(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto>;
+	abstract getTransactionsByUserId(userId: string, query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto>;
+	abstract getTransactionsByUserIds(userIds: string[], query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto>;
+	abstract getTransactions(query: PaginationWithSortQueryDto): Promise<TransactionWithPageInfoOutputDto>;
 }
 
 export abstract class ITransactionCommandRepository {

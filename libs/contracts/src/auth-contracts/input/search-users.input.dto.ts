@@ -1,5 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString } from "class-validator";
+import { Type } from "class-transformer";
 
 export class SearchUsersInputDto {
 	@ApiProperty({
@@ -20,9 +21,9 @@ export class SearchUsersInputDto {
 		default: "10",
 		required: false,
 	})
-	@IsString()
 	@IsOptional()
-	pageSize: string = "10";
+	@Type(() => Number)
+	pageSize: number = 10;
 
 	@ApiProperty({
 		type: "string",

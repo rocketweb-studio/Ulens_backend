@@ -6,4 +6,9 @@ export enum FilesMessages {
 	GET_USER_AVATARS = "get_user_avatars",
 	GET_USER_AVATARS_BY_USER_IDS = "get_user_avatars_by_user_ids",
 	DELETE_USER_AVATAR = "delete_user_avatar",
+	MESSAGE_IMAGES_UPLOAD = "message_images_upload",
+	UPDATE_MESSAGE_IMAGES = "update_message_images",
+	GET_MESSAGE_MEDIA_BY_MESSAGE_IDS = "get_message_media_by_message_ids",
+	MESSAGE_AUDIO_UPLOAD = "message_audio_upload",
+	UPDATE_MESSAGE_AUDIO = "update_message_audio",
 }

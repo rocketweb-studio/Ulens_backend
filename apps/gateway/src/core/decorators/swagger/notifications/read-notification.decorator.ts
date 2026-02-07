@@ -3,9 +3,10 @@ import { applyDecorators } from "@nestjs/common";
 
 export const ReadNotificationSwagger = () => {
 	const decorators = [
-		ApiOperation({ summary: "Read notification" }),
+		ApiOperation({ summary: "Read notifications" }),
 		ApiBearerAuth(),
-		ApiNoContentResponse({ description: "Notification was successfully read" }),
+		// ApiBadRequestResponse({ description: "Bad request", type: ValidationErrorDto }),
+		ApiNoContentResponse({ description: "Notifications were successfully read" }),
 		ApiUnauthorizedResponse({ description: "Unauthorized" }),
 	];
 

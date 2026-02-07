@@ -55,6 +55,9 @@
       ],
       "@payments/*": [
         "apps/payments/src/*"
+      ],
+      "@messenger/*": [
+        "apps/messenger/src/*"
       ]
     }
   },
@@ -94,6 +97,9 @@
     },
     {
       "path": "./libs/redis/tsconfig.lib.json"
+    },
+    {
+      "path": "./apps/messenger/tsconfig.app.json"
     }
   ]
 }

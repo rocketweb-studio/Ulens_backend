@@ -12,15 +12,67 @@ enum FilterByStatus {
   NOT_BLOCKED
 }
 
+type FollowerModel {
+  aboutMe: String
+  city: String
+  country: String
+  createdAt: String!
+  dateOfBirth: String
+  firstName: String
+  id: String!
+  lastName: String
+  userName: String!
+}
+
+type FollowersResponse {
+  items: [FollowerModel!]!
+  pageNumber: Float!
+  pageSize: Float!
+  totalCount: Float!
+}
+
+type FollowingModel {
+  aboutMe: String
+  city: String
+  country: String
+  createdAt: String!
+  dateOfBirth: String
+  firstName: String
+  id: String!
+  lastName: String
+  userName: String!
+}
+
+type FollowingsResponse {
+  items: [FollowingModel!]!
+  pageNumber: Float!
+  pageSize: Float!
+  totalCount: Float!
+}
+
 input GetAdminPostsInput {
   endCursorPostId: String = null
   pageSize: Float = 10
   search: String = ""
 }
 
+input GetFollowInput {
+  pageNumber: Float = 1
+  pageSize: Float = 10
+  userId: String!
+}
+
 input GetPaymentsInput {
   pageNumber: Float = 1
-  pageSize: Float = 8
+  pageSize: Float = 6
+  search: String = ""
+  sortBy: SortableTransactionFields = CREATED_AT
+  sortDirection: SortDirection = DESC
+}
+
+input GetUserPaymentsInput {
+  pageNumber: Float = 1
+  pageSize: Float = 6
   sortBy: SortableTransactionFields = CREATED_AT
   sortDirection: SortDirection = DESC
   userId: String!
@@ -81,6 +133,7 @@ type PostModel {
   id: String!
   images: PostImageModel!
   isLiked: Boolean!
+  isOwnerBlocked: Boolean!
   likeCount: Float!
   owner: OwnerModel!
   ownerId: String!
@@ -97,7 +150,10 @@ type PostsResponse {
 
 type Query {
   getAllPostsForAdmin(input: GetAdminPostsInput!): PostsResponse!
-  getPayments(input: GetPaymentsInput!): TransactionsResponse!
+  getPaymentsForAdmin(input: GetPaymentsInput!): TransactionsResponseForAdmin!
+  getUserFollowers(input: GetFollowInput!): FollowersResponse!
+  getUserFollowings(input: GetFollowInput!): FollowingsResponse!
+  getUserPayments(input: GetUserPaymentsInput!): TransactionsResponse!
   getUsers(input: GetUsersInput!): UsersResponse!
 }
 
@@ -133,11 +189,22 @@ type Subscription {
 type TransactionModel {
   amount: Float!
   currency: String!
-  expiresAt: String!
+  expiresAt: String
   id: Float!
   interval: String!
   provider: String!
   status: String!
+}
+
+type TransactionModelForAdmin {
+  amount: Float!
+  createdAt: String!
+  currency: String!
+  id: Float!
+  interval: String!
+  provider: String!
+  status: String!
+  user: UserModelForAdmin!
 }
 
 type TransactionsResponse {
@@ -147,11 +214,28 @@ type TransactionsResponse {
   totalCount: Float!
 }
 
+type TransactionsResponseForAdmin {
+  items: [TransactionModelForAdmin!]!
+  page: Float!
+  pageSize: Float!
+  totalCount: Float!
+}
+
 type UserModel {
   createdAt: String!
+  firstName: String
   id: String!
   isBlocked: Boolean!
+  lastName: String
   userName: String
+}
+
+type UserModelForAdmin {
+  avatar: String
+  firstName: String
+  id: String!
+  lastName: String
+  userName: String!
 }
 
 type UsersResponse {

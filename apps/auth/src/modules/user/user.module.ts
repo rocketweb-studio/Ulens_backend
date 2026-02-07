@@ -3,14 +3,14 @@ import { CoreModule } from "@auth/core/core.module";
 import { UserController } from "@auth/modules/user/user.controller";
 import { UserService } from "@auth/modules/user/user.service";
 import { IUserCommandRepository, IUserQueryRepository } from "@auth/modules/user/user.interfaces";
-import { PrismaUserCommandRepository } from "@auth/modules/user/repositories/user.command.repository";
-import { PrismaUserQueryRepository } from "@auth/modules/user/repositories/user.query.repository";
+import { PrismaUserCommandRepository } from "@auth/modules/user/infrastructure/user.command.repository";
+import { PrismaUserQueryRepository } from "@auth/modules/user/infrastructure/user.query.repository";
 import { UserEnvConfig } from "@auth/modules/user/user.config";
 import { JwtModule } from "@nestjs/jwt";
 import { SessionModule } from "@auth/modules/session/session.module";
 import { BlacklistModule } from "@auth/modules/blacklist/blacklist.module";
 import { EventStoreModule } from "@auth/modules/event-store/event-store.module";
-import { UserQueryHelper } from "@auth/modules/user/repositories/user.query.repo.helper";
+import { UserQueryHelper } from "@auth/modules/user/infrastructure/user.query.repo.helper";
 /**
  * { provide: IUserCommandRepository, useClass: PrismaUserCommandRepository}
  * Явно указываем что при передаче зависимости IUserCommandRepository

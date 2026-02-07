@@ -10,3 +10,8 @@ export enum SortabeFieldsForUsers {
 	EMAIL = "email",
 	IS_BLOCKED = "isBlocked",
 }
+
+export enum FollowType {
+	FOLLOW = "FOLLOW",
+	UNFOLLOW = "UNFOLLOW",
+}
